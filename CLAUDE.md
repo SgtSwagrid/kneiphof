@@ -29,9 +29,22 @@ This is a Scala library of graphs and graph algorithms.
 - Before trying to fix an error, make sure you first understand it fully.
 - You should never report that a feature is complete without testing it first.
 
+#### sbt on this machine
+
+- `sbt --client` (and plain `sbt`, which defaults to the client) fails to start a server here, because the Java path contains a space. Use `sbt --server --batch ...`.
+- Free commit memory is often low; if the JVM dies with "insufficient memory", add `-mem 900 -J-Xms128m -J-XX:+UseSerialGC -J-XX:ReservedCodeCacheSize=96m`, and delete any `hs_err_pid*.log` / `replay_pid*.log` it leaves in the repo root.
+
 ### Code Style
 
 - You must read the [Code Style Guidelines](docs/STYLE_GUIDE.md).
+
+### Architecture
+
+- Four graph kinds: `HypergraphBase` ⊃ `GraphBase`, and `DirectedHypergraphBase` ⊃ `DirectedGraphBase`, each `[+V, +E, M]` where `M` is the edge multiplicity (`Boolean` for edge sets, `Count` for multigraphs). The user-facing names (`Graph`, `Multigraph`, ...) are aliases in `syntax.scala`, plus factory objects.
+- `GraphOps[V, E, M, X, G]` holds the kind-preserving operations. Operations that add edges (`+`, `|`, `flatMapVertices`, ...) are declared per kind with exact types and implemented once in `GraphKind`. They can't live in `GraphOps`, because a `Graph` widened to a `Hypergraph` must not store hyperedges.
+- Never use `@uncheckedVariance` or casts. Covariant types expose `ValueSet`/`ValueMap` (keyed by `Any`, element stored as a value), never `Set[V]`/`Map[V, _]`. Handles (`g.Vertex`, `g.Edge`) are traits instantiated by each kind.
+- Inside the graph traits, the handle type member `Edge` shadows the top-level `Edge` class: write `kneiphof.Edge` there.
+- The default representation is `incidence.IncidenceOps` (persistent hash tries). Other representations plug in by implementing the abstract members of a kind and passing their empty graph to `XBase.Kind(empty)`.
 
 ### Pull Requests
 
