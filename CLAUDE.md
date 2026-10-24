@@ -11,7 +11,7 @@ Keep it concise and actionable.
 
 ## Project overview
 
-This is a Scala library that does ...
+This is a Scala library of graphs and graph algorithms.
 
 ## Instructions
 
