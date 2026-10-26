@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /** Tests for graphs with edge counts. */
-class MultigraphSuite extends munit.FunSuite:
+class MultigraphSuite extends FunSuite:
 
   test("repeated edges are counted"):
     val graph = Multigraph(1 ~ 2, 1 ~ 2)

@@ -20,7 +20,7 @@ private[kneiphof] final class Shaping[V, M : Multiplicity as M]
     .isDefined
 
   override def multiplicity(edge: Any): M = edge match
-    case Edge(first, second, ())
+    case Queries.Pair(first, second, ())
       if linked(first, second) || linked(second, first) => M.one
     case _ => M.zero
 
@@ -33,6 +33,16 @@ private[kneiphof] final class Shaping[V, M : Multiplicity as M]
           (shape.arcsFrom(index) ++ shape.arcsInto(index)).map(edge(index, _))
 
   override def size: Option[Int] = Some(shape.size)
+
+  override def find(edge: Any): Option[Edge[V, Unit]] = edge match
+    case Queries.Pair(first, second, ()) =>
+      (indexing.index(first), indexing.index(second)) match
+        case (Some(first), Some(second)) if shape.linked(first, second) =>
+          Some(this.edge(first, second))
+        case (Some(first), Some(second)) if shape.linked(second, first) =>
+          Some(this.edge(second, first))
+        case _ => None
+    case _ => None
 
   override def degree(vertex: Any): Option[Int] = Some:
     indexing
@@ -78,7 +88,7 @@ private[kneiphof] final class DirectedShaping[V, M : Multiplicity as M]
     .isDefined
 
   override def multiplicity(edge: Any): M = edge match
-    case DirectedEdge(source, target, ()) =>
+    case Queries.Arrow(source, target, ()) =>
       (indexing.index(source), indexing.index(target)) match
         case (Some(source), Some(target)) if shape.linked(source, target) =>
           M.one
@@ -95,6 +105,14 @@ private[kneiphof] final class DirectedShaping[V, M : Multiplicity as M]
             shape.arcsInto(index).map(arc(_, index))
 
   override def size: Option[Int] = Some(shape.size)
+
+  override def find(edge: Any): Option[Arc[V, Unit]] = edge match
+    case Queries.Arrow(source, target, ()) =>
+      (indexing.index(source), indexing.index(target)) match
+        case (Some(source), Some(target)) if shape.linked(source, target) =>
+          Some(arc(source, target))
+        case _ => None
+    case _ => None
 
   override def degree(vertex: Any): Option[Int] = Some:
     indexing

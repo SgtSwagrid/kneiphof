@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.{Assertions, Location}
+
 /** Assertions that lazy graphs agree with the graphs they build. */
-trait LazyAssertions extends munit.Assertions:
+trait LazyAssertions extends Assertions:
 
   /**
     * Checks that the queries [[graph]] answers lazily agree with the graph it
@@ -12,12 +14,57 @@ trait LazyAssertions extends munit.Assertions:
       graph: GraphBase[Any, Any, M],
       absent: Any*,
     )
-    (using munit.Location)
+    (using Location)
+    : Unit = assertAgrees[M, Edge, [v, e] =>> GraphBase[v, e, M]](
+    graph,
+    GraphBase
+      .kind[M]
+      .fromMultiplicities(
+        graph.built.vertexValues,
+        graph.built.edgeValues,
+      ),
+    absent,
+  )
+
+  /** Checks a directed graph in the same way as [[assertLazy]]. */
+  def assertLazyDirected[M : Multiplicity]
+    (
+      graph: DirectedGraphBase[Any, Any, M],
+      absent: Any*,
+    )
+    (using Location)
+    : Unit = assertAgrees[
+    M,
+    Arc,
+    [v, e] =>> DirectedGraphBase[v, e, M],
+  ](
+    graph,
+    DirectedGraphBase
+      .kind[M]
+      .fromMultiplicities(
+        graph.built.vertexValues,
+        graph.built.edgeValues,
+      ),
+    absent,
+  )
+
+  /**
+    * Checks that the lazy [[graph]] answers every query as [[built]], which is
+    * made independently from what it builds, does.
+    */
+  private def assertAgrees[
+    M,
+    X[+v, +e] <: AnyEdge[v, e, X],
+    G[+v, +e] <: GraphOps[v, e, M, X, G],
+  ]
+    (
+      graph: G[Any, Any],
+      built: G[Any, Any],
+      absent: Seq[Any],
+    )
+    (using Location)
     : Unit =
     assert(!graph.eager, "The graph isn't lazy.")
-    val built = GraphBase
-      .kind[M]
-      .fromMultiplicities(graph.vertexValues, graph.edgeValues)
     assertEquals(graph.order, built.order)
     assertEquals(graph.size, built.size)
     assertEquals(graph.vertexValues, built.vertexValues)
@@ -39,36 +86,7 @@ trait LazyAssertions extends munit.Assertions:
         graph.multiplicity(edge),
         built.multiplicity(edge),
       )
-
-  /** Checks a directed graph in the same way as [[assertLazy]]. */
-  def assertLazyDirected[M : Multiplicity]
-    (
-      graph: DirectedGraphBase[Any, Any, M],
-      absent: Any*,
-    )
-    (using munit.Location)
-    : Unit =
-    assert(!graph.eager, "The graph isn't lazy.")
-    val built = DirectedGraphBase
-      .kind[M]
-      .fromMultiplicities(graph.vertexValues, graph.edgeValues)
-    assertEquals(graph.order, built.order)
-    assertEquals(graph.size, built.size)
-    (built.vertexValues ++ absent).foreach: vertex =>
       assertEquals(
-        graph.hasVertex(vertex),
-        built.hasVertex(vertex),
-      )
-      assertEquals(
-        graph.incidentEdgeValues(vertex),
-        built.incidentEdgeValues(vertex),
-      )
-      assertEquals(
-        graph.degree(vertex),
-        built.degree(vertex),
-      )
-    (built.edgeValues.keys ++ absent).foreach: edge =>
-      assertEquals(
-        graph.multiplicity(edge),
-        built.multiplicity(edge),
+        graph.edge(edge).map(_.value),
+        built.edge(edge).map(_.value),
       )

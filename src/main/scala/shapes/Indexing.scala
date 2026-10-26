@@ -27,9 +27,8 @@ private[kneiphof] object Indexing:
 
     override def vertex(index: Int): Int = index
 
-    override def index(vertex: Any): Option[Int] = vertex match
-      case vertex: Int if 0 <= vertex && vertex < order => Some(vertex)
-      case _                                            => None
+    override def index(vertex: Any): Option[Int] =
+      Indexing.number(vertex, order)
 
   /** The given [[vertices]], numbered in the order given. */
   final class Listing[+V](vertices: IndexedSeq[V]) extends Indexing[V]:
@@ -69,7 +68,18 @@ private[kneiphof] object Indexing:
       (index / columns, index % columns)
 
     override def index(vertex: Any): Option[Int] = vertex match
-      case (row: Int, column: Int)
-        if 0 <= row && row < rows && 0 <= column && column < columns =>
-        Some(row * columns + column)
+      case (row, column) =>
+        for
+          row    <- Indexing.number(row, rows)
+          column <- Indexing.number(column, columns)
+        yield row * columns + column
       case _ => None
+
+  /**
+    * @return
+    *   The number in `0 until order` equal to [[value]], if there is one. Like
+    *   a hash map, this compares by `==`, so `1L` and `1.0` find `1`. Numbers
+    *   equal to an [[Int]] hash to it, so the hash is the only candidate.
+    */
+  private def number(value: Any, order: Int): Option[Int] = Some(value.##)
+    .filter(index => 0 <= index && index < order && value == index)

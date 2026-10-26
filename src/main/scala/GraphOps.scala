@@ -78,19 +78,25 @@ trait GraphOps[
 
   /**
     * @return
-    *   The subgraph with only the vertices satisfying [[keep]], and each
-    *   remaining edge's multiplicity changed by [[reweigh]], which may depend
-    *   on [[operands]]. Only the edges in [[changed]] may have their
-    *   multiplicities changed.
+    *   The subgraph with only the vertices satisfying [[keep]] and the edges
+    *   satisfying [[keepEdge]], and each remaining edge's multiplicity changed
+    *   by [[reweigh]], which may depend on [[operands]]. Only the edges in
+    *   [[changed]] may have their multiplicities changed, and only those in
+    *   [[support]], if given, may remain.
     */
   protected def refined
     (
       keep: V => Boolean,
+      keepEdge: Option[X[V, E] => Boolean],
       reweigh: (Any, M) => M,
       changed: => Iterable[Any],
+      support: Option[() => Iterable[Any]],
       operands: AnyGraph[?, ?, ?]*,
     )
     : G[V, E]
+
+  /** This graph as it's stored, which builds it if it's lazy. */
+  private[kneiphof] def built: G[V, E] = this
 
   /** The vertices of this graph. */
   def vertices: Set[Vertex] = vertexValues.flatMap(vertex).toSet
@@ -102,7 +108,7 @@ trait GraphOps[
     * @return
     *   The vertex with the given [[value]].
     * @throws NoSuchElementException
-    *   if [[value]] isn't a vertex of this graph.
+    *   If [[value]] isn't a vertex of this graph.
     */
   def apply(value: Any): Vertex = vertex(value).getOrElse:
     throw NoSuchElementException(s"$value is not a vertex of this graph.")
@@ -114,8 +120,13 @@ trait GraphOps[
     */
   def degree(vertex: Any): Int = incidentEdgeValues(vertex)
     .toSeq
-    .map(edge => edge.occurrences(vertex) * multiplicity(edge).count)
-    .sum
+    .map(edge =>
+      Math.multiplyExact(
+        edge.occurrences(vertex),
+        multiplicity(edge).count,
+      ),
+    )
+    .foldLeft(0)(Math.addExact)
 
   /** @return This graph with all of [[vertices]] added. */
   def addVertices[W >: V](vertices: Iterable[W]): G[W, E] =
@@ -138,12 +149,17 @@ trait GraphOps[
   infix def - [N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
-    : G[V, E] = refined(
-    _ => true,
-    (edge, multiplicity) => multiplicity - embed(that.multiplicity(edge)),
-    that.edgeValues.keys,
-    that,
-  )
+    : G[V, E] =
+    if that.eager then subtracted(that.edgeValues, embed)
+    else
+      refined(
+        _ => true,
+        None,
+        (edge, multiplicity) => multiplicity - embed(that.multiplicity(edge)),
+        that.edgeValues.keys,
+        None,
+        that,
+      )
 
   /**
     * @return
@@ -156,8 +172,10 @@ trait GraphOps[
     (using embed: Embedding[N, M])
     : G[V, E] = refined(
     that.hasVertex,
+    None,
     (edge, multiplicity) => multiplicity & embed(that.multiplicity(edge)),
     edgeValues.keys,
+    Some(() => that.edgeValues.keys),
     that,
   )
 
@@ -168,8 +186,10 @@ trait GraphOps[
     */
   def filterVertices(predicate: V => Boolean): G[V, E] = refined(
     predicate,
+    None,
     (_, multiplicity) => multiplicity,
     Nil,
+    None,
   )
 
   /**
@@ -186,8 +206,10 @@ trait GraphOps[
     */
   def filterEdges(predicate: X[V, E] => Boolean): G[V, E] = refined(
     _ => true,
-    kept(predicate),
+    Some(predicate),
+    (_, multiplicity) => multiplicity,
     edgeValues.keys,
+    None,
   )
 
   /**
@@ -197,8 +219,10 @@ trait GraphOps[
     */
   def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] = refined(
     incidentEdgeValues(_).exists(predicate),
-    kept(predicate),
+    Some(predicate),
+    (_, multiplicity) => multiplicity,
     edgeValues.keys,
+    None,
   )
 
   /**
@@ -216,8 +240,8 @@ trait GraphOps[
     *   This graph, with its vertices renumbered from `0` in the order given by
     *   [[ordering]].
     */
-  def indexed[W >: V](using ordering: Ordering[W]): G[Int, E] =
-    mapVertices(vertexValues.toSeq.sorted(using ordering).zipWithIndex.toMap)
+  def indexed[W >: V : Ordering]: G[Int, E] =
+    mapVertices(vertexValues.toSeq.sorted[W].zipWithIndex.toMap)
 
   override def toString: String =
     (edgeValues.map(show) ++ isolated.map(_.toString)).mkString(
@@ -228,22 +252,29 @@ trait GraphOps[
 
   /**
     * @return
-    *   The reweighing which keeps the edges satisfying [[predicate]], and
-    *   removes the others.
-    */
-  private def kept(predicate: X[V, E] => Boolean): (Any, M) => M =
-    (edge, multiplicity) =>
-      if found(edge).exists(predicate) then multiplicity else algebra.zero
-
-  /**
-    * @return
     *   The edge of this graph equal to [[edge]], if there is one, found among
     *   the edges at one of its ends.
     */
-  private def found(edge: Any): Option[X[V, E]] =
-    Queries.ends(edge).headOption match
-      case Some(end) => incidentEdgeValues(end).get(edge)
-      case None      => edgeValues.getKey(edge)
+  protected def found(edge: Any): Option[X[V, E]] = Queries
+    .ends(edge)
+    .headOption
+    .flatMap(incidentEdgeValues(_).get(edge))
+
+  /**
+    * @return
+    *   This graph, with the multiplicities in [[edges]], read in [[M]] by
+    *   [[embed]], subtracted one edge at a time.
+    */
+  private def subtracted[N]
+    (
+      edges: ValueMap[Any, N],
+      embed: Embedding[N, M],
+    )
+    : G[V, E] = edges.foldLeft(this: G[V, E]):
+    case (graph, (edge, multiplicity)) => graph.withMultiplicity(
+        edge,
+        graph.multiplicity(edge) - embed(multiplicity),
+      )
 
   /** The vertices of this graph without any incident edges. */
   private def isolated: Iterable[V] =

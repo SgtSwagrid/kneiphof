@@ -1,12 +1,11 @@
 package com.alecdorrington.kneiphof
 
+import com.alecdorrington.kneiphof.GraphSuite.Landmass
+import com.alecdorrington.kneiphof.GraphSuite.Landmass.*
+import munit.FunSuite
+
 /** Tests for undirected graphs whose edges form a set. */
-class GraphSuite extends munit.FunSuite:
-
-  enum Landmass:
-    case Kneiphof, Altstadt, Vorstadt, Lomse
-
-  import Landmass.*
+class GraphSuite extends FunSuite:
 
   /** The seven bridges of Königsberg. */
   val bridges: Graph[Landmass, String] = Graph(
@@ -196,3 +195,10 @@ class GraphSuite extends munit.FunSuite:
       mixed,
       Graph[Int, Unit | String](1 ~ 2, 1 ~ 3 % "x", 2 ~ 3 % "x"),
     )
+
+/** The companion object for [[GraphSuite]]. */
+object GraphSuite:
+
+  /** The land masses of Königsberg. */
+  enum Landmass:
+    case Kneiphof, Altstadt, Vorstadt, Lomse

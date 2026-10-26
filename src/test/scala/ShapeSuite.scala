@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /** Tests for the built-in shapes, and for joins answering queries lazily. */
-class ShapeSuite extends munit.FunSuite, LazyAssertions:
+class ShapeSuite extends FunSuite, LazyAssertions:
 
   test("complete graphs and cliques join every two vertices"):
     val k5 = Graph.complete(5)
@@ -300,3 +302,18 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     assertEquals(torus.size, 2_000_000)
     assertEquals(torus.degree((999, 0)), 4)
     assert(torus.hasEdge((999, 0) ~ (0, 0)))
+
+  test("shapes find vertices and edges by equality, like eager graphs"):
+    val path = Graph.path(3)
+    assert(path.hasVertex(1L))
+    assertEquals(
+      path.hasVertex(1L),
+      Graph(0 ~ 1, 1 ~ 2).hasVertex(1L),
+    )
+    assert(path.hasEdge(1L ~ 2))
+    assert(Graph.grid(2, 2).hasVertex((1L, 0)))
+    assert(DirectedGraph.path(3).hasEdge(1L ~> 2))
+
+  test("shapes reject negative counts"):
+    intercept[IllegalArgumentException](Graph.star(-1))
+    intercept[IllegalArgumentException](Graph.fan(-1))

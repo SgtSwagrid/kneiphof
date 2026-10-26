@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /** Tests for edges and chains as multigraphs. */
-class ChainSuite extends munit.FunSuite:
+class ChainSuite extends FunSuite:
 
   test("an edge is the multigraph of itself"):
     assertEquals[Any, Any](1 ~ 2, Multigraph(1 ~ 2))

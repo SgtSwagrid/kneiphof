@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /** Tests for directed graphs and hypergraphs. */
-class DirectedGraphSuite extends munit.FunSuite:
+class DirectedGraphSuite extends FunSuite:
 
   val graph: DirectedGraph[Int, Unit] = DirectedGraph(1 ~> 2, 1 ~> 3, 3 ~> 1)
 

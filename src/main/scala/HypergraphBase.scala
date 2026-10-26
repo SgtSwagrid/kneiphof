@@ -44,7 +44,7 @@ trait HypergraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : HypergraphBase[W, F, M] = combined(that, embed)(_ + _)
+    : HypergraphBase[W, F, M] = combined(that, embed, algebra.additive)(_ + _)
 
   /**
     * @return
@@ -55,7 +55,7 @@ trait HypergraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : HypergraphBase[W, F, M] = combined(that, embed)(_ | _)
+    : HypergraphBase[W, F, M] = combined(that, embed, false)(_ | _)
 
   /**
     * @return
@@ -155,7 +155,7 @@ trait HypergraphBase[+V, +E, M]
   )(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
-    exact = false,
+    kept = algebra.additive,
   )
 
   override def view: HypergraphBase[V, E, M] =
@@ -168,24 +168,31 @@ trait HypergraphBase[+V, +E, M]
         override val value: V = found,
     )
 
-  override def edge(value: Any): Option[Edge] = edgeValues
-    .getKey(value)
-    .map(found =>
-      new EdgeOps:
-        override val value: Hyperedge[V, E] = found,
-    )
+  override def edge(value: Any): Option[Edge] = found(value).map(found =>
+    new EdgeOps:
+      override val value: Hyperedge[V, E] = found,
+  )
 
   override protected def kindName: String = "Hypergraph"
 
   override protected def refined
     (
       keep: V => Boolean,
+      keepEdge: Option[Hyperedge[V, E] => Boolean],
       reweigh: (Any, M) => M,
       changed: => Iterable[Any],
+      support: Option[() => Iterable[Any]],
       operands: AnyGraph[?, ?, ?]*,
     )
-    : HypergraphBase[V, E, M] =
-    hypergraphs.refined(this, keep, reweigh, changed, operands)
+    : HypergraphBase[V, E, M] = hypergraphs.refined(
+    this,
+    keep,
+    keepEdge,
+    reweigh,
+    changed,
+    support,
+    operands,
+  )
 
   /**
     * @return
@@ -196,6 +203,7 @@ trait HypergraphBase[+V, +E, M]
     (
       that: HypergraphBase[W, F, N],
       embed: Embedding[N, M],
+      additive: Boolean,
     )
     (combine: (M, M) => M)
     : HypergraphBase[W, F, M] = hypergraphs.combined[W, F](
@@ -204,6 +212,7 @@ trait HypergraphBase[+V, +E, M]
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
+    additive,
   )(combine)
 
   /** The kind of this hypergraph, in its own representation. */

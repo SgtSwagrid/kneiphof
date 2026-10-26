@@ -16,7 +16,7 @@ object Count:
     * @return
     *   The count [[n]].
     * @throws IllegalArgumentException
-    *   if `n < 0`.
+    *   If `n < 0`.
     */
   def apply(n: Int): Count =
     require(
@@ -36,8 +36,9 @@ object Count:
     */
   given Multiplicity[Count]:
 
-    override def zero: Count = 0
-    override def one: Count  = 1
+    override def zero: Count       = 0
+    override def one: Count        = 1
+    override def additive: Boolean = true
 
     extension (x: Count)
 

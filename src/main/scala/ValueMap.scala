@@ -58,3 +58,12 @@ object ValueMap:
 
   /** @return The map with no entries. */
   def empty[K, A]: ValueMap[K, A] = new ValueMap(Map.empty)
+
+  /**
+    * @return
+    *   The map with the given [[entries]], keeping the last of any entries with
+    *   equal keys.
+    */
+  def from[K, A](entries: IterableOnce[(K, A)]): ValueMap[K, A] = entries
+    .iterator
+    .foldLeft(empty[K, A])((map, entry) => map.updated(entry(0), entry(1)))

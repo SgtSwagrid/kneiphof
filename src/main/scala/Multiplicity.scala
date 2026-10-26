@@ -24,8 +24,15 @@ import com.alecdorrington.scalgebra.lattice.Lattice
   *   - Bottom: `zero | x == x`.
   *   - Monus: `x - y` is the least `z` such that `x | (y + z) == y + z`.
   *   - Count: `zero.count == 0` and `one.count == 1`.
+  *   - Additivity: if [[additive]], then `(x + y).count == x.count + y.count`.
   */
 trait Multiplicity[M] extends Semiring[M], Lattice[M]:
+
+  /**
+    * `true` if and only if sums add the numbers of copies, as for [[Count]] but
+    * not [[Boolean]], so that sizes and degrees add too.
+    */
+  def additive: Boolean
 
   extension (x: M)
 
@@ -47,8 +54,9 @@ object Multiplicity:
   /** Set multiplicities, where each edge is either present or absent. */
   given Multiplicity[Boolean]:
 
-    override def zero: Boolean = false
-    override def one: Boolean  = true
+    override def zero: Boolean     = false
+    override def one: Boolean      = true
+    override def additive: Boolean = false
 
     extension (x: Boolean)
 

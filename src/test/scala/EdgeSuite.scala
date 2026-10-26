@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /** Tests for edge values and their equality. */
-class EdgeSuite extends munit.FunSuite:
+class EdgeSuite extends FunSuite:
 
   test("undirected edges ignore the order of their ends"):
     assertEquals(1 ~ 2, 2 ~ 1)
@@ -36,3 +38,23 @@ class EdgeSuite extends munit.FunSuite:
     assert(set.contains(1))
     assert(!set.contains("1"))
     assertEquals(set + 3, ValueSet(3, 2, 1))
+
+  test("edges of different families are never equal"):
+    assertNotEquals[Any, Any](1 ~ 2, 1 ~> 2)
+    assertNotEquals[Any, Any](1 ~> 2, 1 ~ 2)
+    assert(!Graph(1 ~ 2).hasEdge(1 ~> 2))
+    assertNotEquals[Any, Any](Graph(1 ~ 2), DirectedGraph(1 ~> 2))
+    assertEquals(Graph(1 ~ 2) - (1 ~> 2), Graph(1 ~ 2))
+
+  test("every edge has an end"):
+    intercept[IllegalArgumentException](Hyperedge())
+    intercept[IllegalArgumentException](DirectedHyperedge(Nil, Nil))
+    assertEquals(
+      DirectedHyperedge(Seq(1), Nil).vertexValues,
+      ValueSet(1),
+    )
+
+  test("sizes and degrees fail rather than overflow"):
+    val loop =
+      Multigraph.fromMultiplicities(Nil, Seq((1 ~ 1) -> Count(1 << 30)))
+    intercept[ArithmeticException](loop.degree(1))

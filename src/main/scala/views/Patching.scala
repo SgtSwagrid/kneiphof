@@ -14,6 +14,8 @@ package views
   *   The vertices removed at some point, whose original edges are gone.
   * @param overrides
   *   The new multiplicity of each edge changed since.
+  * @param touching
+  *   The edges in [[overrides]] at each vertex.
   */
 private[kneiphof] final case class Patch[+V, +X, M]
   (
@@ -21,7 +23,11 @@ private[kneiphof] final case class Patch[+V, +X, M]
     removed: ValueSet[Any],
     detached: ValueSet[Any],
     overrides: ValueMap[X, M],
+    touching: Map[Any, ValueSet[X]],
   ):
+
+  /** `true` if and only if this patch changes nothing. */
+  def isEmpty: Boolean = added.isEmpty && detached.isEmpty && overrides.isEmpty
 
   /** @return This patch, with [[vertex]] added. */
   def withVertex[W >: V](vertex: W): Patch[W, X, M] = copy(
@@ -30,20 +36,20 @@ private[kneiphof] final case class Patch[+V, +X, M]
   )
 
   /** @return This patch, with [[vertex]] and its edges removed. */
-  def withoutVertex(vertex: Any): Patch[V, X, M] = copy(
-    added = added - vertex,
-    removed = removed + vertex,
-    detached = detached + vertex,
-    overrides = overrides
-      .keys
-      .filter(Queries.ends(_).contains(vertex))
-      .foldLeft(overrides)(_.removed(_)),
-  )
+  def withoutVertex(vertex: Any): Patch[V, X, M] =
+    val dropped = touching.getOrElse(vertex, ValueSet.empty)
+    copy(
+      added = added - vertex,
+      removed = removed + vertex,
+      detached = detached + vertex,
+      overrides = dropped.foldLeft(overrides)(_.removed(_)),
+      touching = dropped.foldLeft(touching - vertex)(Patch.untouched),
+    )
 
   /**
     * @return
     *   This patch, with the multiplicity of [[edge]] set to [[multiplicity]],
-    *   and its ends added.
+    *   and the vertices [[ends]] added.
     */
   def withEdge[W >: V, Y >: X]
     (
@@ -53,7 +59,10 @@ private[kneiphof] final case class Patch[+V, +X, M]
     )
     : Patch[W, Y, M] = ends
     .foldLeft(this: Patch[W, Y, M])(_.withVertex(_))
-    .copy(overrides = overrides.updated(edge, multiplicity))
+    .copy(
+      overrides = overrides.updated(edge, multiplicity),
+      touching = Patch.touched(touching, edge),
+    )
 
 /** The companion object for [[Patch]]. */
 private[kneiphof] object Patch:
@@ -64,7 +73,30 @@ private[kneiphof] object Patch:
     ValueSet.empty,
     ValueSet.empty,
     ValueMap.empty,
+    Map.empty,
   )
+
+  /** @return [[touching]], with [[edge]] at each of its ends. */
+  private def touched[X]
+    (touching: Map[Any, ValueSet[X]], edge: X)
+    : Map[Any, ValueSet[X]] = Queries
+    .ends(edge)
+    .foldLeft(touching): (touching, end) =>
+      touching.updated(
+        end,
+        touching.getOrElse(end, ValueSet.empty) + edge,
+      )
+
+  /** @return [[touching]], without [[edge]] at any of its ends. */
+  private def untouched[X]
+    (
+      touching: Map[Any, ValueSet[X]],
+      edge: Any,
+    )
+    : Map[Any, ValueSet[X]] = Queries
+    .ends(edge)
+    .foldLeft(touching): (touching, end) =>
+      touching.updatedWith(end)(_.map(_ - edge))
 
 /** The queries about [[base]] after the changes in [[patch]]. */
 private[kneiphof] final class Patching[V, E, M : Multiplicity as M, X]
@@ -89,30 +121,39 @@ private[kneiphof] final class Patching[V, E, M : Multiplicity as M, X]
     )
 
   override def incidentEdgeValues(vertex: Any): ValueSet[X] =
-    val original =
-      if patch.detached.contains(vertex) then ValueSet.empty
-      else
-        base
-          .incidentEdgeValues(vertex)
-          .filter(edge => !detached(edge) && !patch.overrides.contains(edge))
-    val changed = patch
-      .overrides
-      .collect:
-        case (edge, multiplicity)
-          if multiplicity.nonZero && Queries.ends(edge).contains(vertex) => edge
-    original | ValueSet.from(changed)
+    ValueSet.from(incidentEdges(vertex).map(_(0)))
 
-  override def size: Option[Int] = base.size.map(_ + changes(base, affected))
+  override def incidentEdges(vertex: Any): Iterable[(X, M)] =
+    original(vertex) ++ changed(vertex)
+
+  override def find(edge: Any): Option[X] = patch.overrides.getKey(edge) match
+    case Some(changed) => Option.when(multiplicity(changed).nonZero)(changed)
+    case None          => if detached(edge) then None else base.find(edge)
+
+  override def size: Option[Int] = base
+    .size
+    .map(size => Math.addExact(size, changes(base, affected)))
 
   override def degree(vertex: Any): Option[Int] = None
 
-  override def patched[W >: V, Y >: X]
-    (change: Patch[W, Y, M] => Patch[W, Y, M])
-    (using Multiplicity[M])
-    : Queries[W, E, M, Y] = Patching(base, change(patch))
+  /** @return The original edges at [[vertex]] which the patch left alone. */
+  private def original(vertex: Any): Iterable[(X, M)] =
+    if patch.detached.contains(vertex) then Nil
+    else
+      base
+        .incidentEdges(vertex)
+        .filter((edge, _) => !detached(edge) && !patch.overrides.contains(edge))
+
+  /** @return The edges at [[vertex]] which the patch changed, if present. */
+  private def changed(vertex: Any): Iterable[(X, M)] = patch
+    .touching
+    .getOrElse(vertex, ValueSet.empty)
+    .toSeq
+    .map(edge => edge -> patch.overrides.getOrElse(edge, M.zero))
+    .filter(_(1).nonZero)
 
   /** The edges whose multiplicities the patch might have changed. */
-  private def affected: ValueSet[X] = ValueSet.from(patch.overrides.keys) |
+  private def affected: ValueSet[Any] = ValueSet.from(patch.overrides.keys) |
     ValueSet.from(patch.detached.flatMap(base.incidentEdgeValues))
 
   /** @return `true` if and only if an end of [[edge]] has been detached. */

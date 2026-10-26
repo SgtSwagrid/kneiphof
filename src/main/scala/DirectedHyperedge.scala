@@ -5,8 +5,9 @@ package kneiphof
   * A directed edge from a set of vertices of type [[S]] (its tail) to a set of
   * vertices of type [[T]] (its head).
   *
-  * The tail and head may overlap, and either may be empty. Every directed
-  * hyperedge is also the directed multihypergraph containing just itself, once.
+  * The tail and head may overlap, and either may be empty, but not both. Every
+  * directed hyperedge is also the directed multihypergraph containing just
+  * itself, once.
   */
 trait DirectedHyperedge[+S, +T, +E]
   extends AnyEdge[S | T, E, Hyperarc],
@@ -72,6 +73,7 @@ trait DirectedHyperedge[+S, +T, +E]
   override final def equals(that: Any): Boolean = that match
     case that: DirectedHyperedge[?, ?, ?] => tail == that.tail &&
       head == that.head && label == that.label
+    case _: AnyEdge[?, ?, ?]     => false
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
 
@@ -98,6 +100,8 @@ object DirectedHyperedge:
     * @return
     *   A hyperedge from [[tail]] to [[head]] carrying [[label]]. A hyperedge
     *   with exactly one source and one target is always a [[DirectedEdge]].
+    * @throws IllegalArgumentException
+    *   If both [[tail]] and [[head]] are empty.
     */
   def from[S, T, E]
     (
@@ -106,6 +110,10 @@ object DirectedHyperedge:
       label: E,
     )
     : DirectedHyperedge[S, T, E] =
+    require(
+      tail.nonEmpty || head.nonEmpty,
+      "A directed hyperedge must have at least one end.",
+    )
     (ValueSet.from(tail), ValueSet.from(head)) match
       case (Single(source), Single(target)) =>
         DirectedEdge(source, target, label)

@@ -46,7 +46,7 @@ trait AnyGraph[+V, +E, M]:
   def order: Int = vertexValues.size
 
   /** The number of edges in this graph, counting every copy of each edge. */
-  def size: Int = edgeValues.values.map(_.count).sum
+  def size: Int = edgeValues.values.map(_.count).foldLeft(0)(Math.addExact)
 
   override def equals(that: Any): Boolean = that match
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
@@ -69,12 +69,12 @@ trait AnyGraph[+V, +E, M]:
 object AnyGraph:
 
   /**
+    * Edges hash themselves this way too, as the graph of one edge, so this
+    * mustn't depend on the hashes of the edges themselves.
+    *
     * @return
     *   The hash of a graph with the given [[vertices]], and edges with the
     *   given [[shapes]] (see [[AnyEdge.shapeHash]]) and multiplicities.
-    *
-    * Edges hash themselves this way too, as the graph of one edge, so this
-    * mustn't depend on the hashes of the edges themselves.
     */
   private[kneiphof] def hash
     (

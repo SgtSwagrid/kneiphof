@@ -91,7 +91,7 @@ private[kneiphof] final class Substitution[
     .groupMapReduce(_(0))(entry => ValueSet(entry(1)))(_ | _)
 
   /** `true` if and only if no two replacements share a vertex. */
-  private def disjoint: Boolean = owner.isDefined ||
+  private lazy val disjoint: Boolean = owner.isDefined ||
     index.values.forall(_.size == 1)
 
   /** @return The replacement of [[vertex]]. */
@@ -111,10 +111,8 @@ private[kneiphof] final class Substitution[
 
   /** @return The vertices whose replacements contain every end of [[edge]]. */
   private def commonOwners(edge: AnyEdge[?, ?, ?]): Iterable[V] =
-    edge.vertexValues.toSeq match
-      case Seq()         => outer.vertexValues
-      case first +: rest =>
-        owners(first).filter(owner => rest.forall(part(owner).hasVertex))
+    val ends = edge.vertexValues.toSeq
+    owners(ends.head).filter(owner => ends.tail.forall(part(owner).hasVertex))
 
   /** @return The multiplicity of [[edge]] among the copies of outer edges. */
   private def between(edge: AnyEdge[?, ?, ?]): M =
@@ -123,15 +121,12 @@ private[kneiphof] final class Substitution[
 
   /** @return The outer edges which might have [[edge]] as a copy. */
   private def candidates(edge: AnyEdge[?, ?, ?]): Iterable[X[V, E]] =
-    if edge.vertexValues.isEmpty then
-      outer.edgeValues.keys.filter(_.vertexValues.isEmpty)
-    else
-      val owning = ValueSet.from(edge.vertexValues.flatMap(owners))
-      ValueSet.from:
-        owning
-          .iterator
-          .flatMap(outer.incidentEdgeValues)
-          .filter(_.vertexValues.forall(owning.contains))
+    val owning = ValueSet.from(edge.vertexValues.flatMap(owners))
+    ValueSet.from:
+      owning
+        .iterator
+        .flatMap(outer.incidentEdgeValues)
+        .filter(_.vertexValues.forall(owning.contains))
 
   /** @return The number of copies of [[outerEdge]] which equal [[edge]]. */
   private def copiesOf(outerEdge: X[V, E], edge: AnyEdge[?, ?, ?]): Int =
@@ -170,8 +165,8 @@ private[kneiphof] final class Substitution[
 
   /**
     * @return
-    *   The number of copies of an outer edge with [[multiplicity]], counting
-    *   every copy of each.
+    *   The number of copies of the outer edge in [[entry]] with its
+    *   multiplicity, counting every copy of each.
     */
   private def copies(entry: (X[V, E], M)): Long = entry(0)
     .vertexValues
@@ -181,8 +176,9 @@ private[kneiphof] final class Substitution[
 
   /**
     * @return
-    *   `true` if and only if [[edge]] has some end, and no vertex occurs at
-    *   more than one of its ends.
+    *   `true` if and only if [[edge]] has at least two ends, and no vertex
+    *   occurs at more than one of them, so that its copies can't coincide with
+    *   each other or with an edge inside a replacement.
     */
-  private def simple(edge: X[V, E]): Boolean = edge.vertexValues.nonEmpty &&
+  private def simple(edge: X[V, E]): Boolean = edge.vertexValues.size >= 2 &&
     edge.vertexValues.forall(edge.occurrences(_) == 1)

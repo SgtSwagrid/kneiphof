@@ -59,11 +59,11 @@ trait Shapes[+G[+v, +e]]:
     *   The circulant graph on the vertices `0 until order`, in which each
     *   vertex `i` is adjacent to `i + jump`, going round modulo [[order]], for
     *   each of the [[jumps]] (pointing from `i`, for directed graphs). So
-    *   `circulant(n, 1)` is `cycle(n)`, and `circulant(2 * n, 1, n)` is the
-    *   Möbius ladder.
+    *   `circulant(n, 1)` is `cycle(n)` for `n >= 3`, and
+    *   `circulant(2 * n, 1, n)` is the Möbius ladder.
     */
-  def circulant(order: Int, jumps: Int*): G[Int, Unit] = counted(order):
-    order => Shape.Circulant(order, loopless(order, jumps), directed)
+  def circulant(order: Int, jumps: Int*): G[Int, Unit] = counted(order): n =>
+    Shape.Circulant(n, loopless(n, jumps), directed)
 
   /** @return The Petersen graph, which is `petersen(5, 2)`. */
   def petersen: G[Int, Unit] = petersen(5, 2)
@@ -139,7 +139,8 @@ trait Shapes[+G[+v, +e]]:
     *   The star with the centre `0` adjacent to each of the leaves
     *   `1 to leaves` (pointing outwards, for directed graphs).
     */
-  def star(leaves: Int): G[Int, Unit] = counted(leaves + 1)(Shape.Star(_))
+  def star(leaves: Int): G[Int, Unit] =
+    counted(nonNegative(leaves) + 1)(Shape.Star(_))
 
   /** @return The star with [[centre]] adjacent to each of the [[leaves]]. */
   def star[V](centre: V, leaves: V*): G[V, Unit] =
@@ -166,7 +167,7 @@ trait Shapes[+G[+v, +e]]:
     *   The fan with the hub `0` adjacent to each of the vertices `1 to rim`,
     *   which form a path.
     */
-  def fan(rim: Int): G[Int, Unit] = counted(rim + 1)(Shape.Fan(_))
+  def fan(rim: Int): G[Int, Unit] = counted(nonNegative(rim) + 1)(Shape.Fan(_))
 
   /**
     * @return
@@ -232,6 +233,14 @@ trait Shapes[+G[+v, +e]]:
     */
   private def allPairs(order: Int): Shape =
     if directed then Shape.CompleteDigraph(order) else Shape.Clique(order)
+
+  /** @return [[count]], checking that it isn't negative. */
+  private def nonNegative(count: Int): Int =
+    require(
+      count >= 0,
+      s"A shape can't have $count vertices.",
+    )
+    count
 
   /** @return The number of vertices in parts of the given [[sizes]]. */
   private def total(sizes: Seq[Int]): Int =

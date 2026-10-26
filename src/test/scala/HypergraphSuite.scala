@@ -1,7 +1,9 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /** Tests for undirected hypergraphs. */
-class HypergraphSuite extends munit.FunSuite:
+class HypergraphSuite extends FunSuite:
 
   val hypergraph: Hypergraph[Int, Unit] =
     Hypergraph(Hyperedge(1, 2, 3), Hyperedge(3, 4))

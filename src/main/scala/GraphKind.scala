@@ -155,9 +155,14 @@ trait GraphKind[
 
   /**
     * @return
-    *   The union or sum of [[first]] and the graph [[second]] describes, whose
-    *   vertices and edges are [[vertices]] and [[edges]], combining each edge's
-    *   multiplicities by [[combine]].
+    *   The union or sum of [[first]] and [[operand]], which [[second]]
+    *   describes and whose vertices and edges are [[vertices]] and [[edges]],
+    *   combining each edge's multiplicities by [[combine]]. An eager operand is
+    *   added one edge at a time, which patches a lazy [[first]] rather than
+    *   nesting a view.
+    *
+    * @param additive
+    *   `true` if and only if combining adds the counts of the multiplicities.
     */
   private[kneiphof] def combined[V, E]
     (
@@ -166,41 +171,61 @@ trait GraphKind[
       operand: AnyGraph[?, ?, ?],
       vertices: => Iterable[V],
       edges: => Iterable[(X[V, E], M)],
+      additive: Boolean,
     )
     (combine: (M, M) => M)
-    : G[V, E] = lazily(first, operand)(
-    Combining(
-      viewing(first),
-      second,
-      combine,
-      edges.map(_(0)),
-    ),
-    merged(first, vertices, edges)(combine),
-  )
+    : G[V, E] =
+    if operand.eager then merged(first, vertices, edges)(combine)
+    else
+      view(
+        Combining(
+          viewing(first),
+          second,
+          combine,
+          additive,
+          first.edgeValues.keys,
+          edges.map(_(0)),
+        ),
+        merged(first, vertices, edges)(combine),
+      )
 
   /**
     * @return
-    *   The subgraph of [[graph]] with only the vertices satisfying [[keep]],
-    *   and each remaining edge's multiplicity changed by [[reweigh]], which may
-    *   depend on [[operands]]. Only the edges in [[changed]] may have their
-    *   multiplicities changed.
+    *   The subgraph of [[graph]] with only the vertices satisfying [[keep]] and
+    *   the edges satisfying [[keepEdge]], and each remaining edge's
+    *   multiplicity changed by [[reweigh]], which may depend on [[operands]].
+    *   Only the edges in [[changed]] may have their multiplicities changed, and
+    *   only those in [[support]], if given, may remain.
     */
   private[kneiphof] def refined[V, E]
     (
       graph: G[V, E],
       keep: V => Boolean,
+      keepEdge: Option[X[V, E] => Boolean],
       reweigh: (Any, M) => M,
       changed: => Iterable[Any],
+      support: Option[() => Iterable[Any]],
       operands: Seq[AnyGraph[?, ?, ?]],
     )
     : G[V, E] = lazily(graph +: operands*)(
-    Refining(viewing(graph), keep, reweigh, changed),
-    changed.foldLeft(graph.removeVertices(graph.vertexValues.filterNot(keep))):
-      (refined, edge) =>
-        val multiplicity = refined.multiplicity(edge)
-        val reweighed    = reweigh(edge, multiplicity)
-        if reweighed == multiplicity then refined
-        else refined.withMultiplicity(edge, reweighed),
+    Refining(
+      viewing(graph),
+      keep,
+      keepEdge,
+      reweigh,
+      changed,
+      support,
+    ),
+    changed
+      .flatMap(graph.edgeValues.getKey)
+      .foldLeft(graph.removeVertices(graph.vertexValues.filterNot(keep))):
+        (refined, edge) =>
+          val multiplicity = refined.multiplicity(edge)
+          val reweighed    =
+            if keepEdge.forall(_(edge)) then reweigh(edge, multiplicity)
+            else algebra.zero
+          if reweighed == multiplicity then refined
+          else refined.withMultiplicity(edge, reweighed),
   )
 
   /**
@@ -210,9 +235,9 @@ trait GraphKind[
     *   replaced by its [[edgeImages]], summing the multiplicities of equal
     *   images.
     *
-    * @param exact
-    *   `true` if and only if the images neither merge vertices nor change the
-    *   number of copies of any edge.
+    * @param kept
+    *   `true` if and only if every copy of each edge has exactly one image, and
+    *   the multiplicities of equal images add their counts.
     */
   private[kneiphof] def imaged[V, E, Y, W, F]
     (
@@ -223,10 +248,10 @@ trait GraphKind[
     (
       vertexMap: V => W,
       edgeImages: Y => Iterable[X[W, F]],
-      exact: Boolean,
+      kept: Boolean,
     )
     : G[W, F] = lazily(graph)(
-    Imaging(queries, vertexMap, edgeImages, exact),
+    Imaging(queries, vertexMap, edgeImages, kept),
     fromMultiplicities(
       graph.vertexValues.map(vertexMap),
       edges.flatMap((edge, multiplicity) =>
@@ -259,16 +284,16 @@ trait GraphKind[
   private[kneiphof] def lexicographicSum[V, E, W]
     (graph: G[V, E], transform: V => G[W, E])
     : G[(V, W), E] =
-    val parts = graph
-      .vertexValues
-      .map(vertex => vertex -> paired(vertex, transform(vertex)))
-      .toMap
+    val part: V => G[(V, W), E] = vertex => paired(vertex, transform(vertex))
     val owner: Any => Option[V] =
       case (first, _) => graph.vertexValues.get(first)
       case _          => None
     view(
-      Substitution(graph, parts, Some(owner)),
-      substituted(graph, parts),
+      Substitution(graph, part, Some(owner)),
+      substituted(
+        graph,
+        graph.vertexValues.map(v => v -> part(v)).toMap,
+      ),
     )
 
   /**

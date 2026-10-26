@@ -38,12 +38,10 @@ trait GraphBase[+V, +E, M]
     case edge: kneiphof.Edge[W, F] => updated(edge, multiplicity)
     case _                         => toHypergraph.updated(edge, multiplicity)
 
-  override def edge(value: Any): Option[Edge] = edgeValues
-    .getKey(value)
-    .map(found =>
-      new EdgeOps:
-        override val value: kneiphof.Edge[V, E] = found,
-    )
+  override def edge(value: Any): Option[Edge] = found(value).map(found =>
+    new EdgeOps:
+      override val value: kneiphof.Edge[V, E] = found,
+  )
 
   /**
     * @return
@@ -55,7 +53,7 @@ trait GraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: GraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : GraphBase[W, F, M] = combined(that, embed)(_ + _)
+    : GraphBase[W, F, M] = combined(that, embed, algebra.additive)(_ + _)
 
   /**
     * @return
@@ -66,7 +64,7 @@ trait GraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: GraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : GraphBase[W, F, M] = combined(that, embed)(_ | _)
+    : GraphBase[W, F, M] = combined(that, embed, false)(_ | _)
 
   /**
     * @return
@@ -154,7 +152,7 @@ trait GraphBase[+V, +E, M]
     graphs.imaged(this, graphs.viewing(this), edgeValues)(
       vertexMap,
       edge => List(edge.map(vertexMap, labelMap)),
-      exact = false,
+      kept = algebra.additive,
     )
 
   override def view: GraphBase[V, E, M] =
@@ -180,7 +178,7 @@ trait GraphBase[+V, +E, M]
         val forward = DirectedEdge(edge.first, edge.second, edge.label)
         List(forward, forward.reverse).distinct
       ,
-      exact = false,
+      kept = false,
     )
 
   override protected def kindName: String = "Graph"
@@ -188,12 +186,21 @@ trait GraphBase[+V, +E, M]
   override protected def refined
     (
       keep: V => Boolean,
+      keepEdge: Option[kneiphof.Edge[V, E] => Boolean],
       reweigh: (Any, M) => M,
       changed: => Iterable[Any],
+      support: Option[() => Iterable[Any]],
       operands: AnyGraph[?, ?, ?]*,
     )
-    : GraphBase[V, E, M] =
-    graphs.refined(this, keep, reweigh, changed, operands)
+    : GraphBase[V, E, M] = graphs.refined(
+    this,
+    keep,
+    keepEdge,
+    reweigh,
+    changed,
+    support,
+    operands,
+  )
 
   /**
     * @return
@@ -204,6 +211,7 @@ trait GraphBase[+V, +E, M]
     (
       that: GraphBase[W, F, N],
       embed: Embedding[N, M],
+      additive: Boolean,
     )
     (combine: (M, M) => M)
     : GraphBase[W, F, M] = graphs.combined[W, F](
@@ -212,6 +220,7 @@ trait GraphBase[+V, +E, M]
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
+    additive,
   )(combine)
 
   /** The kind of this graph, in its own representation. */

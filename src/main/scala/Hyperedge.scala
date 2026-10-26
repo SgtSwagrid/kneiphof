@@ -9,7 +9,8 @@ import scala.util.hashing.MurmurHash3
   *
   * Counting repeated vertices makes a graph exactly a hypergraph in which every
   * edge has two ends: a loop is the hyperedge in which one vertex occurs twice.
-  * Every hyperedge is also the multihypergraph containing just itself, once.
+  * Every hyperedge has at least one end, and is also the multihypergraph
+  * containing just itself, once.
   */
 trait Hyperedge[+V, +E]
   extends AnyEdge[V, E, Hyperedge],
@@ -65,6 +66,7 @@ trait Hyperedge[+V, +E]
   override final def equals(that: Any): Boolean = that match
     case that: Hyperedge[?, ?] => label == that.label && rank == that.rank &&
       multiset == that.multiset
+    case _: AnyEdge[?, ?, ?]     => false
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
 
@@ -97,8 +99,14 @@ object Hyperedge:
     * @return
     *   A hyperedge with the given [[ends]] and [[label]], counting repeats. A
     *   hyperedge with exactly two ends is always an [[Edge]].
+    * @throws IllegalArgumentException
+    *   If there are no [[ends]].
     */
   def from[V, E](ends: Iterable[V], label: E): Hyperedge[V, E] =
+    require(
+      ends.nonEmpty,
+      "A hyperedge must have at least one end.",
+    )
     ends.toSeq match
       case Seq(first, second) => Edge(first, second, label)
       case ends               => Multiset(ends, label)

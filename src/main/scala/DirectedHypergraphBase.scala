@@ -42,7 +42,7 @@ trait DirectedHypergraphBase[+V, +E, M]
   )(
     identity,
     edge => List(edge.reverse),
-    exact = true,
+    kept = true,
   )
 
   /**
@@ -55,7 +55,8 @@ trait DirectedHypergraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedHypergraphBase[W, F, M] = combined(that, embed)(_ + _)
+    : DirectedHypergraphBase[W, F, M] =
+    combined(that, embed, algebra.additive)(_ + _)
 
   /**
     * @return
@@ -66,7 +67,7 @@ trait DirectedHypergraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedHypergraphBase[W, F, M] = combined(that, embed)(_ | _)
+    : DirectedHypergraphBase[W, F, M] = combined(that, embed, false)(_ | _)
 
   /**
     * @return
@@ -183,7 +184,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     )(
       identity,
       edge => List(Hyperedge.from(edge.tail.toSeq ++ edge.head, edge.label)),
-      exact = false,
+      kept = algebra.additive,
     )
 
   override def map[W, F]
@@ -195,7 +196,7 @@ trait DirectedHypergraphBase[+V, +E, M]
   )(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
-    exact = false,
+    kept = algebra.additive,
   )
 
   override def view: DirectedHypergraphBase[V, E, M] =
@@ -208,23 +209,30 @@ trait DirectedHypergraphBase[+V, +E, M]
         override val value: V = found,
     )
 
-  override def edge(value: Any): Option[Edge] = edgeValues
-    .getKey(value)
-    .map: found =>
-      new DirectedEdgeOps:
-        override val value: Hyperarc[V, E] = found
+  override def edge(value: Any): Option[Edge] = found(value).map: found =>
+    new DirectedEdgeOps:
+      override val value: Hyperarc[V, E] = found
 
   override protected def kindName: String = "DirectedHypergraph"
 
   override protected def refined
     (
       keep: V => Boolean,
+      keepEdge: Option[Hyperarc[V, E] => Boolean],
       reweigh: (Any, M) => M,
       changed: => Iterable[Any],
+      support: Option[() => Iterable[Any]],
       operands: AnyGraph[?, ?, ?]*,
     )
-    : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.refined(this, keep, reweigh, changed, operands)
+    : DirectedHypergraphBase[V, E, M] = hypergraphs.refined(
+    this,
+    keep,
+    keepEdge,
+    reweigh,
+    changed,
+    support,
+    operands,
+  )
 
   /**
     * @return
@@ -235,6 +243,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     (
       that: DirectedHypergraphBase[W, F, N],
       embed: Embedding[N, M],
+      additive: Boolean,
     )
     (combine: (M, M) => M)
     : DirectedHypergraphBase[W, F, M] = hypergraphs.combined[W, F](
@@ -243,6 +252,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
+    additive,
   )(combine)
 
   /** The kind of this hypergraph, in its own representation. */

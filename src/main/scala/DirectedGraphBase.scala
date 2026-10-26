@@ -44,18 +44,16 @@ trait DirectedGraphBase[+V, +E, M]
     case edge: Arc[W, F] => updated(edge, multiplicity)
     case _               => toDirectedHypergraph.updated(edge, multiplicity)
 
-  override def edge(value: Any): Option[Edge] = edgeValues
-    .getKey(value)
-    .map(found =>
-      new DirectedEdgeOps:
-        override val value: Arc[V, E] = found,
-    )
+  override def edge(value: Any): Option[Edge] = found(value).map(found =>
+    new DirectedEdgeOps:
+      override val value: Arc[V, E] = found,
+  )
 
   override def transpose: DirectedGraphBase[V, E, M] =
     graphs.imaged(this, graphs.viewing(this), edgeValues)(
       identity,
       edge => List(edge.reverse),
-      exact = true,
+      kept = true,
     )
 
   /**
@@ -68,7 +66,8 @@ trait DirectedGraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedGraphBase[W, F, M] = combined(that, embed)(_ + _)
+    : DirectedGraphBase[W, F, M] =
+    combined(that, embed, algebra.additive)(_ + _)
 
   /**
     * @return
@@ -79,7 +78,7 @@ trait DirectedGraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedGraphBase[W, F, M] = combined(that, embed)(_ | _)
+    : DirectedGraphBase[W, F, M] = combined(that, embed, false)(_ | _)
 
   /**
     * @return
@@ -182,7 +181,7 @@ trait DirectedGraphBase[+V, +E, M]
     .imaged(this, graphs.viewing(this), edgeValues)(
       identity,
       edge => List(kneiphof.Edge(edge.source, edge.target, edge.label)),
-      exact = false,
+      kept = algebra.additive,
     )
 
   override def map[W, F]
@@ -191,7 +190,7 @@ trait DirectedGraphBase[+V, +E, M]
     graphs.imaged(this, graphs.viewing(this), edgeValues)(
       vertexMap,
       edge => List(edge.map(vertexMap, labelMap)),
-      exact = false,
+      kept = algebra.additive,
     )
 
   override def view: DirectedGraphBase[V, E, M] =
@@ -202,12 +201,21 @@ trait DirectedGraphBase[+V, +E, M]
   override protected def refined
     (
       keep: V => Boolean,
+      keepEdge: Option[Arc[V, E] => Boolean],
       reweigh: (Any, M) => M,
       changed: => Iterable[Any],
+      support: Option[() => Iterable[Any]],
       operands: AnyGraph[?, ?, ?]*,
     )
-    : DirectedGraphBase[V, E, M] =
-    graphs.refined(this, keep, reweigh, changed, operands)
+    : DirectedGraphBase[V, E, M] = graphs.refined(
+    this,
+    keep,
+    keepEdge,
+    reweigh,
+    changed,
+    support,
+    operands,
+  )
 
   /**
     * @return
@@ -218,6 +226,7 @@ trait DirectedGraphBase[+V, +E, M]
     (
       that: DirectedGraphBase[W, F, N],
       embed: Embedding[N, M],
+      additive: Boolean,
     )
     (combine: (M, M) => M)
     : DirectedGraphBase[W, F, M] = graphs.combined[W, F](
@@ -226,6 +235,7 @@ trait DirectedGraphBase[+V, +E, M]
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
+    additive,
   )(combine)
 
   /** The kind of this graph, in its own representation. */

@@ -83,9 +83,9 @@ private[kneiphof] object Joining:
       edge: Any,
     )
     : Int = edge match
-    case Edge(first, second, `label`) if first == second =>
+    case Queries.Pair(first, second, `label`) if first == second =>
       indicator(left.hasVertex(first) && right.hasVertex(first))
-    case Edge(first, second, `label`) =>
+    case Queries.Pair(first, second, `label`) =>
       indicator(left.hasVertex(first) && right.hasVertex(second)) +
         indicator(left.hasVertex(second) && right.hasVertex(first))
     case _ => 0
@@ -103,7 +103,7 @@ private[kneiphof] object Joining:
       edge: Any,
     )
     : Int = edge match
-    case DirectedEdge(source, target, `label`) =>
+    case Queries.Arrow(source, target, `label`) =>
       indicator(left.hasVertex(source) && right.hasVertex(target))
     case _ => 0
 

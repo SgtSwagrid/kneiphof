@@ -1,10 +1,12 @@
 package com.alecdorrington.kneiphof
 
+import munit.FunSuite
+
 /**
   * Tests that lazily built graphs answer queries as the graphs they build
   * would, and without building them.
   */
-class LazySuite extends munit.FunSuite, LazyAssertions:
+class LazySuite extends FunSuite, LazyAssertions:
 
   test("disjoint unions keep their sides apart"):
     val union = Graph.cycle(4) ⊔ Graph.path("a", "b", "c")
@@ -229,3 +231,81 @@ class LazySuite extends munit.FunSuite, LazyAssertions:
     assertEquals(transposed.size, 50_000)
     assert(transposed.hasEdge(7 ~> 0))
     assertEquals(transposed(0).degree, 50_000)
+
+  test("zero updates add no vertices, lazily or eagerly"):
+    val lazily  = Graph.cycle(3).updated(7 ~ 8, false)
+    val eagerly = Graph(0 ~ 1 ~ 2 ~ 0).updated(7 ~ 8, false)
+    assertEquals(lazily.order, 3)
+    assertEquals(eagerly.order, 3)
+    assertEquals(lazily, eagerly)
+    assertLazy(lazily, 7, 8, 7 ~ 8)
+
+  test("long chains of updates and sums stay shallow"):
+    val start: GraphBase[Int, Unit, Boolean] = Graph.complete(3)
+    val updated = (0 until 20_000).foldLeft(start): (graph, vertex) =>
+      graph.updated(vertex ~ (vertex + 1), true)
+    assertEquals(updated.size, 20_001)
+    assertEquals(updated.edgeValues.size, 20_001)
+    val summed = (0 until 20_000).foldLeft(start): (graph, vertex) =>
+      graph + (vertex ~ (vertex + 1))
+    assert(!summed.eager)
+    assertEquals(summed.size, 20_001)
+    assertEquals(summed.edgeValues.size, 20_001)
+    val removed = (0 until 20_000).foldLeft(updated): (graph, vertex) =>
+      graph.removeEdge(vertex ~ (vertex + 1))
+    assertEquals(removed.degree(0), 1)
+    val thinned = Graph.cycle(100_000).filterVertices(_ % 3 != 0)
+    assertEquals(thinned.size, 33_333)
+    assertEquals(thinned.edgeValues.size, 33_333)
+
+  test("lazy filters, differences and maps agree with their built graphs"):
+    assertLazy(
+      Graph.complete(30).filterVertices(_ % 3 != 0),
+      0 ~ 1,
+      1 ~ 2,
+    )
+    assertLazy(Graph.complete(12).filterEdges(_.vertexValues.contains(0)))
+    assertLazy(
+      Graph.complete(12) - Graph(0 ~ 1, 2 ~ 3).view,
+      0 ~ 1,
+    )
+    assertLazy(
+      Graph.complete(12) & Graph(0 ~ 1, 1 ~ 20),
+      0 ~ 1,
+      1 ~ 20,
+    )
+    val folded = Multigraph.complete(4).mapVertices(_ % 2)
+    assertEquals(folded.size, 6)
+    assertEquals(folded.degree(0), 6)
+    assertLazy(folded, 0 ~ 0, 0 ~ 1, 1 ~ 1)
+
+  test("cheap queries on large lazy graphs don't build them"):
+    val clique = Graph.complete(50_000)
+    assertEquals((clique & (1 ~ 2)).size, 1)
+    assertEquals(
+      (Graph.path(3) + clique).size,
+      1_249_975_000,
+    )
+    assertEquals(
+      clique.edge(0 ~ 1).map(_.value),
+      Some(0 ~ 1),
+    )
+    assertEquals(clique(0).edges.size, 49_999)
+    assertEquals(
+      clique.filterEdges(_ => true).degree(0),
+      49_999,
+    )
+    assertEquals(
+      Multigraph.complete(50_000).mapVertices(_ / 2).size,
+      1_249_975_000,
+    )
+
+  test("substituting one-vertex hyperedges counts merged copies once"):
+    val substituted =
+      Hypergraph(Hyperedge(0)).flatMapVertices(_ => Hypergraph(Hyperedge("a")))
+    assertEquals(
+      substituted,
+      Hypergraph(Hyperedge("a")),
+    )
+    assertEquals(substituted.size, 1)
+    assertEquals(substituted.degree("a"), 1)
