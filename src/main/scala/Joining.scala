@@ -53,12 +53,22 @@ private[kneiphof] trait Joining[
     ValueSet.from(linksAt(vertex))
 
   override def size: Int =
-    if left.vertexValues.exists(right.hasVertex) then delegate.size
+    if !disjoint then delegate.size
     else
       Math.addExact(
         left.size + right.size,
         Math.multiplyExact(left.order, right.order),
       )
+
+  override def degree(vertex: Any): Int =
+    if !disjoint then super.degree(vertex)
+    else if left.hasVertex(vertex) then left.degree(vertex) + right.order
+    else if right.hasVertex(vertex) then right.degree(vertex) + left.order
+    else 0
+
+  /** `true` if and only if [[left]] and [[right]] share no vertex. */
+  private lazy val disjoint: Boolean =
+    !left.vertexValues.exists(right.hasVertex)
 
   /** @return The new edges incident to [[vertex]]. */
   private def linksAt(vertex: Any): Iterable[X[V, E | L]] = left

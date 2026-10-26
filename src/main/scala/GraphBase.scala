@@ -3,6 +3,7 @@ package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceGraph
 import com.alecdorrington.kneiphof.shapes.{Indexing, Shape, ShapeGraph}
+import com.alecdorrington.kneiphof.views.{LazyGraph, Queries}
 import scala.annotation.targetName
 
 /**
@@ -82,8 +83,7 @@ trait GraphBase[+V, +E, M]
     */
   def disjointUnion[W, F >: E]
     (that: GraphBase[W, F, M])
-    : GraphBase[Either[V, W], F, M] = mapVertices[Either[V, W]](Left(_)) |
-    that.mapVertices[Either[V, W]](Right(_))
+    : GraphBase[Either[V, W], F, M] = graphs.disjointUnion(this, that)
 
   /** An alias for [[disjointUnion]]. */
   infix def ⊔ [W, F >: E]
@@ -119,8 +119,7 @@ trait GraphBase[+V, +E, M]
   @targetName("graphLexicographicSum")
   def lexicographicSum[W, F >: E]
     (transform: V => GraphBase[W, F, M])
-    : GraphBase[(V, W), F, M] =
-    flatMapVertices(v => transform(v).mapVertices((v, _)))
+    : GraphBase[(V, W), F, M] = graphs.lexicographicSum(this, transform)
 
   /**
     * @return
@@ -258,6 +257,13 @@ object GraphBase:
       [v, e] =>> GraphBase[v, e, Count],
     ],
             Shapes[[v, e] =>> GraphBase[v, e, M]]:
+
+    override private[kneiphof] def lazily[V, E]
+      (
+        queries: Queries[V, E, M, Edge[V, E]],
+        build: => GraphBase[V, E, M],
+      )
+      : GraphBase[V, E, M] = LazyGraph(empty, queries, () => build)
 
     override def updated[V, E]
       (

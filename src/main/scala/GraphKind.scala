@@ -1,6 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.views.{Queries, Substitution, Tagging}
 import scala.compiletime.deferred
 
 /**
@@ -121,11 +122,109 @@ trait GraphKind[
 
   /**
     * @return
+    *   The graph answering [[queries]] without being built, and anything else
+    *   as the graph from [[build]], which is only built when first needed.
+    */
+  private[kneiphof] def lazily[V, E]
+    (
+      queries: Queries[V, E, M, X[V, E]],
+      build: => G[V, E],
+    )
+    : G[V, E]
+
+  /**
+    * @return
     *   The graph in which each vertex `v` of [[graph]] is replaced by the graph
     *   `transform(v)`, and each edge by its copies between the replacements of
     *   its ends. Equal vertices of different replacements merge.
     */
   private[kneiphof] def flatMapVertices[V, E, W]
+    (graph: G[V, E], transform: V => G[W, E])
+    : G[W, E] = lazily(
+    Substitution(graph, transform, None),
+    substituted(graph, transform),
+  )
+
+  /**
+    * @return
+    *   The lexicographic sum, in which each vertex `v` of [[graph]] is replaced
+    *   by a copy of `transform(v)` whose vertices are tagged by `v`.
+    */
+  private[kneiphof] def lexicographicSum[V, E, W]
+    (graph: G[V, E], transform: V => G[W, E])
+    : G[(V, W), E] =
+    val parts = (vertex: V) => paired(vertex, transform(vertex))
+    val owner: Any => Option[V] =
+      case (first, _) => graph.vertexValues.get(first)
+      case _          => None
+    lazily(
+      Substitution(graph, parts, Some(owner)),
+      substituted(graph, parts),
+    )
+
+  /**
+    * @return
+    *   The disjoint union of [[first]] and [[second]], whose vertices are
+    *   tagged by which side they came from.
+    */
+  private[kneiphof] def disjointUnion[V, W, E]
+    (first: G[V, E], second: G[W, E])
+    : G[Either[V, W], E] =
+    val sides = empty.addVertices(Seq(false, true))
+    val left  = tagged(
+      first,
+      Left(_),
+      {
+        case Left(v) => first.vertexValues.get(v)
+        case _       => None
+      },
+    )
+    val right = tagged(
+      second,
+      Right(_),
+      {
+        case Right(w) => second.vertexValues.get(w)
+        case _        => None
+      },
+    )
+    val parts = (side: Boolean) => if side then right else left
+    val owner: Any => Option[Boolean] =
+      case Left(_)  => Some(false)
+      case Right(_) => Some(true)
+      case _        => None
+    lazily(
+      Substitution(sides, parts, Some(owner)),
+      substituted(sides, parts),
+    )
+
+  /**
+    * @return
+    *   [[graph]] with each vertex `v` relabelled `tag(v)`, where [[tag]] is
+    *   injective with inverse [[untag]].
+    */
+  private[kneiphof] def tagged[V, T, E]
+    (
+      graph: G[V, E],
+      tag: V => T,
+      untag: Any => Option[V],
+    )
+    : G[T, E] = lazily(
+    Tagging(graph, tag, untag),
+    graph.mapVertices(tag),
+  )
+
+  /** @return [[part]], with each vertex tagged by [[vertex]]. */
+  private def paired[V, W, E](vertex: V, part: G[W, E]): G[(V, W), E] = tagged(
+    part,
+    (vertex, _),
+    {
+      case (`vertex`, value) => part.vertexValues.get(value)
+      case _                 => None
+    },
+  )
+
+  /** @return The graph from `flatMapVertices`, built from every edge. */
+  private def substituted[V, E, W]
     (graph: G[V, E], transform: V => G[W, E])
     : G[W, E] =
     val inner = graph.vertexValues.toSeq.map(v => v -> transform(v)).toMap

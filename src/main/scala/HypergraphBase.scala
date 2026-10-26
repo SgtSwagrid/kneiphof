@@ -2,6 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceHypergraph
+import com.alecdorrington.kneiphof.views.{LazyHypergraph, Queries}
 
 /**
   * A hypergraph, whose edges may join any number of vertices, with
@@ -69,8 +70,7 @@ trait HypergraphBase[+V, +E, M]
     */
   def disjointUnion[W, F >: E]
     (that: HypergraphBase[W, F, M])
-    : HypergraphBase[Either[V, W], F, M] = mapVertices[Either[V, W]](Left(_)) |
-    that.mapVertices[Either[V, W]](Right(_))
+    : HypergraphBase[Either[V, W], F, M] = hypergraphs.disjointUnion(this, that)
 
   /** An alias for [[disjointUnion]]. */
   infix def ⊔ [W, F >: E]
@@ -104,7 +104,7 @@ trait HypergraphBase[+V, +E, M]
   def lexicographicSum[W, F >: E]
     (transform: V => HypergraphBase[W, F, M])
     : HypergraphBase[(V, W), F, M] =
-    flatMapVertices(v => transform(v).mapVertices((v, _)))
+    hypergraphs.lexicographicSum(this, transform)
 
   /**
     * @return
@@ -243,6 +243,13 @@ object HypergraphBase:
       [v, e] =>> HypergraphBase[v, e, M],
       [v, e] =>> HypergraphBase[v, e, Count],
     ]:
+
+    override private[kneiphof] def lazily[V, E]
+      (
+        queries: Queries[V, E, M, Hyperedge[V, E]],
+        build: => HypergraphBase[V, E, M],
+      )
+      : HypergraphBase[V, E, M] = LazyHypergraph(empty, queries, () => build)
 
     override def updated[V, E]
       (

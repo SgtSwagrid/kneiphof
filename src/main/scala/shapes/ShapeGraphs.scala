@@ -36,6 +36,10 @@ private[kneiphof] final class ShapeGraph[V, M : Multiplicity]
 
   override def size: Int = shape.size
 
+  override def degree(vertex: Any): Int = indexing
+    .index(vertex)
+    .fold(0)(index => shape.arcsFrom(index).size + shape.arcsInto(index).size)
+
   override def hasEdge(edge: Any): Boolean = edge match
     case kneiphof.Edge(first, second, ()) => linked(first, second) ||
       linked(second, first)
@@ -118,6 +122,10 @@ private[kneiphof] final class DirectedShapeGraph[V, M : Multiplicity]
   override def order: Int = shape.order
 
   override def size: Int = shape.size
+
+  override def degree(vertex: Any): Int = indexing
+    .index(vertex)
+    .fold(0)(index => shape.arcsFrom(index).size + shape.arcsInto(index).size)
 
   override def hasEdge(edge: Any): Boolean = edge match
     case DirectedEdge(source, target, ()) =>

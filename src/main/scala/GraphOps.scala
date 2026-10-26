@@ -83,6 +83,16 @@ trait GraphOps[
   def apply(value: Any): Vertex = vertex(value).getOrElse:
     throw NoSuchElementException(s"$value is not a vertex of this graph.")
 
+  /**
+    * @return
+    *   The number of edges incident to [[vertex]], counting every copy of each
+    *   edge, and counting loops twice.
+    */
+  def degree(vertex: Any): Int = incidentEdgeValues(vertex)
+    .toSeq
+    .map(edge => edge.occurrences(vertex) * multiplicity(edge).count)
+    .sum
+
   /** @return This graph with all of [[vertices]] added. */
   def addVertices[W >: V](vertices: Iterable[W]): G[W, E] =
     vertices.foldLeft(this: G[W, E])(_.addVertex(_))
@@ -215,10 +225,7 @@ trait GraphOps[
       * The number of edges incident to this vertex, counting every copy of each
       * edge, and counting loops twice.
       */
-    def degree: Int = incidentEdgeValues(value)
-      .toSeq
-      .map(edge => edge.occurrences(value) * multiplicity(edge).count)
-      .sum
+    def degree: Int = GraphOps.this.degree(value)
 
     /** The vertices joined to this vertex by an edge. */
     def neighbours: Set[Vertex] = incidentEdgeValues(value)

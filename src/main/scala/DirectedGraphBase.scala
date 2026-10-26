@@ -3,6 +3,7 @@ package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceDirectedGraph
 import com.alecdorrington.kneiphof.shapes.{DirectedShapeGraph, Indexing, Shape}
+import com.alecdorrington.kneiphof.views.{LazyDirectedGraph, Queries}
 import scala.annotation.targetName
 
 /**
@@ -88,9 +89,7 @@ trait DirectedGraphBase[+V, +E, M]
     */
   def disjointUnion[W, F >: E]
     (that: DirectedGraphBase[W, F, M])
-    : DirectedGraphBase[Either[V, W], F, M] =
-    mapVertices[Either[V, W]](Left(_)) |
-      that.mapVertices[Either[V, W]](Right(_))
+    : DirectedGraphBase[Either[V, W], F, M] = graphs.disjointUnion(this, that)
 
   /** An alias for [[disjointUnion]]. */
   infix def ⊔ [W, F >: E]
@@ -126,8 +125,7 @@ trait DirectedGraphBase[+V, +E, M]
   @targetName("directedGraphLexicographicSum")
   def lexicographicSum[W, F >: E]
     (transform: V => DirectedGraphBase[W, F, M])
-    : DirectedGraphBase[(V, W), F, M] =
-    flatMapVertices(v => transform(v).mapVertices((v, _)))
+    : DirectedGraphBase[(V, W), F, M] = graphs.lexicographicSum(this, transform)
 
   /**
     * @return
@@ -269,6 +267,14 @@ object DirectedGraphBase:
       [v, e] =>> DirectedGraphBase[v, e, Count],
     ],
             Shapes[[v, e] =>> DirectedGraphBase[v, e, M]]:
+
+    override private[kneiphof] def lazily[V, E]
+      (
+        queries: Queries[V, E, M, Arc[V, E]],
+        build: => DirectedGraphBase[V, E, M],
+      )
+      : DirectedGraphBase[V, E, M] =
+      LazyDirectedGraph(empty, queries, () => build)
 
     override def updated[V, E]
       (
