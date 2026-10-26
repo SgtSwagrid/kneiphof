@@ -245,7 +245,7 @@ object DirectedGraphBase:
     extends DirectedGraphBase[V, E | L, M],
             DirectedHypergraphBase.Join[V, E, L, M]:
 
-    override infix def % [F](label: F): Join[V, E, F, M]
+    override infix def % [F : NotGraph](label: F): Join[V, E, F, M]
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -294,7 +294,7 @@ object DirectedGraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F](label: F): Join[V, E, F, M] =
+      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of directed graphs, in the representation of [[empty]]. */

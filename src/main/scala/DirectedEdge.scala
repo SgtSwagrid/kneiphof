@@ -71,7 +71,7 @@ final case class DirectedEdge[+S, +T, +E]
     (edge: Hyperarc[W, F], multiplicity: Count)
     : DirectedHypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
 
-  override infix def % [F](label: F): DirectedEdge[S, T, F] =
+  override infix def % [F : NotGraph](label: F): DirectedEdge[S, T, F] =
     DirectedEdge(source, target, label)
 
   override def toString: String = labelled(s"$source ~> $target", label)

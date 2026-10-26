@@ -222,7 +222,7 @@ object HypergraphBase:
   trait Join[+V, +E, +L, M] extends HypergraphBase[V, E | L, M]:
 
     /** @return This join, with every new edge labelled [[label]] instead. */
-    infix def % [F](label: F): Join[V, E, F, M]
+    infix def % [F : NotGraph](label: F): Join[V, E, F, M]
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -270,7 +270,7 @@ object HypergraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F](label: F): Join[V, E, F, M] =
+      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of hypergraphs, in the representation of [[empty]]. */

@@ -230,7 +230,7 @@ object GraphBase:
   trait Join[+V, +E, +L, M]
     extends GraphBase[V, E | L, M], HypergraphBase.Join[V, E, L, M]:
 
-    override infix def % [F](label: F): Join[V, E, F, M]
+    override infix def % [F : NotGraph](label: F): Join[V, E, F, M]
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -278,7 +278,7 @@ object GraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F](label: F): Join[V, E, F, M] =
+      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of graphs, in the representation of [[empty]]. */

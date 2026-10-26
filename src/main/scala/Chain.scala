@@ -27,8 +27,13 @@ trait Chain[+V, +E, +L] extends GraphBase[V, E | L, Count]:
   infix def ~ [W >: V](next: W): Chain[W, E | L, Unit] =
     Chain.Steps(steps, kneiphof.Edge(tip, next))
 
-  /** @return This chain, with its last edge labelled [[label]] instead. */
-  infix def % [F](label: F): Chain[V, E, F]
+  /**
+    * @return
+    *   This chain, with its last edge labelled [[label]] instead. To label an
+    *   earlier edge, use brackets, as in `(1 ~ 2 % "a") ~ 3`, since `%` binds
+    *   more loosely than `~` (see [[NotGraph]]).
+    */
+  infix def % [F : NotGraph](label: F): Chain[V, E, F]
 
   /** The edges of this chain, in the order they were written. */
   private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]]
@@ -57,7 +62,7 @@ object Chain:
       )
       : GraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
 
-    override infix def % [F](label: F): Chain[V, E, F] =
+    override infix def % [F : NotGraph](label: F): Chain[V, E, F] =
       Steps(earlier, last % label)
 
     override private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]] =

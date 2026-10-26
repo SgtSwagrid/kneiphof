@@ -74,7 +74,7 @@ final case class Edge[+V, +E]
     )
     : HypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
 
-  override infix def % [F](label: F): kneiphof.Edge[V, F] =
+  override infix def % [F : NotGraph](label: F): kneiphof.Edge[V, F] =
     Edge(first, second, label)
 
   override def toString: String = labelled(s"$first ~ $second", label)

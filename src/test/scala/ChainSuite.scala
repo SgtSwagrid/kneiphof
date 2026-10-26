@@ -70,3 +70,17 @@ class ChainSuite extends munit.FunSuite:
       Graph(wheel),
       Graph(1 ~ 2 ~ 3 ~ 4 ~ 5 ~ 1) | (Graph.vertices(1, 2, 3, 4, 5) :~ 0),
     )
+
+  test("edges and graphs can't label an edge with %"):
+    Seq(
+      compileErrors("1 ~ 2 % \"a\" ~ 3"),
+      compileErrors("(1 ~> 2) % Graph(3 ~ 4)"),
+      compileErrors("(Graph.path(3) :~ 9) % (1 ~ 2)"),
+    ).foreach(errors =>
+      assert(
+        errors.contains("can't label an edge"),
+        errors,
+      ),
+    )
+    assertEquals[Any, Any]((1 ~ 2 % "a") ~ 3, Multigraph(1 ~ 2 % "a", 2 ~ 3))
+    assertEquals(Edge(1, 2, Graph(3 ~ 4)).label, Graph(3 ~ 4))

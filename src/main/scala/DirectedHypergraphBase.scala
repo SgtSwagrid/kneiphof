@@ -303,7 +303,7 @@ object DirectedHypergraphBase:
   trait Join[+V, +E, +L, M] extends DirectedHypergraphBase[V, E | L, M]:
 
     /** @return This join, with every new edge labelled [[label]] instead. */
-    infix def % [F](label: F): Join[V, E, F, M]
+    infix def % [F : NotGraph](label: F): Join[V, E, F, M]
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -352,7 +352,7 @@ object DirectedHypergraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F](label: F): Join[V, E, F, M] =
+      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of directed hypergraphs, in the representation of [[empty]]. */

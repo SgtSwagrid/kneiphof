@@ -43,8 +43,12 @@ trait AnyEdge[+V, +E, +X[+v, +e]]:
   /** @return This edge, with its label transformed by [[transform]]. */
   def mapLabel[F](transform: E => F): X[V, F] = map(identity, transform)
 
-  /** @return This edge, with its label replaced by [[label]]. */
-  infix def % [F](label: F): X[V, F] = mapLabel(_ => label)
+  /**
+    * @return
+    *   This edge, with its label replaced by [[label]], which can't be an edge
+    *   or graph (see [[NotGraph]]).
+    */
+  infix def % [F : NotGraph](label: F): X[V, F] = mapLabel(_ => label)
 
   /**
     * A hash of the ends and label of this edge, consistent with equality
