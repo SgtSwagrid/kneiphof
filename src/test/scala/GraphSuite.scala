@@ -101,8 +101,28 @@ class GraphSuite extends munit.FunSuite:
     val k4   = path.lexicographicProduct(path)
     assertEquals(k4.order, 4)
     assertEquals(k4.size, 6)
-    val triangle = Graph(Graph(1 ~ 2) ~ Graph.from(Seq(3), Seq())).flatten
+    val triangle = Graph(Graph(1 ~ 2) ~ Graph.vertex(3)).flatten
     assertEquals(triangle, Graph(1 ~ 2, 2 ~ 3, 3 ~ 1))
+
+  test("single-vertex graphs are the unit of substitution"):
+    val graph = Graph(1 ~ 2, 2 ~ 3) | Graph.vertex(4)
+    assertEquals(
+      graph.flatMapVertices(v => Graph.vertex(v)),
+      graph,
+    )
+    val expand = (v: Int) => Graph(v ~ -v)
+    assertEquals(
+      Graph.vertex(5).flatMapVertices(expand),
+      expand(5),
+    )
+
+  test("graphs can be built from vertices alone"):
+    assertEquals(Graph.vertices(1, 2, 3).order, 3)
+    assertEquals(Graph.vertices(1, 2, 3).size, 0)
+    assertEquals(
+      DirectedGraph.vertices(1, 2),
+      DirectedGraph.vertices(2, 1),
+    )
 
   test("disjoint union keeps both sides apart"):
     val union = Graph(0 ~ 1).disjointUnion(Graph(0 ~ 1))

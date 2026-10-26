@@ -38,6 +38,16 @@ trait GraphKind[
   /** @return The graph with the given [[edges]] and their vertices. */
   def apply[V, E](edges: X[V, E]*): G[V, E] = from(edges)
 
+  /**
+    * @return
+    *   The graph with the single vertex [[vertex]] and no edges, which is the
+    *   unit of `flatMapVertices`.
+    */
+  def vertex[V](vertex: V): G[V, Nothing] = empty.addVertex(vertex)
+
+  /** @return The graph with the given [[vertices]] and no edges. */
+  def vertices[V](vertices: V*): G[V, Nothing] = empty.addVertices(vertices)
+
   /** @return The graph with the given [[edges]] and their vertices. */
   def from[V, E](edges: Iterable[X[V, E]]): G[V, E] =
     increased(empty, edges.map(_ -> algebra.one))
