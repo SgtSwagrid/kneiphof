@@ -51,3 +51,25 @@ private[kneiphof] object Indexing:
       .zipWithIndex
       .map((vertex, index) => (vertex: Any) -> index)
       .toMap
+
+  /**
+    * The pairs `(row, column)` for each row in `0 until rows` and column in
+    * `0 until columns`, numbered `row * columns + column`.
+    */
+  final class Pairing(rows: Int, columns: Int) extends Indexing[(Int, Int)]:
+
+    require(
+      rows >= 0 && columns >= 0,
+      s"A shape can't have $rows rows and $columns columns.",
+    )
+
+    override def order: Int = Math.multiplyExact(rows, columns)
+
+    override def vertex(index: Int): (Int, Int) =
+      (index / columns, index % columns)
+
+    override def index(vertex: Any): Option[Int] = vertex match
+      case (row: Int, column: Int)
+        if 0 <= row && row < rows && 0 <= column && column < columns =>
+        Some(row * columns + column)
+      case _ => None

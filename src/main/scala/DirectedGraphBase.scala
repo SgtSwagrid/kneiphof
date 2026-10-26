@@ -306,7 +306,7 @@ object DirectedGraphBase:
       [v, e] =>> DirectedGraphBase[v, e, M],
       [v, e] =>> DirectedGraphBase[v, e, Count],
     ],
-            Shapes[[v, e] =>> DirectedGraphBase[v, e, M]]:
+            DirectedShapes[[v, e] =>> DirectedGraphBase[v, e, M]]:
 
     override private[kneiphof] def view[V, E]
       (
@@ -332,9 +332,6 @@ object DirectedGraphBase:
         shaping,
         from(shaping.vertexValues, shaping.edges),
       )
-
-    override private[kneiphof] def complete(order: Int): Shape = Shape
-      .CompleteDigraph(order)
 
   /** @return The kind of directed graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceDirectedGraph.empty)

@@ -2,6 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.shapes.{Indexing, Shape}
+import scala.annotation.targetName
 
 /**
   * Constructors for common shapes of unlabelled graph, of kind [[G]].
@@ -11,8 +12,8 @@ import com.alecdorrington.kneiphof.shapes.{Indexing, Shape}
   * something needs all of them, such as iterating over them.
   *
   * Each shape can be built on the vertices `0, 1, ...`, given how many there
-  * are, as in `clique(3)`, or on the given distinct vertices, as in
-  * `clique("A", "B", "C")`.
+  * are, as in `clique(3)`. Shapes whose vertices come in a single sequence can
+  * also be built on the given distinct vertices, as in `clique("A", "B", "C")`.
   */
 trait Shapes[+G[+v, +e]]:
 
@@ -21,10 +22,98 @@ trait Shapes[+G[+v, +e]]:
     *   The complete graph on the vertices `0 until order`, in which every two
     *   vertices are adjacent (in both directions, for directed graphs).
     */
-  def clique(order: Int): G[Int, Unit] = counted(order)(complete)
+  def clique(order: Int): G[Int, Unit] = counted(order)(allPairs)
 
   /** @return The complete graph on the given [[vertices]]. */
-  def clique[V](vertices: V*): G[V, Unit] = listed(vertices)(complete)
+  def clique[V](vertices: V*): G[V, Unit] = listed(vertices)(allPairs)
+
+  /**
+    * @return
+    *   The complete multipartite graph on the vertices `0, 1, ...`, which are
+    *   split into parts of the given [[sizes]] in order, and in which every two
+    *   vertices in different parts are adjacent (in both directions, for
+    *   directed graphs). So `complete(3, 4)` is the complete bipartite graph,
+    *   `complete(1, 1, 1)` is `clique(3)`, and `complete(3)` has no edges.
+    */
+  def complete(sizes: Int*): G[Int, Unit] =
+    counted(total(sizes))(_ => Shape.Multipartite(sizes, directed))
+
+  /**
+    * @return
+    *   The complete multipartite graph whose parts are the given [[parts]], in
+    *   which every two vertices in different parts are adjacent.
+    */
+  @targetName("completeOnParts")
+  def complete[V](parts: Seq[V]*): G[V, Unit] = listed(parts.flatten): _ =>
+    Shape.Multipartite(parts.map(_.size), directed)
+
+  /**
+    * @return
+    *   The hypercube of the given [[dimension]], on the vertices
+    *   `0 until 2^dimension`, in which two vertices are adjacent when their
+    *   binary forms differ in exactly one bit (pointing to the one with the bit
+    *   set, for directed graphs).
+    */
+  def hypercube(dimension: Int): G[Int, Unit] =
+    counted(1 << dimensions(dimension))(_ => Shape.Hypercube(dimension))
+
+  /**
+    * @return
+    *   The circulant graph on the vertices `0 until order`, in which each
+    *   vertex `i` is adjacent to `i + jump`, going round modulo [[order]], for
+    *   each of the [[jumps]] (pointing from `i`, for directed graphs). So
+    *   `circulant(n, 1)` is `cycle(n)`, and `circulant(2 * n, 1, n)` is the
+    *   Möbius ladder.
+    */
+  def circulant(order: Int, jumps: Int*): G[Int, Unit] = counted(order):
+    order => Shape.Circulant(order, loopless(order, jumps), directed)
+
+  /** @return The Petersen graph, which is `petersen(5, 2)`. */
+  def petersen: G[Int, Unit] = petersen(5, 2)
+
+  /**
+    * @return
+    *   The generalised Petersen graph `GP(n, k)`, whose outer vertices
+    *   `0 until n` form a cycle, each joined by a spoke to the inner vertex
+    *   `n + i`, and in which each inner vertex `n + i` is adjacent to
+    *   `n + i + k`, going round modulo [[n]]. [[k]] must be at least `1` and
+    *   less than `n / 2`. So `petersen(n, 1)` is a prism, and `petersen(10, 2)`
+    *   is the dodecahedron.
+    */
+  def petersen(n: Int, k: Int): G[Int, Unit] =
+    counted(2 * n)(_ => Shape.Petersen(n, skips(n, k)))
+
+  /**
+    * @return
+    *   The grid with the given numbers of [[rows]] and [[columns]], whose
+    *   vertices `(row, column)` are adjacent to their neighbours in the same
+    *   row or column (pointing down and right, for directed graphs).
+    */
+  def grid(rows: Int, columns: Int): G[(Int, Int), Unit] =
+    paired(rows, columns)(Shape.Path(_), Shape.Path(_))
+
+  /**
+    * @return
+    *   The torus with the given numbers of [[rows]] and [[columns]], which is
+    *   the grid with each row and each column wrapping round into a cycle.
+    *   There must be at least `3` rows and `3` columns.
+    */
+  def torus(rows: Int, columns: Int): G[(Int, Int), Unit] =
+    paired(rows, columns)(
+      order => Shape.Cycle(cyclic(order)),
+      order => Shape.Cycle(cyclic(order)),
+    )
+
+  /**
+    * @return
+    *   The prism on two cycles of [[order]] vertices, `(i, 0)` and `(i, 1)` for
+    *   each `i` in `0 until order`, with a rung from each `(i, 0)` to `(i, 1)`.
+    *   There must be at least `3` vertices in each cycle.
+    */
+  def prism(order: Int): G[(Int, Int), Unit] = paired(order, 2)(
+    order => Shape.Cycle(cyclic(order)),
+    Shape.Path(_),
+  )
 
   /** @return The path through the vertices `0 until order`, in order. */
   def path(order: Int): G[Int, Unit] = counted(order)(Shape.Path(_))
@@ -112,22 +201,83 @@ trait Shapes[+G[+v, +e]]:
   private[kneiphof] def shaped[V](vertices: Indexing[V], shape: Shape)
     : G[V, Unit]
 
-  /**
-    * @return
-    *   The shape of a complete graph of this kind on [[order]] vertices.
-    */
-  private[kneiphof] def complete(order: Int): Shape
+  /** `true` if and only if this kind of graph is directed. */
+  private[kneiphof] def directed: Boolean
 
   /** @return The shape [[shape]] on the vertices `0 until order`. */
-  private def counted(order: Int)(shape: Int => Shape): G[Int, Unit] =
+  protected def counted(order: Int)(shape: Int => Shape): G[Int, Unit] =
     shaped(Indexing.Counting(order), shape(order))
 
   /** @return The shape [[shape]] on the given [[vertices]]. */
-  private def listed[V](vertices: Seq[V])(shape: Int => Shape): G[V, Unit] =
+  protected def listed[V](vertices: Seq[V])(shape: Int => Shape): G[V, Unit] =
     shaped(
       Indexing.Listing(vertices.toIndexedSeq),
       shape(vertices.size),
     )
+
+  /**
+    * @return
+    *   The Cartesian product of the shapes [[first]] and [[second]] make for
+    *   the numbers of [[rows]] and [[columns]], on the pairs `(row, column)`.
+    */
+  private def paired
+    (rows: Int, columns: Int)
+    (first: Int => Shape, second: Int => Shape)
+    : G[(Int, Int), Unit] = shaped(
+    Indexing.Pairing(rows, columns),
+    Shape.Cartesian(first(rows), second(columns)),
+  )
+
+  /**
+    * @return
+    *   The shape of a complete graph of this kind on [[order]] vertices, in
+    *   which every two vertices are adjacent.
+    */
+  private def allPairs(order: Int): Shape =
+    if directed then Shape.CompleteDigraph(order) else Shape.Clique(order)
+
+  /** @return The number of vertices in parts of the given [[sizes]]. */
+  private def total(sizes: Seq[Int]): Int =
+    require(
+      sizes.forall(_ >= 0),
+      s"The parts of a graph can't have the sizes $sizes.",
+    )
+    Math.toIntExact(sizes.map(_.toLong).sum)
+
+  /**
+    * @return
+    *   [[dimension]], checking that a hypercube of it fits in an `Int`.
+    */
+  private def dimensions(dimension: Int): Int =
+    require(
+      0 <= dimension && dimension <= 30,
+      s"A hypercube can't have dimension $dimension.",
+    )
+    dimension
+
+  /**
+    * @return
+    *   [[jumps]], checking that none of them would link a vertex of a circulant
+    *   graph on [[order]] vertices to itself.
+    */
+  private def loopless(order: Int, jumps: Seq[Int]): Seq[Int] =
+    require(
+      jumps.forall(jump => order > 0 && jump % order != 0),
+      s"A circulant graph on $order vertices can't jump by $jumps.",
+    )
+    jumps
+
+  /**
+    * @return
+    *   [[k]], checking that the generalised Petersen graph `GP(n, k)` is
+    *   simple.
+    */
+  private def skips(n: Int, k: Int): Int =
+    require(
+      0 < k && 2 * k < n,
+      s"The generalised Petersen graph needs 0 < k < n / 2, but had n = $n and k = $k.",
+    )
+    k
 
   /** @return [[order]], checking that a cycle of that order is simple. */
   private def cyclic(order: Int): Int =
@@ -144,3 +294,27 @@ trait Shapes[+G[+v, +e]]:
       s"A tree can't have $branching children per vertex.",
     )
     branching
+
+/**
+  * Constructors for common shapes of unlabelled directed graph, of kind [[G]],
+  * including those which only make sense for directed graphs.
+  */
+trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
+
+  override private[kneiphof] def directed: Boolean = true
+
+  /**
+    * @return
+    *   The transitive tournament on the vertices `0 until order`, with an edge
+    *   from each vertex to every later one.
+    */
+  def transitiveTournament(order: Int): G[Int, Unit] =
+    counted(order)(Shape.Clique(_))
+
+  /**
+    * @return
+    *   The transitive tournament on the given [[vertices]], with an edge from
+    *   each vertex to every later one.
+    */
+  def transitiveTournament[V](vertices: V*): G[V, Unit] =
+    listed(vertices)(Shape.Clique(_))

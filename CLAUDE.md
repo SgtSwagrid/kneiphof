@@ -54,7 +54,9 @@ This is a Scala library of graphs and graph algorithms.
   - Lazy graphs must override `empty` (and any other cheap query) rather than forwarding it, since kinds are built from `empty` in nearly every operator. Forwarding builds every edge (this blew the heap on a 50,000-vertex clique).
   - A lazy `size` that returns `None` builds the whole graph, so count it from the edges that change where possible (`Queries.changes`). `LazySuite.assertLazy` checks lazy queries against the graph they build.
   - Degrees go through `GraphOps.degree(vertex)` so that lazy graphs can answer them without a multiplicity lookup per incident edge, which was quadratic on large products.
-  - Each shape has a count overload (`clique(3)`, vertices `0 until 3`) and a varargs overload (`clique("A", "B", "C")`); Scala prefers the non-varargs one for `clique(3)`.
+- Shapes (`Shapes`, plus `DirectedShapes` for directed-only ones like `transitiveTournament`) are a `shapes.Shape` rule on indices `0 until n` plus an `Indexing` naming the vertices. Undirected rules list each edge as one arc; rules that differ by kind take `directed`. `Shape.Cartesian` with `Indexing.Pairing` gives `(row, column)` vertices (`grid`, `torus`, `prism`).
+  - Shapes on one sequence of vertices have a count overload (`clique(3)`, vertices `0 until 3`) and a varargs overload (`clique("A", "B", "C")`); Scala prefers the non-varargs one for `clique(3)`. Structured shapes (`hypercube`, `circulant`, `petersen`, `grid`, ...) are count-only.
+  - `complete(sizes: Int*)` and `complete(parts: Seq[V]*)` erase to the same signature, hence the `@targetName`. `complete(n)` is one part, so it has no edges; `clique(n)` is K_n.
 - The default representation is `incidence.IncidenceOps` (persistent hash tries). Other representations plug in by implementing the abstract members of a kind and passing their empty graph to `XBase.Kind(empty)`.
 
 ### Pull Requests

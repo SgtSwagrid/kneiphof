@@ -1,7 +1,7 @@
 package com.alecdorrington.kneiphof
 
 /** Tests for the built-in shapes, and for joins answering queries lazily. */
-class ShapeSuite extends munit.FunSuite:
+class ShapeSuite extends munit.FunSuite, LazyAssertions:
 
   test("cliques join every two vertices"):
     val k5 = Graph.clique(5)
@@ -124,3 +124,177 @@ class ShapeSuite extends munit.FunSuite:
       Multigraph(1 ~ 2, 2 ~ 3, 1 ~ 2, 1 ~ 3, 2 ~ 2, 2 ~ 3),
     )
     assertEquals(joined.size, 6)
+
+  test(
+    "complete multipartite graphs join every two vertices in different parts",
+  ):
+    val bipartite = Graph.complete(3, 4)
+    assertEquals(bipartite.size, 12)
+    assertEquals(
+      bipartite,
+      Graph.vertices(0, 1, 2) :~: Graph.vertices(3, 4, 5, 6),
+    )
+    assertEquals(
+      Graph.complete(1, 1, 1, 1),
+      Graph.clique(4),
+    )
+    assertEquals(
+      Graph.complete(5),
+      Graph.vertices(0 until 5*),
+    )
+    assertEquals(Graph.complete(2, 0, 1), Graph(0 ~ 2, 1 ~ 2))
+    assertEquals(
+      Graph.complete(Seq("a", "b"), Seq("c")),
+      Graph("a" ~ "c", "b" ~ "c"),
+    )
+    assertEquals(Graph.complete(2, 2, 2)(0).degree, 4)
+    assertLazy(Graph.complete(2, 3, 1), 0 ~ 1, 3 ~ 4, 0 ~ 5)
+    assertEquals(
+      DirectedGraph.complete(1, 1, 1),
+      DirectedGraph.clique(3),
+    )
+    assertEquals(
+      DirectedGraph.complete(2, 1),
+      DirectedGraph(0 ~> 2 ~> 1, 2 ~> 0, 1 ~> 2),
+    )
+    assertLazyDirected(DirectedGraph.complete(2, 3), 0 ~> 1, 2 ~> 0)
+    intercept[IllegalArgumentException](Graph.complete(2, -1))
+
+  test("hypercubes join vertices whose bits differ in one place"):
+    val cube = Graph.hypercube(3)
+    assertEquals(cube.order, 8)
+    assertEquals(cube.size, 12)
+    assert(cube.hasEdge(2 ~ 6))
+    assert(!cube.hasEdge(1 ~ 2))
+    assertEquals(
+      Graph.hypercube(2),
+      Graph.cycle(0, 1, 3, 2),
+    )
+    assertEquals(Graph.hypercube(0), Graph.vertex(0))
+    assertLazy(cube, 0 ~ 3, 0 ~ 7, 8)
+    assertEquals(
+      DirectedGraph.hypercube(2),
+      DirectedGraph(0 ~> 1 ~> 3, 0 ~> 2 ~> 3),
+    )
+    assertLazyDirected(DirectedGraph.hypercube(3), 4 ~> 0, 0 ~> 4)
+    intercept[IllegalArgumentException](Graph.hypercube(31))
+
+  test("circulants jump round a cycle"):
+    assertEquals(Graph.circulant(5, 1), Graph.cycle(5))
+    assertEquals(
+      Graph.circulant(5, 1, 2),
+      Graph.clique(5),
+    )
+    assertEquals(
+      Graph.circulant(5, 4, -1, 6),
+      Graph.cycle(5),
+    )
+    assertEquals(Graph.circulant(2, 1), Graph(0 ~ 1))
+    val ladder = Graph.circulant(6, 1, 3)
+    assertEquals(ladder.size, 9)
+    assertEquals(ladder(4).degree, 3)
+    assertLazy(ladder, 0 ~ 2, 0 ~ 3, 1 ~ 4)
+    assertEquals(
+      DirectedGraph.circulant(4, 1),
+      DirectedGraph.cycle(4),
+    )
+    assertEquals(DirectedGraph.circulant(4, 1, 3).size, 8)
+    assertLazyDirected(
+      DirectedGraph.circulant(6, 2, 3),
+      0 ~> 2,
+      2 ~> 0,
+      3 ~> 0,
+    )
+    intercept[IllegalArgumentException](Graph.circulant(4, 4))
+
+  test("Petersen graphs have an outer cycle, spokes and inner jumps"):
+    val petersen = Graph.petersen
+    assertEquals(petersen.order, 10)
+    assertEquals(petersen.size, 15)
+    assert((0 until 10).forall(petersen(_).degree == 3))
+    assert(petersen.hasEdge(0 ~ 5))
+    assert(petersen.hasEdge(5 ~ 7))
+    assert(!petersen.hasEdge(5 ~ 6))
+    assertEquals(petersen, Graph.petersen(5, 2))
+    assertEquals(Graph.petersen(4, 1).size, 12)
+    assertLazy(Graph.petersen(7, 3), 7 ~ 8, 7 ~ 10, 0 ~ 7)
+    assertLazyDirected(
+      DirectedGraph.petersen(5, 2),
+      1 ~> 0,
+      5 ~> 0,
+      5 ~> 7,
+    )
+    intercept[IllegalArgumentException](Graph.petersen(6, 3))
+    intercept[IllegalArgumentException](Graph.petersen(5, 0))
+
+  test("grids, tori and prisms pair up the vertices of paths and cycles"):
+    val grid = Graph.grid(2, 3)
+    assertEquals(grid.order, 6)
+    assertEquals(grid.size, 7)
+    assert(grid.hasEdge((0, 1) ~ (1, 1)))
+    assert(!grid.hasEdge((0, 0) ~ (1, 1)))
+    assertEquals(grid((0, 1)).degree, 3)
+    assertEquals(
+      Graph.grid(1, 4),
+      Graph.path((0, 0), (0, 1), (0, 2), (0, 3)),
+    )
+    assertLazy(grid, (0, 2) ~ (0, 0), (2, 0), (0, 0) ~ (0, 0))
+    val torus = Graph.torus(3, 4)
+    assertEquals(torus.size, 24)
+    assert(torus.hasEdge((2, 3) ~ (0, 3)))
+    assert(torus.hasEdge((2, 3) ~ (2, 0)))
+    assertLazy(torus, (0, 0) ~ (1, 1), (0, 0) ~ (2, 0))
+    val prism = Graph.prism(4)
+    assertEquals(prism.size, 12)
+    assert(prism.hasEdge((3, 1) ~ (0, 1)))
+    assert(prism.hasEdge((2, 0) ~ (2, 1)))
+    assertLazy(prism, (0, 0) ~ (1, 1), (0, 2))
+    assertEquals(
+      DirectedGraph.grid(2, 2),
+      DirectedGraph(
+        (0, 0) ~> (0, 1) ~> (1, 1),
+        (0, 0) ~> (1, 0) ~> (1, 1),
+      ),
+    )
+    assertLazyDirected(
+      DirectedGraph.prism(3),
+      (0, 1) ~> (0, 0),
+      (2, 0) ~> (0, 0),
+    )
+    intercept[IllegalArgumentException](Graph.torus(2, 5))
+    intercept[IllegalArgumentException](Graph.prism(2))
+
+  test("transitive tournaments point from each vertex to every later one"):
+    val tournament = DirectedGraph.transitiveTournament(4)
+    assertEquals(tournament.size, 6)
+    assert(tournament.hasEdge(0 ~> 3))
+    assert(!tournament.hasEdge(3 ~> 0))
+    assertEquals(tournament.underlying, Graph.clique(4))
+    assertEquals(
+      DirectedGraph.transitiveTournament("a", "b", "c"),
+      DirectedGraph("a" ~> "b" ~> "c", "a" ~> "c"),
+    )
+    assertLazyDirected(tournament, 1 ~> 0, 2 ~> 3)
+
+  test("large new shapes answer queries without building their edges"):
+    val cube = Graph.hypercube(20)
+    assertEquals(cube.size, 10_485_760)
+    assertEquals(cube.degree(12_345), 20)
+    assert(cube.hasEdge(0 ~ (1 << 19)))
+    val bipartite = Graph.complete(30_000, 30_000)
+    assertEquals(bipartite.size, 900_000_000)
+    assertEquals(bipartite.degree(0), 30_000)
+    assert(bipartite.hasEdge(29_999 ~ 30_000))
+    assert(!bipartite.hasEdge(0 ~ 1))
+    assertEquals(
+      Graph.circulant(1_000_000, 1, 2, 500_000).size,
+      2_500_000,
+    )
+    assertEquals(
+      Graph.petersen(1_000_000, 3).degree(1_500_000),
+      3,
+    )
+    val torus = Graph.torus(1_000, 1_000)
+    assertEquals(torus.size, 2_000_000)
+    assertEquals(torus.degree((999, 0)), 4)
+    assert(torus.hasEdge((999, 0) ~ (0, 0)))

@@ -4,69 +4,7 @@ package com.alecdorrington.kneiphof
   * Tests that lazily built graphs answer queries as the graphs they build
   * would, and without building them.
   */
-class LazySuite extends munit.FunSuite:
-
-  /**
-    * Checks that the queries [[graph]] answers lazily agree with the graph it
-    * builds, both for its own vertices and edges and for the [[absent]] ones.
-    */
-  def assertLazy[M : Multiplicity]
-    (
-      graph: GraphBase[Any, Any, M],
-      absent: Any*,
-    )
-    (using munit.Location)
-    : Unit =
-    assert(!graph.eager, "The graph isn't lazy.")
-    val built = GraphBase
-      .kind[M]
-      .fromMultiplicities(graph.vertexValues, graph.edgeValues)
-    assertEquals(graph.order, built.order)
-    assertEquals(graph.size, built.size)
-    assertEquals(graph.vertexValues, built.vertexValues)
-    (built.vertexValues ++ absent).foreach: vertex =>
-      assertEquals(
-        graph.hasVertex(vertex),
-        built.hasVertex(vertex),
-      )
-      assertEquals(
-        graph.incidentEdgeValues(vertex),
-        built.incidentEdgeValues(vertex),
-      )
-    (built.edgeValues.keys ++ absent).foreach: edge =>
-      assertEquals(
-        graph.multiplicity(edge),
-        built.multiplicity(edge),
-      )
-
-  /** Checks a directed graph in the same way as [[assertLazy]]. */
-  def assertLazyDirected[M : Multiplicity]
-    (
-      graph: DirectedGraphBase[Any, Any, M],
-      absent: Any*,
-    )
-    (using munit.Location)
-    : Unit =
-    assert(!graph.eager, "The graph isn't lazy.")
-    val built = DirectedGraphBase
-      .kind[M]
-      .fromMultiplicities(graph.vertexValues, graph.edgeValues)
-    assertEquals(graph.order, built.order)
-    assertEquals(graph.size, built.size)
-    (built.vertexValues ++ absent).foreach: vertex =>
-      assertEquals(
-        graph.hasVertex(vertex),
-        built.hasVertex(vertex),
-      )
-      assertEquals(
-        graph.incidentEdgeValues(vertex),
-        built.incidentEdgeValues(vertex),
-      )
-    (built.edgeValues.keys ++ absent).foreach: edge =>
-      assertEquals(
-        graph.multiplicity(edge),
-        built.multiplicity(edge),
-      )
+class LazySuite extends munit.FunSuite, LazyAssertions:
 
   test("disjoint unions keep their sides apart"):
     val union = Graph.cycle(4) ⊔ Graph.path("a", "b", "c")

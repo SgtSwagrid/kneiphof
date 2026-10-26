@@ -316,8 +316,7 @@ object GraphBase:
         from(shaping.vertexValues, shaping.edges),
       )
 
-    override private[kneiphof] def complete(order: Int): Shape =
-      Shape.Clique(order)
+    override private[kneiphof] def directed: Boolean = false
 
   /** @return The kind of graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceGraph.empty)
