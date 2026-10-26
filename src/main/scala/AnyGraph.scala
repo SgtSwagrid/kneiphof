@@ -32,6 +32,16 @@ trait AnyGraph[+V, +E, M]:
   /** @return The multiplicity of [[edge]], which is `zero` if it's absent. */
   def multiplicity(edge: Any): M = edgeValues.getOrElse(edge, algebra.zero)
 
+  /**
+    * `true` if and only if this graph is stored (or written out, like an edge
+    * or chain) rather than computed lazily. An operation whose result is no
+    * bigger than its operands is eager if and only if all of its operands are.
+    * Operations which generate structure, such as shapes, joins, products and
+    * substitutions, are always lazy, since chaining them eagerly could build a
+    * graph exponential in the length of the expression.
+    */
+  private[kneiphof] def eager: Boolean = true
+
   /** The number of vertices in this graph. */
   def order: Int = vertexValues.size
 

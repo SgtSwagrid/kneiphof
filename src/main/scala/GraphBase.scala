@@ -2,8 +2,8 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceGraph
-import com.alecdorrington.kneiphof.shapes.{Indexing, Shape, ShapeGraph}
-import com.alecdorrington.kneiphof.views.{LazyGraph, Queries}
+import com.alecdorrington.kneiphof.shapes.{Indexing, Shape, Shaping}
+import com.alecdorrington.kneiphof.views.{Joining, LazyGraph, Queries, Viewing}
 import scala.annotation.targetName
 
 /**
@@ -55,11 +55,7 @@ trait GraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: GraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : GraphBase[W, F, M] = graphs.merged(
-    this,
-    that.vertexValues,
-    that.edgeValues.map((e, n) => e -> embed(n)),
-  )(_ + _)
+    : GraphBase[W, F, M] = combined(that, embed)(_ + _)
 
   /**
     * @return
@@ -70,11 +66,7 @@ trait GraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: GraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : GraphBase[W, F, M] = graphs.merged(
-    this,
-    that.vertexValues,
-    that.edgeValues.map((e, n) => e -> embed(n)),
-  )(_ | _)
+    : GraphBase[W, F, M] = combined(that, embed)(_ | _)
 
   /**
     * @return
@@ -138,7 +130,7 @@ trait GraphBase[+V, +E, M]
     */
   def join[W >: V, F >: E]
     (that: GraphBase[W, F, M], label: F)
-    : GraphBase[W, F, M] = graphs.joined(this, that)(kneiphof.Edge(_, _, label))
+    : GraphBase[W, F, M] = GraphBase.Join(this, that) % label
 
   /**
     * @return
@@ -156,10 +148,25 @@ trait GraphBase[+V, +E, M]
   override infix def ~: [W >: V](vertex: W): GraphBase.Join[W, E, Unit, M] =
     this :~ vertex
 
+  override def map[W, F]
+    (vertexMap: V => W, labelMap: E => F)
+    : GraphBase[W, F, M] =
+    graphs.imaged(this, graphs.viewing(this), edgeValues)(
+      vertexMap,
+      edge => List(edge.map(vertexMap, labelMap)),
+      exact = false,
+    )
+
+  override def view: GraphBase[V, E, M] =
+    graphs.view(graphs.viewing(this), this)
+
   /** This graph as a hypergraph, in the default representation. */
-  def toHypergraph: HypergraphBase[V, E, M] = HypergraphBase
-    .kind[M]
-    .fromMultiplicities(vertexValues, edgeValues)
+  def toHypergraph: HypergraphBase[V, E, M] =
+    val hypergraphs = HypergraphBase.kind[M]
+    hypergraphs.lazily(this)(
+      HypergraphBase.viewing(this, Embedding.identity),
+      hypergraphs.fromMultiplicities(vertexValues, edgeValues),
+    )
 
   /**
     * The directed graph with an edge each way for every edge of this graph, and
@@ -167,16 +174,45 @@ trait GraphBase[+V, +E, M]
     */
   def symmetric: DirectedGraphBase[V, E, M] = DirectedGraphBase
     .kind[M]
-    .fromMultiplicities(
-      vertexValues,
-      edgeValues
-        .toSeq
-        .flatMap: (edge, multiplicity) =>
-          val forward = DirectedEdge(edge.first, edge.second, edge.label)
-          Seq(forward, forward.reverse).distinct.map(_ -> multiplicity),
+    .imaged(this, graphs.viewing(this), edgeValues)(
+      identity,
+      edge =>
+        val forward = DirectedEdge(edge.first, edge.second, edge.label)
+        List(forward, forward.reverse).distinct
+      ,
+      exact = false,
     )
 
   override protected def kindName: String = "Graph"
+
+  override protected def refined
+    (
+      keep: V => Boolean,
+      reweigh: (Any, M) => M,
+      changed: => Iterable[Any],
+      operands: AnyGraph[?, ?, ?]*,
+    )
+    : GraphBase[V, E, M] =
+    graphs.refined(this, keep, reweigh, changed, operands)
+
+  /**
+    * @return
+    *   The union or sum of this graph and [[that]], whose multiplicities are
+    *   combined by [[combine]].
+    */
+  private def combined[W >: V, F >: E, N]
+    (
+      that: GraphBase[W, F, N],
+      embed: Embedding[N, M],
+    )
+    (combine: (M, M) => M)
+    : GraphBase[W, F, M] = graphs.combined[W, F](
+    this,
+    GraphBase.viewing(that, embed),
+    that,
+    that.vertexValues,
+    that.edgeValues.map((edge, n) => edge -> embed(n)),
+  )(combine)
 
   /** The kind of this graph, in its own representation. */
   private def graphs: GraphBase.Kind[M] = GraphBase.Kind(empty)
@@ -210,42 +246,40 @@ object GraphBase:
       )
       : Join[V, E, Unit, M] = Joined(left, right, ())
 
-    /** A join, held as the graphs it joins. */
+    /**
+      * A join, held as the graphs it joins. It's always lazy, since its size is
+      * the product of theirs.
+      */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        override protected val left: GraphBase[V, E, M],
-        override protected val right: GraphBase[V, E, M],
+        left: GraphBase[V, E, M],
+        right: GraphBase[V, E, M],
         label: L,
       )
-      extends Join[V, E, L, M],
-              Joining[
-                V,
-                E,
-                L,
-                M,
-                kneiphof.Edge,
-                [v, e] =>> GraphBase[v, e, M],
-              ]:
-
-      override protected lazy val delegate: GraphBase[V, E | L, M] =
-        left.join[V, E | L](right, label)
-
-      override def updated[W >: V, F >: E | L]
-        (
-          edge: kneiphof.Edge[W, F],
-          multiplicity: M,
-        )
-        : GraphBase[W, F, M] = delegate.updated(edge, multiplicity)
+      extends LazyGraph[V, E | L, M](
+        left.empty,
+        Joining[
+          V,
+          E,
+          L,
+          M,
+          kneiphof.Edge,
+          [v, e] =>> GraphBase[v, e, M],
+        ](
+          left,
+          right,
+          kneiphof.Edge(_, _, label),
+          Joining.undirectedLinks(left, right, label, _),
+        ),
+        () =>
+          Kind(left.empty).joined[V, E | L](left, right)(
+            kneiphof.Edge(_, _, label),
+          ),
+      ),
+              Join[V, E, L, M]:
 
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
-
-      override protected def link
-        (source: V, target: V)
-        : kneiphof.Edge[V, E | L] = kneiphof.Edge(source, target, label)
-
-      override protected def links(edge: Any): Int =
-        Joining.undirectedLinks(left, right, label, edge)
 
   /** The kind of graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]
@@ -258,7 +292,7 @@ object GraphBase:
     ],
             Shapes[[v, e] =>> GraphBase[v, e, M]]:
 
-    override private[kneiphof] def lazily[V, E]
+    override private[kneiphof] def view[V, E]
       (
         queries: Queries[V, E, M, Edge[V, E]],
         build: => GraphBase[V, E, M],
@@ -275,13 +309,37 @@ object GraphBase:
 
     override private[kneiphof] def shaped[V]
       (vertices: Indexing[V], shape: Shape)
-      : GraphBase[V, Unit, M] = ShapeGraph(this, vertices, shape)
+      : GraphBase[V, Unit, M] =
+      val shaping = Shaping[V, M](vertices, shape)
+      view(
+        shaping,
+        from(shaping.vertexValues, shaping.edges),
+      )
 
     override private[kneiphof] def complete(order: Int): Shape =
       Shape.Clique(order)
 
   /** @return The kind of graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceGraph.empty)
+
+  /**
+    * @return
+    *   The queries about [[graph]], with its multiplicities read in [[M]] by
+    *   [[embed]], answered by [[graph]] itself.
+    */
+  private[kneiphof] def viewing[V, E, N, M : Multiplicity]
+    (
+      graph: GraphBase[V, E, N],
+      embed: Embedding[N, M],
+    )
+    : Queries[V, E, M, kneiphof.Edge[V, E]] = Viewing[
+    V,
+    E,
+    N,
+    M,
+    kneiphof.Edge,
+    [v, e] =>> GraphBase[v, e, N],
+  ](graph, embed)
 
 /** Graphs whose edges form a set, in the default representation. */
 object Graph extends GraphBase.Kind[Boolean](IncidenceGraph.empty)

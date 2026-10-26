@@ -2,7 +2,9 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceDirectedHypergraph
-import com.alecdorrington.kneiphof.views.{LazyDirectedHypergraph, Queries}
+import com.alecdorrington.kneiphof.views.{
+  Joining, LazyDirectedHypergraph, Queries, Viewing,
+}
 
 /**
   * A directed hypergraph, whose edges each lead from a set of vertices to a set
@@ -33,7 +35,15 @@ trait DirectedHypergraphBase[+V, +E, M]
     : DirectedHypergraphBase[W, F, M]
 
   /** The hypergraph with every edge reversed. */
-  def transpose: DirectedHypergraphBase[V, E, M]
+  def transpose: DirectedHypergraphBase[V, E, M] = hypergraphs.imaged(
+    this,
+    hypergraphs.viewing(this),
+    edgeValues,
+  )(
+    identity,
+    edge => List(edge.reverse),
+    exact = true,
+  )
 
   /**
     * @return
@@ -45,11 +55,7 @@ trait DirectedHypergraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedHypergraphBase[W, F, M] = hypergraphs.merged(
-    this,
-    that.vertexValues,
-    that.edgeValues.map((e, n) => e -> embed(n)),
-  )(_ + _)
+    : DirectedHypergraphBase[W, F, M] = combined(that, embed)(_ + _)
 
   /**
     * @return
@@ -60,11 +66,7 @@ trait DirectedHypergraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedHypergraphBase[W, F, M] = hypergraphs.merged(
-    this,
-    that.vertexValues,
-    that.edgeValues.map((e, n) => e -> embed(n)),
-  )(_ | _)
+    : DirectedHypergraphBase[W, F, M] = combined(that, embed)(_ | _)
 
   /**
     * @return
@@ -132,7 +134,7 @@ trait DirectedHypergraphBase[+V, +E, M]
       label: F,
     )
     : DirectedHypergraphBase[W, F, M] =
-    hypergraphs.joined(this, that)(DirectedEdge(_, _, label))
+    DirectedHypergraphBase.Join(this, that) % label
 
   /**
     * @return
@@ -174,14 +176,30 @@ trait DirectedHypergraphBase[+V, +E, M]
     */
   def underlying: HypergraphBase[V, E, M] = HypergraphBase
     .kind[M]
-    .fromMultiplicities(
-      vertexValues,
-      edgeValues
-        .toSeq
-        .map: (edge, multiplicity) =>
-          Hyperedge.from(edge.tail.toSeq ++ edge.head, edge.label) ->
-            multiplicity,
+    .imaged(
+      this,
+      hypergraphs.viewing(this),
+      edgeValues,
+    )(
+      identity,
+      edge => List(Hyperedge.from(edge.tail.toSeq ++ edge.head, edge.label)),
+      exact = false,
     )
+
+  override def map[W, F]
+    (vertexMap: V => W, labelMap: E => F)
+    : DirectedHypergraphBase[W, F, M] = hypergraphs.imaged(
+    this,
+    hypergraphs.viewing(this),
+    edgeValues,
+  )(
+    vertexMap,
+    edge => List(edge.map(vertexMap, labelMap)),
+    exact = false,
+  )
+
+  override def view: DirectedHypergraphBase[V, E, M] =
+    hypergraphs.view(hypergraphs.viewing(this), this)
 
   override def vertex(value: Any): Option[Vertex] = vertexValues
     .get(value)
@@ -197,6 +215,35 @@ trait DirectedHypergraphBase[+V, +E, M]
         override val value: Hyperarc[V, E] = found
 
   override protected def kindName: String = "DirectedHypergraph"
+
+  override protected def refined
+    (
+      keep: V => Boolean,
+      reweigh: (Any, M) => M,
+      changed: => Iterable[Any],
+      operands: AnyGraph[?, ?, ?]*,
+    )
+    : DirectedHypergraphBase[V, E, M] =
+    hypergraphs.refined(this, keep, reweigh, changed, operands)
+
+  /**
+    * @return
+    *   The union or sum of this hypergraph and [[that]], whose multiplicities
+    *   are combined by [[combine]].
+    */
+  private def combined[W >: V, F >: E, N]
+    (
+      that: DirectedHypergraphBase[W, F, N],
+      embed: Embedding[N, M],
+    )
+    (combine: (M, M) => M)
+    : DirectedHypergraphBase[W, F, M] = hypergraphs.combined[W, F](
+    this,
+    DirectedHypergraphBase.viewing(that, embed),
+    that,
+    that.vertexValues,
+    that.edgeValues.map((edge, n) => edge -> embed(n)),
+  )(combine)
 
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: DirectedHypergraphBase.Kind[M] =
@@ -273,42 +320,40 @@ object DirectedHypergraphBase:
       )
       : Join[V, E, Unit, M] = Joined(left, right, ())
 
-    /** A join, held as the hypergraphs it joins. */
+    /**
+      * A join, held as the hypergraphs it joins. It's always lazy, since its
+      * size is the product of theirs.
+      */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        override protected val left: DirectedHypergraphBase[V, E, M],
-        override protected val right: DirectedHypergraphBase[V, E, M],
+        left: DirectedHypergraphBase[V, E, M],
+        right: DirectedHypergraphBase[V, E, M],
         label: L,
       )
-      extends Join[V, E, L, M],
-              Joining[
-                V,
-                E,
-                L,
-                M,
-                Hyperarc,
-                [v, e] =>> DirectedHypergraphBase[v, e, M],
-              ]:
-
-      override protected lazy val delegate
-        : DirectedHypergraphBase[V, E | L, M] =
-        left.join[V, E | L](right, label)
-
-      override def updated[W >: V, F >: E | L]
-        (edge: Hyperarc[W, F], multiplicity: M)
-        : DirectedHypergraphBase[W, F, M] = delegate.updated(edge, multiplicity)
-
-      override def transpose: DirectedHypergraphBase[V, E | L, M] =
-        delegate.transpose
+      extends LazyDirectedHypergraph[V, E | L, M](
+        left.empty,
+        Joining[
+          V,
+          E,
+          L,
+          M,
+          Hyperarc,
+          [v, e] =>> DirectedHypergraphBase[v, e, M],
+        ](
+          left,
+          right,
+          DirectedEdge(_, _, label),
+          Joining.directedLinks(left, right, label, _),
+        ),
+        () =>
+          Kind(left.empty).joined[V, E | L](left, right)(
+            DirectedEdge(_, _, label),
+          ),
+      ),
+              Join[V, E, L, M]:
 
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
-
-      override protected def link(source: V, target: V): Hyperarc[V, E | L] =
-        DirectedEdge(source, target, label)
-
-      override protected def links(edge: Any): Int =
-        Joining.directedLinks(left, right, label, edge)
 
   /** The kind of directed hypergraphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]
@@ -320,7 +365,7 @@ object DirectedHypergraphBase:
       [v, e] =>> DirectedHypergraphBase[v, e, Count],
     ]:
 
-    override private[kneiphof] def lazily[V, E]
+    override private[kneiphof] def view[V, E]
       (
         queries: Queries[V, E, M, Hyperarc[V, E]],
         build: => DirectedHypergraphBase[V, E, M],
@@ -341,6 +386,25 @@ object DirectedHypergraphBase:
     *   The kind of directed hypergraphs, in the default representation.
     */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceDirectedHypergraph.empty)
+
+  /**
+    * @return
+    *   The queries about [[graph]], with its multiplicities read in [[M]] by
+    *   [[embed]], answered by [[graph]] itself.
+    */
+  private[kneiphof] def viewing[V, E, N, M : Multiplicity]
+    (
+      graph: DirectedHypergraphBase[V, E, N],
+      embed: Embedding[N, M],
+    )
+    : Queries[V, E, M, Hyperarc[V, E]] = Viewing[
+    V,
+    E,
+    N,
+    M,
+    Hyperarc,
+    [v, e] =>> DirectedHypergraphBase[v, e, N],
+  ](graph, embed)
 
 /** Directed hypergraphs whose edges form a set, in the default representation. */
 object DirectedHypergraph

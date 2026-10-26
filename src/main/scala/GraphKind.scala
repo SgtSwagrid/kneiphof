@@ -1,7 +1,9 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.views.{Queries, Substitution, Tagging}
+import com.alecdorrington.kneiphof.views.{
+  Combining, Imaging, Queries, Refining, Substitution, Tagging, Viewing,
+}
 import scala.compiletime.deferred
 
 /**
@@ -122,15 +124,116 @@ trait GraphKind[
 
   /**
     * @return
-    *   The graph answering [[queries]] without being built, and anything else
-    *   as the graph from [[build]], which is only built when first needed.
+    *   The lazy graph answering [[queries]] without being built, and anything
+    *   else as the graph from [[build]], which is only built when first needed.
     */
-  private[kneiphof] def lazily[V, E]
+  private[kneiphof] def view[V, E]
     (
       queries: Queries[V, E, M, X[V, E]],
       build: => G[V, E],
     )
     : G[V, E]
+
+  /**
+    * @return
+    *   The result of an operation on [[operands]], which is the graph from
+    *   [[build]] if every operand is eager, and otherwise the lazy graph
+    *   answering [[queries]] (see [[view]]). Laziness is the meaning of every
+    *   operation, and building eager results straight away is an optimisation.
+    *   It's only used for operations whose results are no bigger than their
+    *   operands; operations which generate structure, such as joins and
+    *   products, are always lazy, since chaining them could otherwise build a
+    *   result exponential in the length of the expression.
+    */
+  private[kneiphof] def lazily[V, E]
+    (operands: AnyGraph[?, ?, ?]*)
+    (
+      queries: => Queries[V, E, M, X[V, E]],
+      build: => G[V, E],
+    )
+    : G[V, E] = if operands.forall(_.eager) then build else view(queries, build)
+
+  /**
+    * @return
+    *   The union or sum of [[first]] and the graph [[second]] describes, whose
+    *   vertices and edges are [[vertices]] and [[edges]], combining each edge's
+    *   multiplicities by [[combine]].
+    */
+  private[kneiphof] def combined[V, E]
+    (
+      first: G[V, E],
+      second: Queries[V, E, M, X[V, E]],
+      operand: AnyGraph[?, ?, ?],
+      vertices: => Iterable[V],
+      edges: => Iterable[(X[V, E], M)],
+    )
+    (combine: (M, M) => M)
+    : G[V, E] = lazily(first, operand)(
+    Combining(
+      viewing(first),
+      second,
+      combine,
+      edges.map(_(0)),
+    ),
+    merged(first, vertices, edges)(combine),
+  )
+
+  /**
+    * @return
+    *   The subgraph of [[graph]] with only the vertices satisfying [[keep]],
+    *   and each remaining edge's multiplicity changed by [[reweigh]], which may
+    *   depend on [[operands]]. Only the edges in [[changed]] may have their
+    *   multiplicities changed.
+    */
+  private[kneiphof] def refined[V, E]
+    (
+      graph: G[V, E],
+      keep: V => Boolean,
+      reweigh: (Any, M) => M,
+      changed: => Iterable[Any],
+      operands: Seq[AnyGraph[?, ?, ?]],
+    )
+    : G[V, E] = lazily(graph +: operands*)(
+    Refining(viewing(graph), keep, reweigh, changed),
+    changed.foldLeft(graph.removeVertices(graph.vertexValues.filterNot(keep))):
+      (refined, edge) =>
+        val multiplicity = refined.multiplicity(edge)
+        val reweighed    = reweigh(edge, multiplicity)
+        if reweighed == multiplicity then refined
+        else refined.withMultiplicity(edge, reweighed),
+  )
+
+  /**
+    * @return
+    *   The image of [[graph]], which [[queries]] describes and whose edges are
+    *   [[edges]], with each vertex mapped by [[vertexMap]] and each edge
+    *   replaced by its [[edgeImages]], summing the multiplicities of equal
+    *   images.
+    *
+    * @param exact
+    *   `true` if and only if the images neither merge vertices nor change the
+    *   number of copies of any edge.
+    */
+  private[kneiphof] def imaged[V, E, Y, W, F]
+    (
+      graph: AnyGraph[V, E, M],
+      queries: Queries[V, E, M, Y],
+      edges: => Iterable[(Y, M)],
+    )
+    (
+      vertexMap: V => W,
+      edgeImages: Y => Iterable[X[W, F]],
+      exact: Boolean,
+    )
+    : G[W, F] = lazily(graph)(
+    Imaging(queries, vertexMap, edgeImages, exact),
+    fromMultiplicities(
+      graph.vertexValues.map(vertexMap),
+      edges.flatMap((edge, multiplicity) =>
+        edgeImages(edge).map(_ -> multiplicity),
+      ),
+    ),
+  )
 
   /**
     * @return
@@ -140,9 +243,12 @@ trait GraphKind[
     */
   private[kneiphof] def flatMapVertices[V, E, W]
     (graph: G[V, E], transform: V => G[W, E])
-    : G[W, E] = lazily(
+    : G[W, E] = view(
     Substitution(graph, transform, None),
-    substituted(graph, transform),
+    substituted(
+      graph,
+      graph.vertexValues.map(v => v -> transform(v)).toMap,
+    ),
   )
 
   /**
@@ -153,11 +259,14 @@ trait GraphKind[
   private[kneiphof] def lexicographicSum[V, E, W]
     (graph: G[V, E], transform: V => G[W, E])
     : G[(V, W), E] =
-    val parts = (vertex: V) => paired(vertex, transform(vertex))
+    val parts = graph
+      .vertexValues
+      .map(vertex => vertex -> paired(vertex, transform(vertex)))
+      .toMap
     val owner: Any => Option[V] =
       case (first, _) => graph.vertexValues.get(first)
       case _          => None
-    lazily(
+    view(
       Substitution(graph, parts, Some(owner)),
       substituted(graph, parts),
     )
@@ -187,12 +296,13 @@ trait GraphKind[
         case _        => None
       },
     )
-    val parts = (side: Boolean) => if side then right else left
+    val parts: Map[Boolean, G[Either[V, W], E]] =
+      Map(false -> left, true -> right)
     val owner: Any => Option[Boolean] =
       case Left(_)  => Some(false)
       case Right(_) => Some(true)
       case _        => None
-    lazily(
+    lazily(first, second)(
       Substitution(sides, parts, Some(owner)),
       substituted(sides, parts),
     )
@@ -200,7 +310,8 @@ trait GraphKind[
   /**
     * @return
     *   [[graph]] with each vertex `v` relabelled `tag(v)`, where [[tag]] is
-    *   injective with inverse [[untag]].
+    *   injective with inverse [[untag]]. This is always lazy, since it's only
+    *   used within other operations, which decide whether to build the result.
     */
   private[kneiphof] def tagged[V, T, E]
     (
@@ -208,10 +319,15 @@ trait GraphKind[
       tag: V => T,
       untag: Any => Option[V],
     )
-    : G[T, E] = lazily(
+    : G[T, E] = view(
     Tagging(graph, tag, untag),
     graph.mapVertices(tag),
   )
+
+  /** @return The queries about [[graph]], answered by [[graph]] itself. */
+  private[kneiphof] def viewing[V, E]
+    (graph: G[V, E])
+    : Queries[V, E, M, X[V, E]] = Viewing(graph, Embedding.identity[M])
 
   /** @return [[part]], with each vertex tagged by [[vertex]]. */
   private def paired[V, W, E](vertex: V, part: G[W, E]): G[(V, W), E] = tagged(
@@ -225,15 +341,14 @@ trait GraphKind[
 
   /** @return The graph from `flatMapVertices`, built from every edge. */
   private def substituted[V, E, W]
-    (graph: G[V, E], transform: V => G[W, E])
+    (graph: G[V, E], parts: Map[V, G[W, E]])
     : G[W, E] =
-    val inner = graph.vertexValues.toSeq.map(v => v -> transform(v)).toMap
     val outer = graph
       .edgeValues
       .toSeq
       .flatMap: (edge, multiplicity) =>
-        edge.substitute(inner(_).vertexValues).map(_ -> multiplicity)
-    val replacements = inner
+        edge.substitute(parts(_).vertexValues).map(_ -> multiplicity)
+    val replacements = parts
       .values
       .foldLeft(empty: G[W, E]): (sum, part) =>
         merged(sum, part.vertexValues, part.edgeValues)(_ + _)

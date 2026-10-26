@@ -10,14 +10,17 @@ class LazySuite extends munit.FunSuite:
     * Checks that the queries [[graph]] answers lazily agree with the graph it
     * builds, both for its own vertices and edges and for the [[absent]] ones.
     */
-  def assertLazy[M]
+  def assertLazy[M : Multiplicity]
     (
       graph: GraphBase[Any, Any, M],
       absent: Any*,
     )
     (using munit.Location)
     : Unit =
-    val built = graph.mapVertices(identity)
+    assert(!graph.eager, "The graph isn't lazy.")
+    val built = GraphBase
+      .kind[M]
+      .fromMultiplicities(graph.vertexValues, graph.edgeValues)
     assertEquals(graph.order, built.order)
     assertEquals(graph.size, built.size)
     assertEquals(graph.vertexValues, built.vertexValues)
@@ -37,14 +40,17 @@ class LazySuite extends munit.FunSuite:
       )
 
   /** Checks a directed graph in the same way as [[assertLazy]]. */
-  def assertLazyDirected[M]
+  def assertLazyDirected[M : Multiplicity]
     (
       graph: DirectedGraphBase[Any, Any, M],
       absent: Any*,
     )
     (using munit.Location)
     : Unit =
-    val built = graph.mapVertices(identity)
+    assert(!graph.eager, "The graph isn't lazy.")
+    val built = DirectedGraphBase
+      .kind[M]
+      .fromMultiplicities(graph.vertexValues, graph.edgeValues)
     assertEquals(graph.order, built.order)
     assertEquals(graph.size, built.size)
     (built.vertexValues ++ absent).foreach: vertex =>
@@ -129,3 +135,159 @@ class LazySuite extends munit.FunSuite:
     assert(union.hasEdge(Left(1) ~ Left(2)))
     assert(!union.hasEdge(Left(1) ~ Right(2)))
     assertEquals(union(Right(3)).degree, 9)
+
+  test("operations on eager graphs are eager"):
+    val graph                           = Graph(1 ~ 2 ~ 3)
+    val other                           = Graph(2 ~ 3 ~ 4)
+    val results: Seq[AnyGraph[?, ?, ?]] = Seq(
+      graph + other,
+      graph | other,
+      graph & other,
+      graph - other,
+      graph + (5 ~ 6),
+      graph ⊔ other,
+      graph.filterVertices(_ != 1),
+      graph.filterEdges(_.isLoop),
+      graph.edgeInduced(_.vertexValues.contains(1)),
+      graph.mapVertices(_ * 2),
+      graph.toHypergraph,
+      graph.symmetric,
+      graph.symmetric.transpose,
+      graph.symmetric.underlying,
+      graph.addVertex(7).removeVertex(1).removeEdge(2 ~ 3),
+    )
+    results.foreach(result => assert(result.eager, result))
+
+  test("joins and substitutions are lazy even for eager graphs"):
+    val graph                           = Graph(1 ~ 2)
+    val results: Seq[AnyGraph[?, ?, ?]] = Seq(
+      graph :~: Graph(3 ~ 4),
+      graph :~ 3,
+      graph.join(Graph.vertex(3), ()),
+      graph.lexicographicProduct(graph),
+      graph.flatMapVertices(v => Graph.vertex(v)),
+      graph.view,
+      Graph.clique(3),
+    )
+    results.foreach(result => assert(!result.eager, result))
+
+  test("operations on lazy graphs are lazy, and agree with their built graphs"):
+    val cycle = Graph.cycle(5)
+    val graph = Graph(0 ~ 1, 1 ~ 3)
+    assertEquals(cycle - (0 ~ 1), Graph(1 ~ 2 ~ 3 ~ 4 ~ 0))
+    assertEquals(cycle & graph, Graph(0 ~ 1).addVertex(3))
+    assertEquals(
+      cycle.filterVertices(_ != 0),
+      Graph.path(1, 2, 3, 4),
+    )
+    assertEquals(
+      cycle.edgeInduced(_.vertexValues.contains(0)),
+      Graph(4 ~ 0 ~ 1),
+    )
+    assertLazy(cycle + graph, 1 ~ 3, 0 ~ 2)
+    assertLazy(cycle | (0 ~ 2), 0 ~ 2, 1 ~ 3)
+    assertLazy(cycle & graph, 0 ~ 1, 1 ~ 2, 1 ~ 3, 2)
+    assertLazy(cycle - (0 ~ 1), 0 ~ 1)
+    assertLazy(cycle - graph, 0 ~ 1, 1 ~ 3)
+    assertLazy(cycle.filterVertices(_ != 0), 0 ~ 1, 0)
+    assertLazy(cycle.induced(Seq(1, 2, 3)), 3 ~ 4, 4)
+    assertLazy(
+      cycle.filterEdges(_.vertexValues.contains(0)),
+      1 ~ 2,
+      0 ~ 1,
+    )
+    assertLazy(
+      cycle.edgeInduced(_.vertexValues.contains(0)),
+      1 ~ 2,
+      2,
+    )
+    assertLazy(cycle.mapVertices(_ % 3), 0 ~ 0, 1 ~ 1, 2 ~ 0, 3)
+    assertLazy(cycle.mapEdges(_ => "x"), 0 ~ 1, 0 ~ 1 % "x")
+
+  test("sums of lazy multigraphs add the counts of shared edges"):
+    val sum = Multigraph.cycle(4) + Multigraph(0 ~ 1, 0 ~ 1, 0 ~ 2)
+    assertEquals(sum.size, 7)
+    assertEquals(sum.multiplicity(0 ~ 1), Count(3))
+    assertLazy(sum, 1 ~ 3, 0 ~ 3)
+    assertLazy(sum - (0 ~ 1), 0 ~ 1)
+    assertLazy(
+      sum & Multigraph(0 ~ 1, 0 ~ 1, 2 ~ 3),
+      0 ~ 1,
+      2 ~ 3,
+      1 ~ 2,
+    )
+
+  test("transposes and conversions of lazy graphs are lazy"):
+    val cycle = DirectedGraph.cycle(4)
+    assertEquals(
+      cycle.transpose,
+      DirectedGraph(0 ~> 3 ~> 2 ~> 1 ~> 0),
+    )
+    assertEquals(cycle.underlying, Graph.cycle(4))
+    assertEquals(
+      Graph.path(3).symmetric,
+      DirectedGraph(0 ~> 1 ~> 2 ~> 1 ~> 0),
+    )
+    assertLazyDirected(cycle.transpose, 1 ~> 0, 0 ~> 1)
+    assertLazyDirected(Graph.path(3).symmetric, 0 ~> 2, 1 ~> 0)
+    assertLazy(cycle.underlying, 0 ~ 2, 1 ~ 0)
+    val hypergraph = Graph.cycle(3).toHypergraph
+    assert(!hypergraph.eager)
+    assert(hypergraph.hasEdge(0 ~ 1))
+    val grown = hypergraph.updated(Hyperedge(0, 1, 2), true)
+    assert(!grown.eager)
+    assert(grown.hasEdge(Hyperedge(0, 1, 2)))
+    assertEquals(grown.size, 4)
+
+  test("single updates to lazy graphs patch them"):
+    val cycle   = Graph.cycle(5)
+    val patched = cycle
+      .removeVertex(0)
+      .addVertex(9)
+      .updated(9 ~ 1, true)
+      .removeEdge(2 ~ 3)
+    assertEquals(patched, Graph(1 ~ 2, 3 ~ 4, 9 ~ 1))
+    assertLazy(patched, 0 ~ 1, 2 ~ 3, 9 ~ 2, 0)
+    val restored = Graph.cycle(4).removeVertex(0).addVertex(0)
+    assertEquals(
+      restored,
+      Graph.path(1, 2, 3).addVertex(0),
+    )
+    assertLazy(restored, 0 ~ 1, 3 ~ 0)
+    assertLazy(
+      cycle.withMultiplicity(0 ~ 1, false).updated(0 ~ 1, true),
+      0 ~ 1,
+    )
+
+  test("large lazy graphs are patched without building their edges"):
+    val patched = Graph
+      .clique(50_000)
+      .removeVertex(0)
+      .addVertex(-1)
+      .updated(-1 ~ 1, true)
+      .removeEdge(1 ~ 2)
+    assertEquals(patched.order, 50_000)
+    assertEquals(patched.size, 1_249_975_000 - 49_999)
+    assert(patched.hasEdge(-1 ~ 1))
+    assert(!patched.hasEdge(0 ~ 1))
+    assert(!patched.hasEdge(1 ~ 2))
+    assert(patched.hasEdge(2 ~ 3))
+    assertEquals(patched(1).degree, 49_998)
+
+  test("large lazy graphs are combined and filtered without building them"):
+    val clique = Graph.clique(50_000)
+    val sum    = clique + (0 ~ 50_000)
+    assertEquals(sum.size, 1_249_975_001)
+    assertEquals(sum(50_000).degree, 1)
+    val difference = clique - Graph(0 ~ 1, 2 ~ 3, 4 ~ 4)
+    assertEquals(difference.size, 1_249_974_998)
+    assert(!difference.hasEdge(2 ~ 3))
+    val even = clique.filterVertices(_ % 2 == 0)
+    assertEquals(even.order, 25_000)
+    assert(even.hasEdge(0 ~ 2))
+    assert(!even.hasEdge(0 ~ 1))
+    assertEquals(even(0).degree, 24_999)
+    val transposed = DirectedGraph.star(50_000).transpose
+    assertEquals(transposed.size, 50_000)
+    assert(transposed.hasEdge(7 ~> 0))
+    assertEquals(transposed(0).degree, 50_000)

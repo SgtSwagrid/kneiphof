@@ -1,68 +1,53 @@
 package com.alecdorrington
 package kneiphof
+package views
 
 /**
-  * The join of [[left]] and [[right]], answering queries about vertices and
-  * edges from the two operands, without building the new edges between them.
-  * Anything which needs every edge, such as iterating over them, is answered by
-  * the joined graph, which is only built when first needed.
+  * The queries about the join of [[left]] and [[right]], answered from the two
+  * operands without building the new edges between them.
   *
-  * @tparam L
-  *   The label of the new edges.
+  * @param link
+  *   The new edge from a vertex of [[left]] to a vertex of [[right]].
+  * @param links
+  *   The number of new edges equal to an edge.
   */
-private[kneiphof] trait Joining[
+private[kneiphof] final class Joining[
   V,
   E,
   L,
-  M,
+  M : Multiplicity as M,
   X[+v, +e] <: AnyEdge[v, e, X],
   G[+v, +e] <: GraphOps[v, e, M, X, G],
-] extends Delegating[V, E | L, M, X, G]:
-  this: G[V, E | L] =>
-
-  /** The graph from which the new edges lead. */
-  protected def left: G[V, E]
-
-  /** The graph to which the new edges lead. */
-  protected def right: G[V, E]
-
-  /**
-    * @return
-    *   The new edge from [[source]], in [[left]], to [[target]], in [[right]].
-    */
-  protected def link(source: V, target: V): X[V, E | L]
-
-  /** @return The number of new edges equal to [[edge]]. */
-  protected def links(edge: Any): Int
+]
+  (
+    left: G[V, E],
+    right: G[V, E],
+    link: (V, V) => X[V, E | L],
+    links: Any => Int,
+  )
+  extends Queries[V, E | L, M, X[V, E | L]]:
 
   override lazy val vertexValues: ValueSet[V] = left.vertexValues |
     right.vertexValues
-
-  override def empty: G[Nothing, Nothing] = left.empty
 
   override def hasVertex(vertex: Any): Boolean = left.hasVertex(vertex) ||
     right.hasVertex(vertex)
 
   override def multiplicity(edge: Any): M = left.multiplicity(edge) +
-    right.multiplicity(edge) + algebra.fromInt(links(edge))
-
-  override def hasEdge(edge: Any): Boolean = multiplicity(edge).nonZero
+    right.multiplicity(edge) + M.fromInt(links(edge))
 
   override def incidentEdgeValues(vertex: Any): ValueSet[X[V, E | L]] = left
     .incidentEdgeValues(vertex) | right.incidentEdgeValues(vertex) |
     ValueSet.from(linksAt(vertex))
 
-  override def size: Int =
-    if !disjoint then delegate.size
-    else
-      Math.addExact(
-        left.size + right.size,
-        Math.multiplyExact(left.order, right.order),
-      )
+  override def size: Option[Int] = Option.when(disjoint):
+    Math.addExact(
+      left.size + right.size,
+      Math.multiplyExact(left.order, right.order),
+    )
 
-  override def degree(vertex: Any): Int =
-    if !disjoint then super.degree(vertex)
-    else if left.hasVertex(vertex) then left.degree(vertex) + right.order
+  override def degree(vertex: Any): Option[Int] = Option.when(disjoint):
+    if left.hasVertex(vertex) then left.degree(vertex) + right.order
     else if right.hasVertex(vertex) then right.degree(vertex) + left.order
     else 0
 

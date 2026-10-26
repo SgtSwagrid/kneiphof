@@ -2,8 +2,10 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceDirectedGraph
-import com.alecdorrington.kneiphof.shapes.{DirectedShapeGraph, Indexing, Shape}
-import com.alecdorrington.kneiphof.views.{LazyDirectedGraph, Queries}
+import com.alecdorrington.kneiphof.shapes.{DirectedShaping, Indexing, Shape}
+import com.alecdorrington.kneiphof.views.{
+  Joining, LazyDirectedGraph, Queries, Viewing,
+}
 import scala.annotation.targetName
 
 /**
@@ -49,7 +51,12 @@ trait DirectedGraphBase[+V, +E, M]
         override val value: Arc[V, E] = found,
     )
 
-  override def transpose: DirectedGraphBase[V, E, M]
+  override def transpose: DirectedGraphBase[V, E, M] =
+    graphs.imaged(this, graphs.viewing(this), edgeValues)(
+      identity,
+      edge => List(edge.reverse),
+      exact = true,
+    )
 
   /**
     * @return
@@ -61,11 +68,7 @@ trait DirectedGraphBase[+V, +E, M]
   infix def + [W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedGraphBase[W, F, M] = graphs.merged(
-    this,
-    that.vertexValues,
-    that.edgeValues.map((e, n) => e -> embed(n)),
-  )(_ + _)
+    : DirectedGraphBase[W, F, M] = combined(that, embed)(_ + _)
 
   /**
     * @return
@@ -76,11 +79,7 @@ trait DirectedGraphBase[+V, +E, M]
   infix def | [W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedGraphBase[W, F, M] = graphs.merged(
-    this,
-    that.vertexValues,
-    that.edgeValues.map((e, n) => e -> embed(n)),
-  )(_ | _)
+    : DirectedGraphBase[W, F, M] = combined(that, embed)(_ | _)
 
   /**
     * @return
@@ -144,8 +143,7 @@ trait DirectedGraphBase[+V, +E, M]
     */
   def join[W >: V, F >: E]
     (that: DirectedGraphBase[W, F, M], label: F)
-    : DirectedGraphBase[W, F, M] =
-    graphs.joined(this, that)(DirectedEdge(_, _, label))
+    : DirectedGraphBase[W, F, M] = DirectedGraphBase.Join(this, that) % label
 
   /**
     * @return
@@ -169,7 +167,11 @@ trait DirectedGraphBase[+V, +E, M]
 
   /** This graph as a directed hypergraph, in the default representation. */
   def toDirectedHypergraph: DirectedHypergraphBase[V, E, M] =
-    DirectedHypergraphBase.kind[M].fromMultiplicities(vertexValues, edgeValues)
+    val hypergraphs = DirectedHypergraphBase.kind[M]
+    hypergraphs.lazily(this)(
+      DirectedHypergraphBase.viewing(this, Embedding.identity),
+      hypergraphs.fromMultiplicities(vertexValues, edgeValues),
+    )
 
   /**
     * The undirected graph obtained by forgetting the direction of every edge,
@@ -177,15 +179,54 @@ trait DirectedGraphBase[+V, +E, M]
     */
   override def underlying: GraphBase[V, E, M] = GraphBase
     .kind[M]
-    .fromMultiplicities(
-      vertexValues,
-      edgeValues
-        .toSeq
-        .map: (edge, multiplicity) =>
-          kneiphof.Edge(edge.source, edge.target, edge.label) -> multiplicity,
+    .imaged(this, graphs.viewing(this), edgeValues)(
+      identity,
+      edge => List(kneiphof.Edge(edge.source, edge.target, edge.label)),
+      exact = false,
     )
 
+  override def map[W, F]
+    (vertexMap: V => W, labelMap: E => F)
+    : DirectedGraphBase[W, F, M] =
+    graphs.imaged(this, graphs.viewing(this), edgeValues)(
+      vertexMap,
+      edge => List(edge.map(vertexMap, labelMap)),
+      exact = false,
+    )
+
+  override def view: DirectedGraphBase[V, E, M] =
+    graphs.view(graphs.viewing(this), this)
+
   override protected def kindName: String = "DirectedGraph"
+
+  override protected def refined
+    (
+      keep: V => Boolean,
+      reweigh: (Any, M) => M,
+      changed: => Iterable[Any],
+      operands: AnyGraph[?, ?, ?]*,
+    )
+    : DirectedGraphBase[V, E, M] =
+    graphs.refined(this, keep, reweigh, changed, operands)
+
+  /**
+    * @return
+    *   The union or sum of this graph and [[that]], whose multiplicities are
+    *   combined by [[combine]].
+    */
+  private def combined[W >: V, F >: E, N]
+    (
+      that: DirectedGraphBase[W, F, N],
+      embed: Embedding[N, M],
+    )
+    (combine: (M, M) => M)
+    : DirectedGraphBase[W, F, M] = graphs.combined[W, F](
+    this,
+    DirectedGraphBase.viewing(that, embed),
+    that,
+    that.vertexValues,
+    that.edgeValues.map((edge, n) => edge -> embed(n)),
+  )(combine)
 
   /** The kind of this graph, in its own representation. */
   private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.Kind(empty)
@@ -221,41 +262,40 @@ object DirectedGraphBase:
       )
       : Join[V, E, Unit, M] = Joined(left, right, ())
 
-    /** A join, held as the graphs it joins. */
+    /**
+      * A join, held as the graphs it joins. It's always lazy, since its size is
+      * the product of theirs.
+      */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        override protected val left: DirectedGraphBase[V, E, M],
-        override protected val right: DirectedGraphBase[V, E, M],
+        left: DirectedGraphBase[V, E, M],
+        right: DirectedGraphBase[V, E, M],
         label: L,
       )
-      extends Join[V, E, L, M],
-              Joining[
-                V,
-                E,
-                L,
-                M,
-                Arc,
-                [v, e] =>> DirectedGraphBase[v, e, M],
-              ]:
-
-      override protected lazy val delegate: DirectedGraphBase[V, E | L, M] =
-        left.join[V, E | L](right, label)
-
-      override def updated[W >: V, F >: E | L]
-        (edge: Arc[W, F], multiplicity: M)
-        : DirectedGraphBase[W, F, M] = delegate.updated(edge, multiplicity)
-
-      override def transpose: DirectedGraphBase[V, E | L, M] =
-        delegate.transpose
+      extends LazyDirectedGraph[V, E | L, M](
+        left.empty,
+        Joining[
+          V,
+          E,
+          L,
+          M,
+          Arc,
+          [v, e] =>> DirectedGraphBase[v, e, M],
+        ](
+          left,
+          right,
+          DirectedEdge(_, _, label),
+          Joining.directedLinks(left, right, label, _),
+        ),
+        () =>
+          Kind(left.empty).joined[V, E | L](left, right)(
+            DirectedEdge(_, _, label),
+          ),
+      ),
+              Join[V, E, L, M]:
 
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
-
-      override protected def link(source: V, target: V): Arc[V, E | L] =
-        DirectedEdge(source, target, label)
-
-      override protected def links(edge: Any): Int =
-        Joining.directedLinks(left, right, label, edge)
 
   /** The kind of directed graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]
@@ -268,7 +308,7 @@ object DirectedGraphBase:
     ],
             Shapes[[v, e] =>> DirectedGraphBase[v, e, M]]:
 
-    override private[kneiphof] def lazily[V, E]
+    override private[kneiphof] def view[V, E]
       (
         queries: Queries[V, E, M, Arc[V, E]],
         build: => DirectedGraphBase[V, E, M],
@@ -287,13 +327,36 @@ object DirectedGraphBase:
     override private[kneiphof] def shaped[V]
       (vertices: Indexing[V], shape: Shape)
       : DirectedGraphBase[V, Unit, M] =
-      DirectedShapeGraph(this, vertices, shape)
+      val shaping = DirectedShaping[V, M](vertices, shape)
+      view(
+        shaping,
+        from(shaping.vertexValues, shaping.edges),
+      )
 
     override private[kneiphof] def complete(order: Int): Shape = Shape
       .CompleteDigraph(order)
 
   /** @return The kind of directed graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceDirectedGraph.empty)
+
+  /**
+    * @return
+    *   The queries about [[graph]], with its multiplicities read in [[M]] by
+    *   [[embed]], answered by [[graph]] itself.
+    */
+  private[kneiphof] def viewing[V, E, N, M : Multiplicity]
+    (
+      graph: DirectedGraphBase[V, E, N],
+      embed: Embedding[N, M],
+    )
+    : Queries[V, E, M, Arc[V, E]] = Viewing[
+    V,
+    E,
+    N,
+    M,
+    Arc,
+    [v, e] =>> DirectedGraphBase[v, e, N],
+  ](graph, embed)
 
 /** Directed graphs whose edges form a set, in the default representation. */
 object DirectedGraph

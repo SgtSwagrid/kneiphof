@@ -1,6 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.views.Queries
 import java.util.NoSuchElementException
 
 /**
@@ -59,6 +60,13 @@ trait GraphOps[
     */
   def map[W, F](vertexMap: V => W, labelMap: E => F): G[W, F]
 
+  /**
+    * @return
+    *   This graph as a lazy graph, so that operations on it are computed only
+    *   when they're queried, rather than built straight away.
+    */
+  def view: G[V, E]
+
   /** @return The vertex with the given [[value]], if it's in this graph. */
   def vertex(value: Any): Option[Vertex]
 
@@ -67,6 +75,22 @@ trait GraphOps[
 
   /** The name of this kind of graph. */
   protected def kindName: String
+
+  /**
+    * @return
+    *   The subgraph with only the vertices satisfying [[keep]], and each
+    *   remaining edge's multiplicity changed by [[reweigh]], which may depend
+    *   on [[operands]]. Only the edges in [[changed]] may have their
+    *   multiplicities changed.
+    */
+  protected def refined
+    (
+      keep: V => Boolean,
+      reweigh: (Any, M) => M,
+      changed: => Iterable[Any],
+      operands: AnyGraph[?, ?, ?]*,
+    )
+    : G[V, E]
 
   /** The vertices of this graph. */
   def vertices: Set[Vertex] = vertexValues.flatMap(vertex).toSet
@@ -114,13 +138,12 @@ trait GraphOps[
   infix def - [N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
-    : G[V, E] = edgeValues
-    .keys
-    .foldLeft(this: G[V, E]): (graph, edge) =>
-      graph.withMultiplicity(
-        edge,
-        multiplicity(edge) - embed(that.multiplicity(edge)),
-      )
+    : G[V, E] = refined(
+    _ => true,
+    (edge, multiplicity) => multiplicity - embed(that.multiplicity(edge)),
+    that.edgeValues.keys,
+    that,
+  )
 
   /**
     * @return
@@ -131,21 +154,23 @@ trait GraphOps[
   infix def & [N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
-    : G[V, E] = edgeValues
-    .keys
-    .foldLeft(filterVertices(that.hasVertex)): (graph, edge) =>
-      graph.withMultiplicity(
-        edge,
-        multiplicity(edge) & embed(that.multiplicity(edge)),
-      )
+    : G[V, E] = refined(
+    that.hasVertex,
+    (edge, multiplicity) => multiplicity & embed(that.multiplicity(edge)),
+    edgeValues.keys,
+    that,
+  )
 
   /**
     * @return
     *   The subgraph induced by the vertices satisfying [[predicate]], with
     *   every edge between them.
     */
-  def filterVertices(predicate: V => Boolean): G[V, E] =
-    removeVertices(vertexValues.filterNot(predicate))
+  def filterVertices(predicate: V => Boolean): G[V, E] = refined(
+    predicate,
+    (_, multiplicity) => multiplicity,
+    Nil,
+  )
 
   /**
     * @return
@@ -159,21 +184,22 @@ trait GraphOps[
     *   The spanning subgraph with every vertex, but only the edges satisfying
     *   [[predicate]].
     */
-  def filterEdges(predicate: X[V, E] => Boolean): G[V, E] = edgeValues
-    .keys
-    .filterNot(predicate)
-    .foldLeft(this: G[V, E])(_.removeEdge(_))
+  def filterEdges(predicate: X[V, E] => Boolean): G[V, E] = refined(
+    _ => true,
+    kept(predicate),
+    edgeValues.keys,
+  )
 
   /**
     * @return
     *   The subgraph induced by the edges satisfying [[predicate]], with only
     *   the vertices incident to them.
     */
-  def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] =
-    val kept = filterEdges(predicate)
-    kept.removeVertices(
-      kept.vertexValues.filter(kept.incidentEdgeValues(_).isEmpty),
-    )
+  def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] = refined(
+    incidentEdgeValues(_).exists(predicate),
+    kept(predicate),
+    edgeValues.keys,
+  )
 
   /**
     * @return
@@ -199,6 +225,25 @@ trait GraphOps[
       ", ",
       ")",
     )
+
+  /**
+    * @return
+    *   The reweighing which keeps the edges satisfying [[predicate]], and
+    *   removes the others.
+    */
+  private def kept(predicate: X[V, E] => Boolean): (Any, M) => M =
+    (edge, multiplicity) =>
+      if found(edge).exists(predicate) then multiplicity else algebra.zero
+
+  /**
+    * @return
+    *   The edge of this graph equal to [[edge]], if there is one, found among
+    *   the edges at one of its ends.
+    */
+  private def found(edge: Any): Option[X[V, E]] =
+    Queries.ends(edge).headOption match
+      case Some(end) => incidentEdgeValues(end).get(edge)
+      case None      => edgeValues.getKey(edge)
 
   /** The vertices of this graph without any incident edges. */
   private def isolated: Iterable[V] =

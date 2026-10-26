@@ -35,6 +35,3 @@ private[kneiphof] trait Delegating[
 
   override def withMultiplicity(edge: Any, multiplicity: M): G[V, E] = delegate
     .withMultiplicity(edge, multiplicity)
-
-  override def map[W, F](vertexMap: V => W, labelMap: E => F): G[W, F] =
-    delegate.map(vertexMap, labelMap)
