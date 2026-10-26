@@ -131,23 +131,19 @@ trait GraphBase[+V, +E, M]
 
   /**
     * @return
-    *   The join `that :~: this`, with an unlabelled edge between every vertex
-    *   of [[that]] and every vertex of this graph (see [[join]]).
+    *   The join `that :~: this`, with an edge labelled `()` between every
+    *   vertex of [[that]] and every vertex of this graph (see [[join]]). The
+    *   new edges can be relabelled, as in `(that :~: this) % label`.
     */
-  infix def :~: [W >: V]
-    (that: GraphBase[W, Unit, M])
-    (using E <:< Unit)
-    : GraphBase[W, Unit, M] = that.join(unlabelledGraph, ())
+  infix def :~: [W >: V, F >: E]
+    (that: GraphBase[W, F, M])
+    : GraphBase.Join[W, F, Unit, M] = GraphBase.Join(that, this)
 
-  override infix def :~ [W >: V]
-    (vertex: W)
-    (using E <:< Unit)
-    : GraphBase[W, Unit, M] = unlabelledGraph.join(graphs.vertex(vertex), ())
+  override infix def :~ [W >: V](vertex: W): GraphBase.Join[W, E, Unit, M] =
+    GraphBase.Join(this, graphs.vertex(vertex))
 
-  override infix def ~: [W >: V]
-    (vertex: W)
-    (using E <:< Unit)
-    : GraphBase[W, Unit, M] = this :~ vertex
+  override infix def ~: [W >: V](vertex: W): GraphBase.Join[W, E, Unit, M] =
+    this :~ vertex
 
   /** This graph as a hypergraph, in the default representation. */
   def toHypergraph: HypergraphBase[V, E, M] = HypergraphBase
@@ -174,12 +170,63 @@ trait GraphBase[+V, +E, M]
   /** The kind of this graph, in its own representation. */
   private def graphs: GraphBase.Kind[M] = GraphBase.Kind(empty)
 
-  /** This graph, whose edges are known to be unlabelled. */
-  private def unlabelledGraph(using unit: E <:< Unit): GraphBase[V, Unit, M] =
-    unit.liftCo[[e] =>> GraphBase[V, e, M]](this)
-
 /** The companion object for [[GraphBase]]. */
 object GraphBase:
+
+  /**
+    * The join of two graphs, which remembers its new edges so that they can be
+    * relabelled with `%`.
+    *
+    * @tparam L
+    *   The label of the new edges.
+    */
+  trait Join[+V, +E, +L, M]
+    extends GraphBase[V, E | L, M], HypergraphBase.Join[V, E, L, M]:
+
+    override infix def % [F](label: F): Join[V, E, F, M]
+
+  /** The companion object for [[Join]]. */
+  object Join:
+
+    /**
+      * @return
+      *   The join of [[left]] and [[right]], whose new edges are labelled `()`.
+      */
+    def apply[V, E, M : Multiplicity]
+      (
+        left: GraphBase[V, E, M],
+        right: GraphBase[V, E, M],
+      )
+      : Join[V, E, Unit, M] = Joined(left, right, ())
+
+    /** A join, held as the graphs it joins. */
+    private final class Joined[V, E, L, M : Multiplicity]
+      (
+        left: GraphBase[V, E, M],
+        right: GraphBase[V, E, M],
+        label: L,
+      )
+      extends Join[V, E, L, M],
+              Delegating[
+                V,
+                E | L,
+                M,
+                kneiphof.Edge,
+                [v, e] =>> GraphBase[v, e, M],
+              ]:
+
+      override protected lazy val delegate: GraphBase[V, E | L, M] =
+        left.join[V, E | L](right, label)
+
+      override def updated[W >: V, F >: E | L]
+        (
+          edge: kneiphof.Edge[W, F],
+          multiplicity: M,
+        )
+        : GraphBase[W, F, M] = delegate.updated(edge, multiplicity)
+
+      override infix def % [F](label: F): Join[V, E, F, M] =
+        Joined(left, right, label)
 
   /** The kind of graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]

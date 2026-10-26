@@ -164,7 +164,7 @@ class GraphSuite extends munit.FunSuite:
     )
 
   test("joining adds an edge between every pair of vertices"):
-    val joined = Graph(1 ~ 2) :~: Graph.vertex(3)
+    val joined: Graph[Int, Unit] = Graph(1 ~ 2) :~: Graph.vertex(3)
     assertEquals(joined, Graph(1 ~ 2, 2 ~ 3, 3 ~ 1))
     assertEquals(
       joined,
@@ -176,14 +176,23 @@ class GraphSuite extends munit.FunSuite:
     )
 
   test("a vertex joined to a graph forms a cone"):
-    val star = 0 ~: Graph.vertices(1, 2, 3)
+    val star: Graph[Int, Unit] = 0 ~: Graph.vertices(1, 2, 3)
     assertEquals(star, Graph(0 ~ 1, 0 ~ 2, 0 ~ 3))
-    assertEquals(Graph.vertices(1, 2, 3) :~ 0, star)
+    assertEquals[Any, Any](Graph.vertices(1, 2, 3) :~ 0, star)
     assertEquals((0 ~: Graph(1 ~ 2, 2 ~ 3, 3 ~ 1)).size, 6)
-    assertEquals(
+    assertEquals[Any, Any](
       0 ~: 1 ~: Graph.vertex(2),
       Graph(0 ~ 1, 1 ~ 2, 2 ~ 0),
     )
 
-  test("join operators only apply to unlabelled graphs"):
-    assert(compileErrors("Graph(1 ~ 2 % \"a\") :~ 3").nonEmpty)
+  test("only the new edges of a join are relabelled"):
+    val cone: Graph[Int, String] = (Graph(1 ~ 2 % "a") :~ 3) % "b"
+    assertEquals(cone, Graph(1 ~ 2 % "a", 1 ~ 3 % "b", 2 ~ 3 % "b"))
+    val star: Graph[Int, String] = 0 ~: Graph.vertices(1, 2) % "x"
+    assertEquals(star, Graph(0 ~ 1 % "x", 0 ~ 2 % "x"))
+    val mixed: Graph[Int, Unit | String] =
+      (Graph(1 ~ 2) :~: Graph.vertex(3)) % "x"
+    assertEquals(
+      mixed,
+      Graph[Int, Unit | String](1 ~ 2, 1 ~ 3 % "x", 2 ~ 3 % "x"),
+    )

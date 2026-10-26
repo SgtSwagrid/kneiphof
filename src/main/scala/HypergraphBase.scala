@@ -119,33 +119,30 @@ trait HypergraphBase[+V, +E, M]
 
   /**
     * @return
-    *   The join `that :~: this`, with an unlabelled edge between every vertex
-    *   of [[that]] and every vertex of this hypergraph (see [[join]]).
+    *   The join `that :~: this`, with an edge labelled `()` between every
+    *   vertex of [[that]] and every vertex of this hypergraph (see [[join]]).
+    *   The new edges can be relabelled, as in `(that :~: this) % label`.
     */
-  infix def :~: [W >: V]
-    (that: HypergraphBase[W, Unit, M])
-    (using E <:< Unit)
-    : HypergraphBase[W, Unit, M] = that.join(unlabelledHypergraph, ())
+  infix def :~: [W >: V, F >: E]
+    (that: HypergraphBase[W, F, M])
+    : HypergraphBase.Join[W, F, Unit, M] = HypergraphBase.Join(that, this)
 
   /**
     * @return
-    *   The cone `this :~ vertex`, with an unlabelled edge from every vertex of
-    *   this hypergraph to [[vertex]] (see [[join]]).
+    *   The cone `this :~ vertex`, with an edge labelled `()` from every vertex
+    *   of this hypergraph to [[vertex]] (see [[join]]). The new edges can be
+    *   relabelled, as in `(this :~ vertex) % label`.
     */
-  infix def :~ [W >: V]
-    (vertex: W)
-    (using E <:< Unit)
-    : HypergraphBase[W, Unit, M] =
-    unlabelledHypergraph.join(hypergraphs.vertex(vertex), ())
+  infix def :~ [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
+    HypergraphBase.Join(this, hypergraphs.vertex(vertex))
 
   /**
     * @return
-    *   The cone `vertex ~: this`, which is the same as `this :~ vertex`.
+    *   The cone `vertex ~: this`, which is the same as `this :~ vertex`. The
+    *   new edges can be relabelled, as in `vertex ~: this % label`.
     */
-  infix def ~: [W >: V]
-    (vertex: W)
-    (using E <:< Unit)
-    : HypergraphBase[W, Unit, M] = this :~ vertex
+  infix def ~: [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] = this :~
+    vertex
 
   override def vertex(value: Any): Option[Vertex] = vertexValues
     .get(value)
@@ -166,14 +163,60 @@ trait HypergraphBase[+V, +E, M]
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: HypergraphBase.Kind[M] = HypergraphBase.Kind(empty)
 
-  /** This hypergraph, whose edges are known to be unlabelled. */
-  private def unlabelledHypergraph
-    (using unit: E <:< Unit)
-    : HypergraphBase[V, Unit, M] =
-    unit.liftCo[[e] =>> HypergraphBase[V, e, M]](this)
-
 /** The companion object for [[HypergraphBase]]. */
 object HypergraphBase:
+
+  /**
+    * The join of two hypergraphs, which remembers its new edges so that they
+    * can be relabelled with `%`.
+    *
+    * @tparam L
+    *   The label of the new edges.
+    */
+  trait Join[+V, +E, +L, M] extends HypergraphBase[V, E | L, M]:
+
+    /** @return This join, with every new edge labelled [[label]] instead. */
+    infix def % [F](label: F): Join[V, E, F, M]
+
+  /** The companion object for [[Join]]. */
+  object Join:
+
+    /**
+      * @return
+      *   The join of [[left]] and [[right]], whose new edges are labelled `()`.
+      */
+    def apply[V, E, M : Multiplicity]
+      (
+        left: HypergraphBase[V, E, M],
+        right: HypergraphBase[V, E, M],
+      )
+      : Join[V, E, Unit, M] = Joined(left, right, ())
+
+    /** A join, held as the hypergraphs it joins. */
+    private final class Joined[V, E, L, M : Multiplicity]
+      (
+        left: HypergraphBase[V, E, M],
+        right: HypergraphBase[V, E, M],
+        label: L,
+      )
+      extends Join[V, E, L, M],
+              Delegating[
+                V,
+                E | L,
+                M,
+                Hyperedge,
+                [v, e] =>> HypergraphBase[v, e, M],
+              ]:
+
+      override protected lazy val delegate: HypergraphBase[V, E | L, M] = left
+        .join[V, E | L](right, label)
+
+      override def updated[W >: V, F >: E | L]
+        (edge: Hyperedge[W, F], multiplicity: M)
+        : HypergraphBase[W, F, M] = delegate.updated(edge, multiplicity)
+
+      override infix def % [F](label: F): Join[V, E, F, M] =
+        Joined(left, right, label)
 
   /** The kind of hypergraphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]

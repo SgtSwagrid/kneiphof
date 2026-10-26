@@ -141,26 +141,23 @@ trait DirectedGraphBase[+V, +E, M]
 
   /**
     * @return
-    *   The join `that :~>: this`, with an unlabelled edge from every vertex of
-    *   [[that]] to every vertex of this graph (see [[join]]).
+    *   The join `that :~>: this`, with an edge labelled `()` from every vertex
+    *   of [[that]] to every vertex of this graph (see [[join]]). The new edges
+    *   can be relabelled, as in `(that :~>: this) % label`.
     */
-  infix def :~>: [W >: V]
-    (that: DirectedGraphBase[W, Unit, M])
-    (using E <:< Unit)
-    : DirectedGraphBase[W, Unit, M] = that.join(unlabelledDirectedGraph, ())
+  infix def :~>: [W >: V, F >: E]
+    (that: DirectedGraphBase[W, F, M])
+    : DirectedGraphBase.Join[W, F, Unit, M] = DirectedGraphBase.Join(that, this)
 
   override infix def :~> [W >: V]
     (vertex: W)
-    (using E <:< Unit)
-    : DirectedGraphBase[W, Unit, M] =
-    unlabelledDirectedGraph.join(graphs.vertex(vertex), ())
+    : DirectedGraphBase.Join[W, E, Unit, M] =
+    DirectedGraphBase.Join(this, graphs.vertex(vertex))
 
   override infix def ~>: [W >: V]
     (vertex: W)
-    (using E <:< Unit)
-    : DirectedGraphBase[W, Unit, M] = graphs
-    .vertex(vertex)
-    .join(unlabelledDirectedGraph, ())
+    : DirectedGraphBase.Join[W, E, Unit, M] =
+    DirectedGraphBase.Join(graphs.vertex(vertex), this)
 
   /** This graph as a directed hypergraph, in the default representation. */
   def toDirectedHypergraph: DirectedHypergraphBase[V, E, M] =
@@ -185,14 +182,65 @@ trait DirectedGraphBase[+V, +E, M]
   /** The kind of this graph, in its own representation. */
   private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.Kind(empty)
 
-  /** This graph, whose edges are known to be unlabelled. */
-  private def unlabelledDirectedGraph
-    (using unit: E <:< Unit)
-    : DirectedGraphBase[V, Unit, M] =
-    unit.liftCo[[e] =>> DirectedGraphBase[V, e, M]](this)
-
 /** The companion object for [[DirectedGraphBase]]. */
 object DirectedGraphBase:
+
+  /**
+    * The join of two directed graphs, which remembers its new edges so that
+    * they can be relabelled with `%`.
+    *
+    * @tparam L
+    *   The label of the new edges.
+    */
+  trait Join[+V, +E, +L, M]
+    extends DirectedGraphBase[V, E | L, M],
+            DirectedHypergraphBase.Join[V, E, L, M]:
+
+    override infix def % [F](label: F): Join[V, E, F, M]
+
+  /** The companion object for [[Join]]. */
+  object Join:
+
+    /**
+      * @return
+      *   The join from [[left]] to [[right]], whose new edges are labelled
+      *   `()`.
+      */
+    def apply[V, E, M : Multiplicity]
+      (
+        left: DirectedGraphBase[V, E, M],
+        right: DirectedGraphBase[V, E, M],
+      )
+      : Join[V, E, Unit, M] = Joined(left, right, ())
+
+    /** A join, held as the graphs it joins. */
+    private final class Joined[V, E, L, M : Multiplicity]
+      (
+        left: DirectedGraphBase[V, E, M],
+        right: DirectedGraphBase[V, E, M],
+        label: L,
+      )
+      extends Join[V, E, L, M],
+              Delegating[
+                V,
+                E | L,
+                M,
+                Arc,
+                [v, e] =>> DirectedGraphBase[v, e, M],
+              ]:
+
+      override protected lazy val delegate: DirectedGraphBase[V, E | L, M] =
+        left.join[V, E | L](right, label)
+
+      override def updated[W >: V, F >: E | L]
+        (edge: Arc[W, F], multiplicity: M)
+        : DirectedGraphBase[W, F, M] = delegate.updated(edge, multiplicity)
+
+      override def transpose: DirectedGraphBase[V, E | L, M] =
+        delegate.transpose
+
+      override infix def % [F](label: F): Join[V, E, F, M] =
+        Joined(left, right, label)
 
   /** The kind of directed graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]

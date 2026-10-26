@@ -44,6 +44,7 @@ This is a Scala library of graphs and graph algorithms.
 - `GraphOps[V, E, M, X, G]` holds the kind-preserving operations. Operations that add edges (`+`, `|`, `flatMapVertices`, ...) are declared per kind with exact types and implemented once in `GraphKind`. They can't live in `GraphOps`, because a `Graph` widened to a `Hypergraph` must not store hyperedges.
 - Never use `@uncheckedVariance` or casts. Covariant types expose `ValueSet`/`ValueMap` (keyed by `Any`, element stored as a value), never `Set[V]`/`Map[V, _]`. Handles (`g.Vertex`, `g.Edge`) are traits instantiated by each kind.
 - Inside the graph traits, the handle type member `Edge` shadows the top-level `Edge` class: write `kneiphof.Edge` there.
+- Join operators (`g :~: h`, `v ~: g`, `g :~> v`, ...) return an `XBase.Join`: a graph that delegates to the materialised join (via `Delegating`) and remembers its operands, so that `%` can relabel only the new edges.
 - The default representation is `incidence.IncidenceOps` (persistent hash tries). Other representations plug in by implementing the abstract members of a kind and passing their empty graph to `XBase.Kind(empty)`.
 
 ### Pull Requests

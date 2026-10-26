@@ -72,13 +72,16 @@ class DirectedGraphSuite extends munit.FunSuite:
     assert(grown.hasEdge(DirectedHyperedge(Seq(2, 1), Seq(4))))
 
   test("directed joins lead from left to right"):
-    val sources = DirectedGraph.vertices(1, 2)
+    val sources                          = DirectedGraph.vertices(1, 2)
+    val joined: DirectedGraph[Int, Unit] = sources :~>: DirectedGraph.vertex(3)
+    assertEquals(joined, DirectedGraph(1 ~> 3, 2 ~> 3))
+    assertEquals[Any, Any](sources :~> 3, joined)
+    assertEquals[Any, Any](0 ~>: sources, DirectedGraph(0 ~> 1, 0 ~> 2))
+    val labelled: DirectedGraph[Int, String] = (sources :~> 3) % "x"
     assertEquals(
-      sources :~>: DirectedGraph.vertex(3),
-      DirectedGraph(1 ~> 3, 2 ~> 3),
+      labelled,
+      DirectedGraph(1 ~> 3 % "x", 2 ~> 3 % "x"),
     )
-    assertEquals(sources :~> 3, DirectedGraph(1 ~> 3, 2 ~> 3))
-    assertEquals(0 ~>: sources, DirectedGraph(0 ~> 1, 0 ~> 2))
     assertEquals(
       DirectedGraph(1 ~> 2 % "a").join(DirectedGraph.vertex(3), "b"),
       DirectedGraph(1 ~> 2 % "a", 1 ~> 3 % "b", 2 ~> 3 % "b"),
