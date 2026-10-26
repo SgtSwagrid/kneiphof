@@ -204,14 +204,15 @@ object HypergraphBase:
     /** A join, held as the hypergraphs it joins. */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        left: HypergraphBase[V, E, M],
-        right: HypergraphBase[V, E, M],
+        override protected val left: HypergraphBase[V, E, M],
+        override protected val right: HypergraphBase[V, E, M],
         label: L,
       )
       extends Join[V, E, L, M],
-              Delegating[
+              Joining[
                 V,
-                E | L,
+                E,
+                L,
                 M,
                 Hyperedge,
                 [v, e] =>> HypergraphBase[v, e, M],
@@ -226,6 +227,12 @@ object HypergraphBase:
 
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
+
+      override protected def link(source: V, target: V): Hyperedge[V, E | L] =
+        kneiphof.Edge(source, target, label)
+
+      override protected def links(edge: Any): Int =
+        Joining.undirectedLinks(left, right, label, edge)
 
   /** The kind of hypergraphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]

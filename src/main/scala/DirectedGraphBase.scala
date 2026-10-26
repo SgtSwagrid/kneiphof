@@ -2,6 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceDirectedGraph
+import com.alecdorrington.kneiphof.shapes.{DirectedShapeGraph, Indexing, Shape}
 import scala.annotation.targetName
 
 /**
@@ -225,14 +226,15 @@ object DirectedGraphBase:
     /** A join, held as the graphs it joins. */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        left: DirectedGraphBase[V, E, M],
-        right: DirectedGraphBase[V, E, M],
+        override protected val left: DirectedGraphBase[V, E, M],
+        override protected val right: DirectedGraphBase[V, E, M],
         label: L,
       )
       extends Join[V, E, L, M],
-              Delegating[
+              Joining[
                 V,
-                E | L,
+                E,
+                L,
                 M,
                 Arc,
                 [v, e] =>> DirectedGraphBase[v, e, M],
@@ -251,6 +253,12 @@ object DirectedGraphBase:
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
+      override protected def link(source: V, target: V): Arc[V, E | L] =
+        DirectedEdge(source, target, label)
+
+      override protected def links(edge: Any): Int =
+        Joining.directedLinks(left, right, label, edge)
+
   /** The kind of directed graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]
     (override val empty: DirectedGraphBase[Nothing, Nothing, M])
@@ -259,7 +267,8 @@ object DirectedGraphBase:
       Arc,
       [v, e] =>> DirectedGraphBase[v, e, M],
       [v, e] =>> DirectedGraphBase[v, e, Count],
-    ]:
+    ],
+            Shapes[[v, e] =>> DirectedGraphBase[v, e, M]]:
 
     override def updated[V, E]
       (
@@ -268,6 +277,14 @@ object DirectedGraphBase:
         multiplicity: M,
       )
       : DirectedGraphBase[V, E, M] = graph.updated(edge, multiplicity)
+
+    override private[kneiphof] def shaped[V]
+      (vertices: Indexing[V], shape: Shape)
+      : DirectedGraphBase[V, Unit, M] =
+      DirectedShapeGraph(this, vertices, shape)
+
+    override private[kneiphof] def complete(order: Int): Shape = Shape
+      .CompleteDigraph(order)
 
   /** @return The kind of directed graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceDirectedGraph.empty)

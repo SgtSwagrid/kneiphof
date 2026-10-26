@@ -2,6 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceGraph
+import com.alecdorrington.kneiphof.shapes.{Indexing, Shape, ShapeGraph}
 import scala.annotation.targetName
 
 /**
@@ -213,14 +214,15 @@ object GraphBase:
     /** A join, held as the graphs it joins. */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        left: GraphBase[V, E, M],
-        right: GraphBase[V, E, M],
+        override protected val left: GraphBase[V, E, M],
+        override protected val right: GraphBase[V, E, M],
         label: L,
       )
       extends Join[V, E, L, M],
-              Delegating[
+              Joining[
                 V,
-                E | L,
+                E,
+                L,
                 M,
                 kneiphof.Edge,
                 [v, e] =>> GraphBase[v, e, M],
@@ -239,6 +241,13 @@ object GraphBase:
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
+      override protected def link
+        (source: V, target: V)
+        : kneiphof.Edge[V, E | L] = kneiphof.Edge(source, target, label)
+
+      override protected def links(edge: Any): Int =
+        Joining.undirectedLinks(left, right, label, edge)
+
   /** The kind of graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]
     (override val empty: GraphBase[Nothing, Nothing, M])
@@ -247,7 +256,8 @@ object GraphBase:
       Edge,
       [v, e] =>> GraphBase[v, e, M],
       [v, e] =>> GraphBase[v, e, Count],
-    ]:
+    ],
+            Shapes[[v, e] =>> GraphBase[v, e, M]]:
 
     override def updated[V, E]
       (
@@ -256,6 +266,13 @@ object GraphBase:
         multiplicity: M,
       )
       : GraphBase[V, E, M] = graph.updated(edge, multiplicity)
+
+    override private[kneiphof] def shaped[V]
+      (vertices: Indexing[V], shape: Shape)
+      : GraphBase[V, Unit, M] = ShapeGraph(this, vertices, shape)
+
+    override private[kneiphof] def complete(order: Int): Shape =
+      Shape.Clique(order)
 
   /** @return The kind of graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceGraph.empty)

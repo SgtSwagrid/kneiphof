@@ -276,14 +276,15 @@ object DirectedHypergraphBase:
     /** A join, held as the hypergraphs it joins. */
     private final class Joined[V, E, L, M : Multiplicity]
       (
-        left: DirectedHypergraphBase[V, E, M],
-        right: DirectedHypergraphBase[V, E, M],
+        override protected val left: DirectedHypergraphBase[V, E, M],
+        override protected val right: DirectedHypergraphBase[V, E, M],
         label: L,
       )
       extends Join[V, E, L, M],
-              Delegating[
+              Joining[
                 V,
-                E | L,
+                E,
+                L,
                 M,
                 Hyperarc,
                 [v, e] =>> DirectedHypergraphBase[v, e, M],
@@ -302,6 +303,12 @@ object DirectedHypergraphBase:
 
       override infix def % [F](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
+
+      override protected def link(source: V, target: V): Hyperarc[V, E | L] =
+        DirectedEdge(source, target, label)
+
+      override protected def links(edge: Any): Int =
+        Joining.directedLinks(left, right, label, edge)
 
   /** The kind of directed hypergraphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]

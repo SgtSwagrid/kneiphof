@@ -48,6 +48,9 @@ This is a Scala library of graphs and graph algorithms.
   - Edges hash via `AnyEdge.shapeHash` (ends and label), never through their own edge map, because an edge is a key in that map. Edge equality must agree with graph equality (`1 ~ 2 == Multigraph(1 ~ 2)`).
   - `+`, `|`, `&` and `-` accept any multiplicity `N` with an `Embedding[N, M]` (identity, or counts into any `M`), so `g + (1 ~ 2)` works on set graphs. Factories take `C[V, E]*`, the kind's multigraphs.
 - Join operators (`g :~: h`, `v ~: g`, `g :~> v`, ...) return an `XBase.Join`: a graph that delegates to the materialised join (via `Delegating`) and remembers its operands, so that `%` can relabel only the new edges.
+- Shapes (`Graph.clique(n)`, `cycle`, `path`, `star`, `wheel`, `fan`, `tree`, from `Shapes`) are lazy `shapes.ShapeGraph`s: a `Shape` rule on vertex indices answers `hasEdge`, `multiplicity`, `size`, `order` and incidence, and the edges are only built (via `Delegating`) when something needs all of them. Joins (`Joining`) are lazy the same way, computing queries from their operands.
+  - Lazy graphs must override `empty` (and any other cheap query) rather than forwarding it, since kinds are built from `empty` in nearly every operator. Forwarding builds every edge (this blew the heap on a 50,000-vertex clique).
+  - Each shape has a count overload (`clique(3)`, vertices `0 until 3`) and a varargs overload (`clique("A", "B", "C")`); Scala prefers the non-varargs one for `clique(3)`.
 - The default representation is `incidence.IncidenceOps` (persistent hash tries). Other representations plug in by implementing the abstract members of a kind and passing their empty graph to `XBase.Kind(empty)`.
 
 ### Pull Requests
