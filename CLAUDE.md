@@ -55,8 +55,8 @@ This is a Scala library of graphs and graph algorithms.
   - A lazy `size` that returns `None` builds the whole graph, so count it from the edges that change where possible (`Queries.changes`). `LazySuite.assertLazy` checks lazy queries against the graph they build.
   - Degrees go through `GraphOps.degree(vertex)` so that lazy graphs can answer them without a multiplicity lookup per incident edge, which was quadratic on large products.
 - Shapes (`Shapes`, plus `DirectedShapes` for directed-only ones like `transitiveTournament`) are a `shapes.Shape` rule on indices `0 until n` plus an `Indexing` naming the vertices. Undirected rules list each edge as one arc; rules that differ by kind take `directed`. `Shape.Cartesian` with `Indexing.Pairing` gives `(row, column)` vertices (`grid`, `torus`, `prism`).
-  - Shapes on one sequence of vertices have a count overload (`clique(3)`, vertices `0 until 3`) and a varargs overload (`clique("A", "B", "C")`); Scala prefers the non-varargs one for `clique(3)`. Structured shapes (`hypercube`, `circulant`, `petersen`, `grid`, ...) are count-only.
-  - `complete(sizes: Int*)` and `complete(parts: Seq[V]*)` erase to the same signature, hence the `@targetName`. `complete(n)` is one part, so it has no edges; `clique(n)` is K_n.
+  - Shapes on one sequence of vertices have a count overload (`path(3)`, vertices `0 until 3`) and a varargs overload (`path("A", "B", "C")`); Scala prefers the non-varargs one for `path(3)`. Structured shapes (`hypercube`, `circulant`, `petersen`, `grid`, ...) are count-only.
+  - Complete graphs split by name instead (the user's choice): `complete(sizes*)` takes only sizes, following the notation (`complete(n)` is K_n, `complete(3, 4)` is K_{3,4}), and `clique(vertices*)` takes only vertices, so `clique(3)` is the single vertex `3`.
 - The default representation is `incidence.IncidenceOps` (persistent hash tries). Other representations plug in by implementing the abstract members of a kind and passing their empty graph to `XBase.Kind(empty)`.
 
 ### Pull Requests

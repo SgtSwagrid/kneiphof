@@ -2,7 +2,6 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.shapes.{Indexing, Shape}
-import scala.annotation.targetName
 
 /**
   * Constructors for common shapes of unlabelled graph, of kind [[G]].
@@ -12,40 +11,38 @@ import scala.annotation.targetName
   * something needs all of them, such as iterating over them.
   *
   * Each shape can be built on the vertices `0, 1, ...`, given how many there
-  * are, as in `clique(3)`. Shapes whose vertices come in a single sequence can
-  * also be built on the given distinct vertices, as in `clique("A", "B", "C")`.
+  * are, as in `path(3)`. Shapes whose vertices come in a single sequence can
+  * also be built on the given distinct vertices, as in `path("A", "B", "C")`.
+  * Complete graphs are the exception, with [[complete]] taking sizes and
+  * [[clique]] taking vertices, so that `clique(3)` can't be mistaken for
+  * `complete(3)`.
   */
 trait Shapes[+G[+v, +e]]:
 
   /**
     * @return
-    *   The complete graph on the vertices `0 until order`, in which every two
-    *   vertices are adjacent (in both directions, for directed graphs).
+    *   The clique on the given [[vertices]], in which every two are adjacent
+    *   (in both directions, for directed graphs). The complete graph on the
+    *   vertices `0 until n` is `complete(n)`.
     */
-  def clique(order: Int): G[Int, Unit] = counted(order)(allPairs)
-
-  /** @return The complete graph on the given [[vertices]]. */
   def clique[V](vertices: V*): G[V, Unit] = listed(vertices)(allPairs)
 
   /**
     * @return
-    *   The complete multipartite graph on the vertices `0, 1, ...`, which are
-    *   split into parts of the given [[sizes]] in order, and in which every two
-    *   vertices in different parts are adjacent (in both directions, for
-    *   directed graphs). So `complete(3, 4)` is the complete bipartite graph,
-    *   `complete(1, 1, 1)` is `clique(3)`, and `complete(3)` has no edges.
+    *   The complete graph with parts of the given [[sizes]], following the
+    *   notation `K_n`, `K_{m, n}`, and so on, on the vertices `0, 1, ...`. A
+    *   single size `n` gives the complete graph on `n` vertices, in which every
+    *   two vertices are adjacent. Several sizes give the complete multipartite
+    *   graph, whose vertices are split into parts of those sizes in order, and
+    *   in which every two vertices in different parts are adjacent. Adjacent
+    *   vertices are joined both ways, for directed graphs. So `complete(3, 4)`
+    *   is the complete bipartite graph, and `complete(1, 1, 1)` is
+    *   `complete(3)`.
     */
-  def complete(sizes: Int*): G[Int, Unit] =
-    counted(total(sizes))(_ => Shape.Multipartite(sizes, directed))
-
-  /**
-    * @return
-    *   The complete multipartite graph whose parts are the given [[parts]], in
-    *   which every two vertices in different parts are adjacent.
-    */
-  @targetName("completeOnParts")
-  def complete[V](parts: Seq[V]*): G[V, Unit] = listed(parts.flatten): _ =>
-    Shape.Multipartite(parts.map(_.size), directed)
+  def complete(sizes: Int*): G[Int, Unit] = counted(total(sizes)): order =>
+    sizes match
+      case Seq(_) => allPairs(order)
+      case _      => Shape.Multipartite(sizes, directed)
 
   /**
     * @return

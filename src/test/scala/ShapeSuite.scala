@@ -3,17 +3,20 @@ package com.alecdorrington.kneiphof
 /** Tests for the built-in shapes, and for joins answering queries lazily. */
 class ShapeSuite extends munit.FunSuite, LazyAssertions:
 
-  test("cliques join every two vertices"):
-    val k5 = Graph.clique(5)
+  test("complete graphs and cliques join every two vertices"):
+    val k5 = Graph.complete(5)
     assertEquals(k5.order, 5)
     assertEquals(k5.size, 10)
     assert(k5.hasEdge(4 ~ 0))
     assert(!k5.hasEdge(0 ~ 0))
     assertEquals(k5(2).degree, 4)
+    assertEquals(Graph.clique(0, 1, 2, 3, 4), k5)
     assertEquals(
       Graph.clique("A", "B", "C"),
       Graph("A" ~ "B" ~ "C" ~ "A"),
     )
+    assertEquals(Graph.clique(3), Graph.vertex(3))
+    assertEquals(Graph.complete(1), Graph.vertex(0))
 
   test("paths and cycles follow their vertices in order"):
     assertEquals(Graph.path(4), Graph(0 ~ 1 ~ 2 ~ 3))
@@ -60,7 +63,7 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     intercept[IllegalArgumentException](Graph.clique("A", "A"))
 
   test("large shapes answer queries without building their edges"):
-    val clique = Graph.clique(50_000)
+    val clique = Graph.complete(50_000)
     assertEquals(clique.size, 1_249_975_000)
     assert(clique.hasEdge(49_999 ~ 7))
     assertEquals(clique(7).degree, 49_999)
@@ -74,8 +77,8 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
       DirectedGraph.cycle(3),
       DirectedGraph(0 ~> 1 ~> 2 ~> 0),
     )
-    assertEquals(DirectedGraph.clique(3).size, 6)
-    assert(DirectedGraph.clique(3).hasEdge(2 ~> 0))
+    assertEquals(DirectedGraph.complete(3).size, 6)
+    assert(DirectedGraph.complete(3).hasEdge(2 ~> 0))
     assertEquals(
       DirectedGraph.star(2),
       DirectedGraph(0 ~> 1, 0 ~> 2),
@@ -87,17 +90,17 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     assertEquals(DirectedGraph.tree(2, 7)(6).inDegree, 1)
 
   test("multigraph shapes have one copy of each edge"):
-    assertEquals(Multigraph.clique(4).size, 6)
+    assertEquals(Multigraph.complete(4).size, 6)
     assertEquals(
-      Multigraph.clique(4).multiplicity(0 ~ 1),
+      Multigraph.complete(4).multiplicity(0 ~ 1),
       Count(1),
     )
 
   test("shapes support every graph operation"):
     assertEquals(Graph.path(3) + (2 ~ 0), Graph.cycle(3))
     assertEquals(
-      Graph.clique(4).removeVertex(3),
-      Graph.clique(3),
+      Graph.complete(4).removeVertex(3),
+      Graph.complete(3),
     )
     assertEquals(
       Graph.cycle(5).mapVertices(_ % 2),
@@ -105,7 +108,7 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     )
 
   test("joins answer queries without building their edges"):
-    val cone = Graph.clique(50_000) :~ -1
+    val cone = Graph.complete(50_000) :~ -1
     assertEquals(cone.size, 1_250_025_000)
     assert(cone.hasEdge(-1 ~ 123))
     assertEquals(cone(-1).degree, 50_000)
@@ -136,22 +139,18 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     )
     assertEquals(
       Graph.complete(1, 1, 1, 1),
-      Graph.clique(4),
+      Graph.complete(4),
     )
     assertEquals(
-      Graph.complete(5),
+      Graph.complete(5, 0),
       Graph.vertices(0 until 5*),
     )
     assertEquals(Graph.complete(2, 0, 1), Graph(0 ~ 2, 1 ~ 2))
-    assertEquals(
-      Graph.complete(Seq("a", "b"), Seq("c")),
-      Graph("a" ~ "c", "b" ~ "c"),
-    )
     assertEquals(Graph.complete(2, 2, 2)(0).degree, 4)
     assertLazy(Graph.complete(2, 3, 1), 0 ~ 1, 3 ~ 4, 0 ~ 5)
     assertEquals(
       DirectedGraph.complete(1, 1, 1),
-      DirectedGraph.clique(3),
+      DirectedGraph.complete(3),
     )
     assertEquals(
       DirectedGraph.complete(2, 1),
@@ -183,7 +182,7 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     assertEquals(Graph.circulant(5, 1), Graph.cycle(5))
     assertEquals(
       Graph.circulant(5, 1, 2),
-      Graph.clique(5),
+      Graph.complete(5),
     )
     assertEquals(
       Graph.circulant(5, 4, -1, 6),
@@ -269,7 +268,10 @@ class ShapeSuite extends munit.FunSuite, LazyAssertions:
     assertEquals(tournament.size, 6)
     assert(tournament.hasEdge(0 ~> 3))
     assert(!tournament.hasEdge(3 ~> 0))
-    assertEquals(tournament.underlying, Graph.clique(4))
+    assertEquals(
+      tournament.underlying,
+      Graph.complete(4),
+    )
     assertEquals(
       DirectedGraph.transitiveTournament("a", "b", "c"),
       DirectedGraph("a" ~> "b" ~> "c", "a" ~> "c"),

@@ -60,7 +60,7 @@ class LazySuite extends munit.FunSuite, LazyAssertions:
     )
 
   test("large products answer queries without building their edges"):
-    val product = Graph.clique(200).lexicographicProduct(Graph.clique(200))
+    val product = Graph.complete(200).lexicographicProduct(Graph.complete(200))
     assertEquals(product.order, 40_000)
     assertEquals(product.size, 200 * 19_900 + 19_900 * 40_000)
     assert(product.hasEdge((0, 5) ~ (1, 7)))
@@ -68,7 +68,7 @@ class LazySuite extends munit.FunSuite, LazyAssertions:
     assertEquals(product((0, 0)).degree, 199 + 199 * 200)
 
   test("large disjoint unions answer queries without building their edges"):
-    val union = Graph.clique(50_000) ⊔ Graph.clique(10)
+    val union = Graph.complete(50_000) ⊔ Graph.complete(10)
     assertEquals(union.size, 1_249_975_000 + 45)
     assert(union.hasEdge(Left(1) ~ Left(2)))
     assert(!union.hasEdge(Left(1) ~ Right(2)))
@@ -105,7 +105,7 @@ class LazySuite extends munit.FunSuite, LazyAssertions:
       graph.lexicographicProduct(graph),
       graph.flatMapVertices(v => Graph.vertex(v)),
       graph.view,
-      Graph.clique(3),
+      Graph.complete(3),
     )
     results.foreach(result => assert(!result.eager, result))
 
@@ -199,7 +199,7 @@ class LazySuite extends munit.FunSuite, LazyAssertions:
 
   test("large lazy graphs are patched without building their edges"):
     val patched = Graph
-      .clique(50_000)
+      .complete(50_000)
       .removeVertex(0)
       .addVertex(-1)
       .updated(-1 ~ 1, true)
@@ -213,7 +213,7 @@ class LazySuite extends munit.FunSuite, LazyAssertions:
     assertEquals(patched(1).degree, 49_998)
 
   test("large lazy graphs are combined and filtered without building them"):
-    val clique = Graph.clique(50_000)
+    val clique = Graph.complete(50_000)
     val sum    = clique + (0 ~ 50_000)
     assertEquals(sum.size, 1_249_975_001)
     assertEquals(sum(50_000).degree, 1)
