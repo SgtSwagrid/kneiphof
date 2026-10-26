@@ -26,6 +26,12 @@ private[kneiphof] final class Viewing[
   override def incidentEdgeValues(vertex: Any): ValueSet[X[V, E]] = graph
     .incidentEdgeValues(vertex)
 
+  override def incidentEdges(vertex: Any): Iterable[(X[V, E], M)] = graph
+    .incidentEdges(vertex)
+    .map((edge, multiplicity) => edge -> embed(multiplicity))
+
+  override def find(edge: Any): Option[X[V, E]] = graph.found(edge)
+
   override def size: Option[Int] = Option.when(embed.exact)(graph.size)
 
   override def degree(vertex: Any): Option[Int] =

@@ -14,13 +14,7 @@ final case class Edge[+V, +E]
   extends Hyperedge[V, E],
           AnyEdge[V, E, Edge],
           GraphBase[V, E, Count],
-          Delegating[
-            V,
-            E,
-            Count,
-            Edge,
-            [v, e] =>> GraphBase[v, e, Count],
-          ],
+          SingleEdge[V, E, Edge, [v, e] =>> GraphBase[v, e, Count]],
           Chain[V, Nothing, E]:
 
   /** `true` if and only if this edge joins a vertex to itself. */
@@ -31,13 +25,6 @@ final case class Edge[+V, +E]
   override def rank: Int = 2
 
   override def vertexValues: ValueSet[V] = ValueSet(first, second)
-
-  override def edgeValues: ValueMap[kneiphof.Edge[V, E], Count] = ValueMap
-    .empty
-    .updated(this, Count(1))
-
-  override def incidentEdgeValues(vertex: Any): ValueSet[kneiphof.Edge[V, E]] =
-    if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override def tip: V = second
 

@@ -2,7 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.IncidenceDirectedGraph
-import com.alecdorrington.kneiphof.shapes.{DirectedShaping, Indexing, Shape}
+import com.alecdorrington.kneiphof.shapes.{Indexing, Shape, Shaping}
 import com.alecdorrington.kneiphof.views.{
   Joining, LazyDirectedGraph, Queries, Viewing,
 }
@@ -50,7 +50,7 @@ trait DirectedGraphBase[+V, +E, M]
   )
 
   override def transpose: DirectedGraphBase[V, E, M] =
-    graphs.imaged(this, graphs.viewing(this), edgeValues)(
+    graphs.imaged(this, viewing, edgeValues)(
       identity,
       edge => List(edge.reverse),
       kept = true,
@@ -168,7 +168,7 @@ trait DirectedGraphBase[+V, +E, M]
   def toDirectedHypergraph: DirectedHypergraphBase[V, E, M] =
     val hypergraphs = DirectedHypergraphBase.kind[M]
     hypergraphs.lazily(this)(
-      DirectedHypergraphBase.viewing(this, Embedding.identity),
+      viewing,
       hypergraphs.fromMultiplicities(vertexValues, edgeValues),
     )
 
@@ -178,7 +178,7 @@ trait DirectedGraphBase[+V, +E, M]
     */
   override def underlying: GraphBase[V, E, M] = GraphBase
     .kind[M]
-    .imaged(this, graphs.viewing(this), edgeValues)(
+    .imaged(this, viewing, edgeValues)(
       identity,
       edge => List(kneiphof.Edge(edge.source, edge.target, edge.label)),
       kept = algebra.additive,
@@ -186,15 +186,13 @@ trait DirectedGraphBase[+V, +E, M]
 
   override def map[W, F]
     (vertexMap: V => W, labelMap: E => F)
-    : DirectedGraphBase[W, F, M] =
-    graphs.imaged(this, graphs.viewing(this), edgeValues)(
-      vertexMap,
-      edge => List(edge.map(vertexMap, labelMap)),
-      kept = algebra.additive,
-    )
+    : DirectedGraphBase[W, F, M] = graphs.imaged(this, viewing, edgeValues)(
+    vertexMap,
+    edge => List(edge.map(vertexMap, labelMap)),
+    kept = algebra.additive,
+  )
 
-  override def view: DirectedGraphBase[V, E, M] =
-    graphs.view(graphs.viewing(this), this)
+  override def view: DirectedGraphBase[V, E, M] = graphs.view(viewing, this)
 
   override protected def kindName: String = "DirectedGraph"
 
@@ -231,7 +229,7 @@ trait DirectedGraphBase[+V, +E, M]
     (combine: (M, M) => M)
     : DirectedGraphBase[W, F, M] = graphs.combined[W, F](
     this,
-    DirectedGraphBase.viewing(that, embed),
+    that.viewing(embed),
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
@@ -284,16 +282,7 @@ object DirectedGraphBase:
       )
       extends LazyDirectedGraph[V, E | L, M](
         left.empty,
-        Joining[
-          V,
-          E,
-          L,
-          M,
-          Arc,
-          [v, e] =>> DirectedGraphBase[v, e, M],
-        ](
-          left,
-          right,
+        Kind(left.empty).joining[V, E, L](left, right)(
           DirectedEdge(_, _, label),
           Joining.directedLinks(left, right, label, _),
         ),
@@ -337,7 +326,7 @@ object DirectedGraphBase:
     override private[kneiphof] def shaped[V]
       (vertices: Indexing[V], shape: Shape)
       : DirectedGraphBase[V, Unit, M] =
-      val shaping = DirectedShaping[V, M](vertices, shape)
+      val shaping = Shaping.directed[V, M](vertices, shape)
       view(
         shaping,
         from(shaping.vertexValues, shaping.edges),
@@ -345,25 +334,6 @@ object DirectedGraphBase:
 
   /** @return The kind of directed graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceDirectedGraph.empty)
-
-  /**
-    * @return
-    *   The queries about [[graph]], with its multiplicities read in [[M]] by
-    *   [[embed]], answered by [[graph]] itself.
-    */
-  private[kneiphof] def viewing[V, E, N, M : Multiplicity]
-    (
-      graph: DirectedGraphBase[V, E, N],
-      embed: Embedding[N, M],
-    )
-    : Queries[V, E, M, Arc[V, E]] = Viewing[
-    V,
-    E,
-    N,
-    M,
-    Arc,
-    [v, e] =>> DirectedGraphBase[v, e, N],
-  ](graph, embed)
 
 /** Directed graphs whose edges form a set, in the default representation. */
 object DirectedGraph

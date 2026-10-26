@@ -2,7 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.views.{
-  Combining, Imaging, Queries, Refining, Substitution, Tagging, Viewing,
+  Combining, Imaging, Joining, Queries, Refining, Substitution, Tagging,
 }
 import scala.compiletime.deferred
 
@@ -179,7 +179,7 @@ trait GraphKind[
     else
       view(
         Combining(
-          viewing(first),
+          first.viewing,
           second,
           combine,
           additive,
@@ -209,7 +209,7 @@ trait GraphKind[
     )
     : G[V, E] = lazily(graph +: operands*)(
     Refining(
-      viewing(graph),
+      graph.viewing,
       keep,
       keepEdge,
       reweigh,
@@ -349,11 +349,6 @@ trait GraphKind[
     graph.mapVertices(tag),
   )
 
-  /** @return The queries about [[graph]], answered by [[graph]] itself. */
-  private[kneiphof] def viewing[V, E]
-    (graph: G[V, E])
-    : Queries[V, E, M, X[V, E]] = Viewing(graph, Embedding.identity[M])
-
   /** @return [[part]], with each vertex tagged by [[vertex]]. */
   private def paired[V, W, E](vertex: V, part: G[W, E]): G[(V, W), E] = tagged(
     part,
@@ -399,6 +394,17 @@ trait GraphKind[
       second.edgeValues,
     )(_ + _)
     increased(sum, links)
+
+  /**
+    * @return
+    *   The queries about the join of [[left]] and [[right]], whose new edges
+    *   are `link(u, v)`, where [[links]] counts the new edges equal to an edge.
+    */
+  private[kneiphof] def joining[V, E, L]
+    (left: G[V, E], right: G[V, E])
+    (link: (V, V) => X[V, E | L], links: Any => Int)
+    : Queries[V, E | L, M, X[V, E | L]] =
+    Joining[V, E, L, M, X, G](left, right, link, links)
 
   /** @return [[entry]], with its count read as a multiplicity in [[M]]. */
   private def counted[Y](entry: (Y, Count)): (Y, M) = entry(0) ->

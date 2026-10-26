@@ -309,3 +309,20 @@ class LazySuite extends FunSuite, LazyAssertions:
     )
     assertEquals(substituted.size, 1)
     assertEquals(substituted.degree("a"), 1)
+
+  test(
+    "substitutions count sizes and degrees without building their outer graph",
+  ):
+    val product = Graph
+      .complete(3_000)
+      .lexicographicProduct(Graph.vertices(0, 1))
+    assertEquals(product.size, 4_498_500 * 4)
+    val looped = Multigraph(1 ~ 1, 1 ~ 2, 2 ~ 3)
+      .view
+      .lexicographicProduct(Multigraph.complete(2))
+    assertLazy(
+      looped,
+      (1, 0) ~ (1, 1),
+      (1, 0) ~ (3, 0),
+      (1, 1) ~ (1, 1),
+    )

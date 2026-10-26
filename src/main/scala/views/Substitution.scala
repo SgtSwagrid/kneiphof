@@ -52,15 +52,45 @@ private[kneiphof] final class Substitution[
             outer.incidentEdgeValues(owner).flatMap(copiesAt(_, vertex))
 
   /**
+    * The edges at [[vertex]] with their multiplicities, counted directly when
+    * the replacements are disjoint, since then each copy of an outer edge at
+    * [[vertex]] is found exactly once.
+    */
+  override def incidentEdges(vertex: Any): Iterable[(X[W, E], M)] =
+    if !disjoint then super.incidentEdges(vertex)
+    else
+      owners(vertex)
+        .iterator
+        .flatMap: owner =>
+          part(owner).incidentEdges(vertex).iterator ++
+            outer
+              .incidentEdges(owner)
+              .iterator
+              .flatMap((edge, multiplicity) =>
+                copiesAt(edge, vertex).map(_ -> multiplicity),
+              )
+        .foldLeft(ValueMap.empty[X[W, E], M]):
+          case (sums, (edge, multiplicity)) => sums.updated(
+              edge,
+              sums.getOrElse(edge, M.zero) + multiplicity,
+            )
+
+  /**
     * The number of edges, which can be counted from [[outer]] when the
     * replacements are disjoint and no edge of [[outer]] repeats a vertex, since
-    * then no two copies coincide.
+    * then no two copies coincide. The outer edges are streamed rather than
+    * built.
     */
   override def size: Option[Int] =
-    Option.when(disjoint && outer.edgeValues.keys.forall(simple)):
-      Math.toIntExact:
-        parts.values.map(_.size.toLong).sum +
-          outer.edgeValues.toSeq.map(copies).sum
+    if !disjoint then None
+    else
+      outerEdges.foldLeft(Option(Queries.total(parts.values.map(_.size)))):
+        case (total, (edge, multiplicity)) => total.flatMap: sum =>
+            Option.when(simple(edge)):
+              Math.addExact(
+                sum,
+                Math.toIntExact(copies(edge -> multiplicity)),
+              )
 
   /**
     * The degree of [[vertex]], which can be counted from its own replacement
@@ -89,6 +119,35 @@ private[kneiphof] final class Substitution[
     .toSeq
     .flatMap((owner, part) => part.vertexValues.map((_: Any) -> owner))
     .groupMapReduce(_(0))(entry => ValueSet(entry(1)))(_ | _)
+
+  /**
+    * Every edge of [[outer]], once, with its multiplicity. A lazy [[outer]]
+    * isn't built: each edge is found at its first end in [[outerPositions]].
+    */
+  private def outerEdges: Iterator[(X[V, E], M)] =
+    if outer.eager then outer.edgeValues.iterator
+    else
+      outer
+        .vertexValues
+        .iterator
+        .zipWithIndex
+        .flatMap: (vertex, position) =>
+          outer
+            .incidentEdges(vertex)
+            .iterator
+            .filter((edge, _) =>
+              edge
+                .vertexValues
+                .forall(outerPositions.get(_).forall(_ >= position)),
+            )
+
+  /** The position of each vertex of [[outer]] in its vertex set. */
+  private lazy val outerPositions: Map[Any, Int] = outer
+    .vertexValues
+    .iterator
+    .zipWithIndex
+    .map((vertex, position) => (vertex: Any) -> position)
+    .toMap
 
   /** `true` if and only if no two replacements share a vertex. */
   private lazy val disjoint: Boolean = owner.isDefined ||

@@ -15,10 +15,9 @@ import scala.util.hashing.MurmurHash3
 trait Hyperedge[+V, +E]
   extends AnyEdge[V, E, Hyperedge],
           HypergraphBase[V, E, Count],
-          Delegating[
+          SingleEdge[
             V,
             E,
-            Count,
             Hyperedge,
             [v, e] =>> HypergraphBase[v, e, Count],
           ]:
@@ -33,13 +32,6 @@ trait Hyperedge[+V, +E]
   def rank: Int = ends.size
 
   override def vertexValues: ValueSet[V] = ValueSet.from(ends)
-
-  override def edgeValues: ValueMap[Hyperedge[V, E], Count] = ValueMap
-    .empty
-    .updated(this, Count(1))
-
-  override def incidentEdgeValues(vertex: Any): ValueSet[Hyperedge[V, E]] =
-    if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override def occurrences(vertex: Any): Int = ends.count(_ == vertex)
 
@@ -69,9 +61,6 @@ trait Hyperedge[+V, +E]
     case _: AnyEdge[?, ?, ?]     => false
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
-
-  override final def hashCode: Int =
-    AnyGraph.hash(vertexValues, Seq(shapeHash -> Count(1)))
 
   override def toString: String = labelled(
     ends.mkString("Hyperedge(", ", ", ")"),

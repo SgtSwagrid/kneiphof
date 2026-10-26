@@ -15,10 +15,9 @@ final case class DirectedEdge[+S, +T, +E]
   extends DirectedHyperedge[S, T, E],
           AnyEdge[S | T, E, Arc],
           DirectedGraphBase[S | T, E, Count],
-          Delegating[
+          SingleEdge[
             S | T,
             E,
-            Count,
             Arc,
             [v, e] =>> DirectedGraphBase[v, e, Count],
           ],
@@ -29,13 +28,6 @@ final case class DirectedEdge[+S, +T, +E]
   override def head: ValueSet[T] = ValueSet(target)
 
   override def vertexValues: ValueSet[S | T] = ValueSet(source, target)
-
-  override def edgeValues: ValueMap[Arc[S | T, E], Count] = ValueMap
-    .empty
-    .updated(this, Count(1))
-
-  override def incidentEdgeValues(vertex: Any): ValueSet[Arc[S | T, E]] =
-    if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override def tip: T = target
 

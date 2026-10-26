@@ -148,21 +148,19 @@ trait GraphBase[+V, +E, M]
 
   override def map[W, F]
     (vertexMap: V => W, labelMap: E => F)
-    : GraphBase[W, F, M] =
-    graphs.imaged(this, graphs.viewing(this), edgeValues)(
-      vertexMap,
-      edge => List(edge.map(vertexMap, labelMap)),
-      kept = algebra.additive,
-    )
+    : GraphBase[W, F, M] = graphs.imaged(this, viewing, edgeValues)(
+    vertexMap,
+    edge => List(edge.map(vertexMap, labelMap)),
+    kept = algebra.additive,
+  )
 
-  override def view: GraphBase[V, E, M] =
-    graphs.view(graphs.viewing(this), this)
+  override def view: GraphBase[V, E, M] = graphs.view(viewing, this)
 
   /** This graph as a hypergraph, in the default representation. */
   def toHypergraph: HypergraphBase[V, E, M] =
     val hypergraphs = HypergraphBase.kind[M]
     hypergraphs.lazily(this)(
-      HypergraphBase.viewing(this, Embedding.identity),
+      viewing,
       hypergraphs.fromMultiplicities(vertexValues, edgeValues),
     )
 
@@ -172,7 +170,7 @@ trait GraphBase[+V, +E, M]
     */
   def symmetric: DirectedGraphBase[V, E, M] = DirectedGraphBase
     .kind[M]
-    .imaged(this, graphs.viewing(this), edgeValues)(
+    .imaged(this, viewing, edgeValues)(
       identity,
       edge =>
         val forward = DirectedEdge(edge.first, edge.second, edge.label)
@@ -216,7 +214,7 @@ trait GraphBase[+V, +E, M]
     (combine: (M, M) => M)
     : GraphBase[W, F, M] = graphs.combined[W, F](
     this,
-    GraphBase.viewing(that, embed),
+    that.viewing(embed),
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
@@ -267,16 +265,7 @@ object GraphBase:
       )
       extends LazyGraph[V, E | L, M](
         left.empty,
-        Joining[
-          V,
-          E,
-          L,
-          M,
-          kneiphof.Edge,
-          [v, e] =>> GraphBase[v, e, M],
-        ](
-          left,
-          right,
+        Kind(left.empty).joining[V, E, L](left, right)(
           kneiphof.Edge(_, _, label),
           Joining.undirectedLinks(left, right, label, _),
         ),
@@ -319,7 +308,7 @@ object GraphBase:
     override private[kneiphof] def shaped[V]
       (vertices: Indexing[V], shape: Shape)
       : GraphBase[V, Unit, M] =
-      val shaping = Shaping[V, M](vertices, shape)
+      val shaping = Shaping.undirected[V, M](vertices, shape)
       view(
         shaping,
         from(shaping.vertexValues, shaping.edges),
@@ -329,25 +318,6 @@ object GraphBase:
 
   /** @return The kind of graphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceGraph.empty)
-
-  /**
-    * @return
-    *   The queries about [[graph]], with its multiplicities read in [[M]] by
-    *   [[embed]], answered by [[graph]] itself.
-    */
-  private[kneiphof] def viewing[V, E, N, M : Multiplicity]
-    (
-      graph: GraphBase[V, E, N],
-      embed: Embedding[N, M],
-    )
-    : Queries[V, E, M, kneiphof.Edge[V, E]] = Viewing[
-    V,
-    E,
-    N,
-    M,
-    kneiphof.Edge,
-    [v, e] =>> GraphBase[v, e, N],
-  ](graph, embed)
 
 /** Graphs whose edges form a set, in the default representation. */
 object Graph extends GraphBase.Kind[Boolean](IncidenceGraph.empty)

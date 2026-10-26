@@ -12,10 +12,9 @@ package kneiphof
 trait DirectedHyperedge[+S, +T, +E]
   extends AnyEdge[S | T, E, Hyperarc],
           DirectedHypergraphBase[S | T, E, Count],
-          Delegating[
+          SingleEdge[
             S | T,
             E,
-            Count,
             Hyperarc,
             [v, e] =>> DirectedHypergraphBase[v, e, Count],
           ]:
@@ -33,13 +32,6 @@ trait DirectedHyperedge[+S, +T, +E]
   override def transpose: DirectedHyperedge[T, S, E] = reverse
 
   override def vertexValues: ValueSet[S | T] = tail | head
-
-  override def edgeValues: ValueMap[Hyperarc[S | T, E], Count] = ValueMap
-    .empty
-    .updated(this, Count(1))
-
-  override def incidentEdgeValues(vertex: Any): ValueSet[Hyperarc[S | T, E]] =
-    if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override def occurrences(vertex: Any): Int =
     Seq(tail, head).count(_.contains(vertex))
@@ -76,9 +68,6 @@ trait DirectedHyperedge[+S, +T, +E]
     case _: AnyEdge[?, ?, ?]     => false
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
-
-  override final def hashCode: Int =
-    AnyGraph.hash(vertexValues, Seq(shapeHash -> Count(1)))
 
   override def toString: String = labelled(
     s"${ tail.mkString("{", ", ", "}") } ~> ${ head.mkString("{", ", ", "}") }",

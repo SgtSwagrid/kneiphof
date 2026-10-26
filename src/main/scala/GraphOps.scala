@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.views.Queries
+import com.alecdorrington.kneiphof.views.{Queries, Viewing}
 import java.util.NoSuchElementException
 
 /**
@@ -97,6 +97,27 @@ trait GraphOps[
 
   /** This graph as it's stored, which builds it if it's lazy. */
   private[kneiphof] def built: G[V, E] = this
+
+  /** The queries about this graph, answered by this graph itself. */
+  private[kneiphof] def viewing: Queries[V, E, M, X[V, E]] =
+    viewing(Embedding.identity[M])
+
+  /**
+    * @return
+    *   The queries about this graph, with its multiplicities read in [[N]] by
+    *   [[embed]], answered by this graph itself.
+    */
+  private[kneiphof] def viewing[N : Multiplicity]
+    (embed: Embedding[M, N])
+    : Queries[V, E, N, X[V, E]] = Viewing[V, E, M, N, X, G](this, embed)
+
+  /**
+    * @return
+    *   The edges incident to [[vertex]], each with its multiplicity, so that
+    *   lazy graphs needn't look each one up again.
+    */
+  private[kneiphof] def incidentEdges(vertex: Any): Iterable[(X[V, E], M)] =
+    incidentEdgeValues(vertex).toSeq.map(edge => edge -> multiplicity(edge))
 
   /** The vertices of this graph. */
   def vertices: Set[Vertex] = vertexValues.flatMap(vertex).toSet
@@ -255,7 +276,7 @@ trait GraphOps[
     *   The edge of this graph equal to [[edge]], if there is one, found among
     *   the edges at one of its ends.
     */
-  protected def found(edge: Any): Option[X[V, E]] = Queries
+  private[kneiphof] def found(edge: Any): Option[X[V, E]] = Queries
     .ends(edge)
     .headOption
     .flatMap(incidentEdgeValues(_).get(edge))

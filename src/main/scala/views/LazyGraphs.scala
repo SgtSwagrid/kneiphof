@@ -99,7 +99,12 @@ private[kneiphof] trait LazyOps[
         patch.withEdge(found, Nil, multiplicity),
       )
 
-  override protected def found(edge: Any): Option[X[V, E]] = queries.find(edge)
+  override private[kneiphof] def found(edge: Any): Option[X[V, E]] = queries
+    .find(edge)
+
+  override private[kneiphof] def incidentEdges
+    (vertex: Any)
+    : Iterable[(X[V, E], M)] = queries.incidentEdges(vertex)
 
   override protected lazy val delegate: G[V, E] = patch
     .overrides

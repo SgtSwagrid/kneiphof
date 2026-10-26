@@ -148,18 +148,13 @@ trait HypergraphBase[+V, +E, M]
 
   override def map[W, F]
     (vertexMap: V => W, labelMap: E => F)
-    : HypergraphBase[W, F, M] = hypergraphs.imaged(
-    this,
-    hypergraphs.viewing(this),
-    edgeValues,
-  )(
+    : HypergraphBase[W, F, M] = hypergraphs.imaged(this, viewing, edgeValues)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
   )
 
-  override def view: HypergraphBase[V, E, M] =
-    hypergraphs.view(hypergraphs.viewing(this), this)
+  override def view: HypergraphBase[V, E, M] = hypergraphs.view(viewing, this)
 
   override def vertex(value: Any): Option[Vertex] = vertexValues
     .get(value)
@@ -208,7 +203,7 @@ trait HypergraphBase[+V, +E, M]
     (combine: (M, M) => M)
     : HypergraphBase[W, F, M] = hypergraphs.combined[W, F](
     this,
-    HypergraphBase.viewing(that, embed),
+    that.viewing(embed),
     that,
     that.vertexValues,
     that.edgeValues.map((edge, n) => edge -> embed(n)),
@@ -259,16 +254,7 @@ object HypergraphBase:
       )
       extends LazyHypergraph[V, E | L, M](
         left.empty,
-        Joining[
-          V,
-          E,
-          L,
-          M,
-          Hyperedge,
-          [v, e] =>> HypergraphBase[v, e, M],
-        ](
-          left,
-          right,
+        Kind(left.empty).joining[V, E, L](left, right)(
           kneiphof.Edge(_, _, label),
           Joining.undirectedLinks(left, right, label, _),
         ),
@@ -309,25 +295,6 @@ object HypergraphBase:
 
   /** @return The kind of hypergraphs, in the default representation. */
   def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceHypergraph.empty)
-
-  /**
-    * @return
-    *   The queries about [[graph]], with its multiplicities read in [[M]] by
-    *   [[embed]], answered by [[graph]] itself.
-    */
-  private[kneiphof] def viewing[V, E, N, M : Multiplicity]
-    (
-      graph: HypergraphBase[V, E, N],
-      embed: Embedding[N, M],
-    )
-    : Queries[V, E, M, Hyperedge[V, E]] = Viewing[
-    V,
-    E,
-    N,
-    M,
-    Hyperedge,
-    [v, e] =>> HypergraphBase[v, e, N],
-  ](graph, embed)
 
 /** Hypergraphs whose edges form a set, in the default representation. */
 object Hypergraph
