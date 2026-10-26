@@ -106,6 +106,47 @@ trait HypergraphBase[+V, +E, M]
     (that: HypergraphBase[W, F, M])
     : HypergraphBase[(V, W), F, M] = lexicographicSum(_ => that)
 
+  /**
+    * @return
+    *   The join of this hypergraph and [[that]], with an extra edge labelled
+    *   [[label]] between every vertex of this hypergraph and every vertex of
+    *   [[that]]. Vertices in both also gain a loop.
+    */
+  def join[W >: V, F >: E]
+    (that: HypergraphBase[W, F, M], label: F)
+    : HypergraphBase[W, F, M] =
+    hypergraphs.joined(this, that)(kneiphof.Edge(_, _, label))
+
+  /**
+    * @return
+    *   The join `that :~: this`, with an unlabelled edge between every vertex
+    *   of [[that]] and every vertex of this hypergraph (see [[join]]).
+    */
+  infix def :~: [W >: V]
+    (that: HypergraphBase[W, Unit, M])
+    (using E <:< Unit)
+    : HypergraphBase[W, Unit, M] = that.join(unlabelledHypergraph, ())
+
+  /**
+    * @return
+    *   The cone `this :~ vertex`, with an unlabelled edge from every vertex of
+    *   this hypergraph to [[vertex]] (see [[join]]).
+    */
+  infix def :~ [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : HypergraphBase[W, Unit, M] =
+    unlabelledHypergraph.join(hypergraphs.vertex(vertex), ())
+
+  /**
+    * @return
+    *   The cone `vertex ~: this`, which is the same as `this :~ vertex`.
+    */
+  infix def ~: [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : HypergraphBase[W, Unit, M] = this :~ vertex
+
   override def vertex(value: Any): Option[Vertex] = vertexValues
     .get(value)
     .map(found =>
@@ -124,6 +165,12 @@ trait HypergraphBase[+V, +E, M]
 
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: HypergraphBase.Kind[M] = HypergraphBase.Kind(empty)
+
+  /** This hypergraph, whose edges are known to be unlabelled. */
+  private def unlabelledHypergraph
+    (using unit: E <:< Unit)
+    : HypergraphBase[V, Unit, M] =
+    unit.liftCo[[e] =>> HypergraphBase[V, e, M]](this)
 
 /** The companion object for [[HypergraphBase]]. */
 object HypergraphBase:

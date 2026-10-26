@@ -162,3 +162,28 @@ class GraphSuite extends munit.FunSuite:
       Graph.from(Seq(3), Seq(1 ~ 2)).toString,
       "Graph(1 ~ 2, 3)",
     )
+
+  test("joining adds an edge between every pair of vertices"):
+    val joined = Graph(1 ~ 2) :~: Graph.vertex(3)
+    assertEquals(joined, Graph(1 ~ 2, 2 ~ 3, 3 ~ 1))
+    assertEquals(
+      joined,
+      Graph(Graph(1 ~ 2) ~ Graph.vertex(3)).flatten,
+    )
+    assertEquals(
+      Graph(1 ~ 2 % "a").join(Graph.vertex(3), "b"),
+      Graph(1 ~ 2 % "a", 1 ~ 3 % "b", 2 ~ 3 % "b"),
+    )
+
+  test("a vertex joined to a graph forms a cone"):
+    val star = 0 ~: Graph.vertices(1, 2, 3)
+    assertEquals(star, Graph(0 ~ 1, 0 ~ 2, 0 ~ 3))
+    assertEquals(Graph.vertices(1, 2, 3) :~ 0, star)
+    assertEquals((0 ~: Graph(1 ~ 2, 2 ~ 3, 3 ~ 1)).size, 6)
+    assertEquals(
+      0 ~: 1 ~: Graph.vertex(2),
+      Graph(0 ~ 1, 1 ~ 2, 2 ~ 0),
+    )
+
+  test("join operators only apply to unlabelled graphs"):
+    assert(compileErrors("Graph(1 ~ 2 % \"a\") :~ 3").nonEmpty)

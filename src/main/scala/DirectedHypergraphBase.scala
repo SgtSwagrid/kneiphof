@@ -114,6 +114,54 @@ trait DirectedHypergraphBase[+V, +E, M]
     : DirectedHypergraphBase[(V, W), F, M] = lexicographicSum(_ => that)
 
   /**
+    * @return
+    *   The join of this hypergraph and [[that]], with an extra edge labelled
+    *   [[label]] from every vertex of this hypergraph to every vertex of
+    *   [[that]]. Vertices in both also gain a loop.
+    */
+  def join[W >: V, F >: E]
+    (
+      that: DirectedHypergraphBase[W, F, M],
+      label: F,
+    )
+    : DirectedHypergraphBase[W, F, M] =
+    hypergraphs.joined(this, that)(DirectedEdge(_, _, label))
+
+  /**
+    * @return
+    *   The join `that :~>: this`, with an unlabelled edge from every vertex of
+    *   [[that]] to every vertex of this hypergraph (see [[join]]).
+    */
+  infix def :~>: [W >: V]
+    (that: DirectedHypergraphBase[W, Unit, M])
+    (using E <:< Unit)
+    : DirectedHypergraphBase[W, Unit, M] =
+    that.join(unlabelledDirectedHypergraph, ())
+
+  /**
+    * @return
+    *   The cone `this :~> vertex`, with an unlabelled edge from every vertex of
+    *   this hypergraph to [[vertex]] (see [[join]]).
+    */
+  infix def :~> [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : DirectedHypergraphBase[W, Unit, M] =
+    unlabelledDirectedHypergraph.join(hypergraphs.vertex(vertex), ())
+
+  /**
+    * @return
+    *   The cone `vertex ~>: this`, with an unlabelled edge from [[vertex]] to
+    *   every vertex of this hypergraph (see [[join]]).
+    */
+  infix def ~>: [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : DirectedHypergraphBase[W, Unit, M] = hypergraphs
+    .vertex(vertex)
+    .join(unlabelledDirectedHypergraph, ())
+
+  /**
     * The undirected hypergraph obtained by forgetting the direction of every
     * edge, in the default representation. A vertex in both the tail and head of
     * an edge occurs twice in its image.
@@ -147,6 +195,12 @@ trait DirectedHypergraphBase[+V, +E, M]
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: DirectedHypergraphBase.Kind[M] =
     DirectedHypergraphBase.Kind(empty)
+
+  /** This hypergraph, whose edges are known to be unlabelled. */
+  private def unlabelledDirectedHypergraph
+    (using unit: E <:< Unit)
+    : DirectedHypergraphBase[V, Unit, M] = unit
+    .liftCo[[e] =>> DirectedHypergraphBase[V, e, M]](this)
 
   /** The operations on a vertex of this directed hypergraph. */
   trait DirectedVertexOps extends VertexOps:

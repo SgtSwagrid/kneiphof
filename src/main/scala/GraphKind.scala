@@ -130,3 +130,19 @@ trait GraphKind[
       .foldLeft(empty: G[W, E]): (sum, part) =>
         merged(sum, part)(_ + _)
     increased(replacements, outer)
+
+  /**
+    * @return
+    *   The join of [[first]] and [[second]], being their sum plus the edge
+    *   `link(u, v)` for every vertex `u` of [[first]] and `v` of [[second]].
+    */
+  private[kneiphof] def joined[V, E]
+    (first: G[V, E], second: G[V, E])
+    (link: (V, V) => X[V, E])
+    : G[V, E] =
+    val links =
+      for
+        u <- first.vertexValues.toSeq
+        v <- second.vertexValues.toSeq
+      yield link(u, v) -> algebra.one
+    increased(merged(first, second)(_ + _), links)

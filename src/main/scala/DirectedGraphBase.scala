@@ -128,6 +128,40 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, M])
     : DirectedGraphBase[(V, W), F, M] = lexicographicSum(_ => that)
 
+  /**
+    * @return
+    *   The join of this graph and [[that]], with an extra edge labelled
+    *   [[label]] from every vertex of this graph to every vertex of [[that]].
+    *   Vertices in both also gain a loop.
+    */
+  def join[W >: V, F >: E]
+    (that: DirectedGraphBase[W, F, M], label: F)
+    : DirectedGraphBase[W, F, M] =
+    graphs.joined(this, that)(DirectedEdge(_, _, label))
+
+  /**
+    * @return
+    *   The join `that :~>: this`, with an unlabelled edge from every vertex of
+    *   [[that]] to every vertex of this graph (see [[join]]).
+    */
+  infix def :~>: [W >: V]
+    (that: DirectedGraphBase[W, Unit, M])
+    (using E <:< Unit)
+    : DirectedGraphBase[W, Unit, M] = that.join(unlabelledDirectedGraph, ())
+
+  override infix def :~> [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : DirectedGraphBase[W, Unit, M] =
+    unlabelledDirectedGraph.join(graphs.vertex(vertex), ())
+
+  override infix def ~>: [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : DirectedGraphBase[W, Unit, M] = graphs
+    .vertex(vertex)
+    .join(unlabelledDirectedGraph, ())
+
   /** This graph as a directed hypergraph, in the default representation. */
   def toDirectedHypergraph: DirectedHypergraphBase[V, E, M] =
     DirectedHypergraphBase.kind[M].fromMultiplicities(vertexValues, edgeValues)
@@ -150,6 +184,12 @@ trait DirectedGraphBase[+V, +E, M]
 
   /** The kind of this graph, in its own representation. */
   private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.Kind(empty)
+
+  /** This graph, whose edges are known to be unlabelled. */
+  private def unlabelledDirectedGraph
+    (using unit: E <:< Unit)
+    : DirectedGraphBase[V, Unit, M] =
+    unit.liftCo[[e] =>> DirectedGraphBase[V, e, M]](this)
 
 /** The companion object for [[DirectedGraphBase]]. */
 object DirectedGraphBase:

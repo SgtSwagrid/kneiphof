@@ -119,6 +119,36 @@ trait GraphBase[+V, +E, M]
     (that: GraphBase[W, F, M])
     : GraphBase[(V, W), F, M] = lexicographicSum(_ => that)
 
+  /**
+    * @return
+    *   The join of this graph and [[that]], with an extra edge labelled
+    *   [[label]] between every vertex of this graph and every vertex of
+    *   [[that]]. Vertices in both also gain a loop.
+    */
+  def join[W >: V, F >: E]
+    (that: GraphBase[W, F, M], label: F)
+    : GraphBase[W, F, M] = graphs.joined(this, that)(kneiphof.Edge(_, _, label))
+
+  /**
+    * @return
+    *   The join `that :~: this`, with an unlabelled edge between every vertex
+    *   of [[that]] and every vertex of this graph (see [[join]]).
+    */
+  infix def :~: [W >: V]
+    (that: GraphBase[W, Unit, M])
+    (using E <:< Unit)
+    : GraphBase[W, Unit, M] = that.join(unlabelledGraph, ())
+
+  override infix def :~ [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : GraphBase[W, Unit, M] = unlabelledGraph.join(graphs.vertex(vertex), ())
+
+  override infix def ~: [W >: V]
+    (vertex: W)
+    (using E <:< Unit)
+    : GraphBase[W, Unit, M] = this :~ vertex
+
   /** This graph as a hypergraph, in the default representation. */
   def toHypergraph: HypergraphBase[V, E, M] = HypergraphBase
     .kind[M]
@@ -143,6 +173,10 @@ trait GraphBase[+V, +E, M]
 
   /** The kind of this graph, in its own representation. */
   private def graphs: GraphBase.Kind[M] = GraphBase.Kind(empty)
+
+  /** This graph, whose edges are known to be unlabelled. */
+  private def unlabelledGraph(using unit: E <:< Unit): GraphBase[V, Unit, M] =
+    unit.liftCo[[e] =>> GraphBase[V, e, M]](this)
 
 /** The companion object for [[GraphBase]]. */
 object GraphBase:
