@@ -3,14 +3,15 @@ package kneiphof
 
 /**
   * A graph which forwards its primitive operations to the graph [[delegate]],
-  * for graphs which add information to another graph.
+  * for values which are graphs without storing one, such as edges, chains and
+  * joins.
   */
 private[kneiphof] trait Delegating[
-  V,
-  E,
+  +V,
+  +E,
   M,
-  X[+v, +e] <: AnyEdge[v, e, X],
-  G[+v, +e] <: GraphOps[v, e, M, X, G],
+  +X[+v, +e] <: AnyEdge[v, e, X],
+  +G[+v, +e] <: GraphOps[v, e, M, X, G],
 ] extends GraphOps[V, E, M, X, G]:
   this: G[V, E] =>
 

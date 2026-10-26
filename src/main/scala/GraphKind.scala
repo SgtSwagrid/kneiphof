@@ -10,11 +10,16 @@ import scala.compiletime.deferred
   * Each kind's companion offers one in the default representation, such as
   * [[Graph]] or [[GraphBase.kind]]. Another representation can be selected by
   * constructing a kind from its empty graph, e.g. `GraphBase.Kind(empty)`.
+  *
+  * @tparam C
+  *   The multigraphs of the same kind, such as edges and chains, from which
+  *   graphs of this kind can be built.
   */
 trait GraphKind[
   M,
   X[+v, +e] <: AnyEdge[v, e, X],
   G[+v, +e] <: GraphOps[v, e, M, X, G],
+  C[+v, +e] <: GraphOps[v, e, Count, X, C],
 ]:
 
   /** The algebra of edge multiplicities. */
@@ -35,8 +40,19 @@ trait GraphKind[
     )
     : G[V, E]
 
-  /** @return The graph with the given [[edges]] and their vertices. */
-  def apply[V, E](edges: X[V, E]*): G[V, E] = from(edges)
+  /**
+    * @return
+    *   The graph with the vertices and edges of all the given [[parts]], such
+    *   as edges (`1 ~ 2`), chains (`1 ~ 2 ~ 3`) or multigraphs, adding the
+    *   counts of repeated edges.
+    */
+  def apply[V, E](parts: C[V, E]*): G[V, E] = parts.foldLeft(empty: G[V, E]):
+    (graph, part) =>
+      merged(
+        graph,
+        part.vertexValues,
+        part.edgeValues.map(counted),
+      )(_ + _)
 
   /**
     * @return
@@ -82,33 +98,26 @@ trait GraphKind[
       graph: G[V, E],
       edges: Iterable[(X[V, E], M)],
     )
-    : G[V, E] = edges.foldLeft(graph): (graph, entry) =>
-    updated(
-      graph,
-      entry(0),
-      graph.multiplicity(entry(0)) + entry(1),
-    )
+    : G[V, E] = merged(graph, Nil, edges)(_ + _)
 
   /**
     * @return
-    *   The graph with the vertices of [[first]] and [[second]], where each
-    *   edge's multiplicities are combined by [[combine]].
+    *   [[graph]] with [[vertices]] and [[edges]] added, where the
+    *   multiplicities of each edge are combined by [[combine]].
     */
   private[kneiphof] def merged[V, E]
-    (first: G[V, E], second: G[V, E])
+    (
+      graph: G[V, E],
+      vertices: Iterable[V],
+      edges: Iterable[(X[V, E], M)],
+    )
     (combine: (M, M) => M)
-    : G[V, E] =
-    val (large, small) =
-      if first.edgeValues.size >= second.edgeValues.size then (first, second)
-      else (second, first)
-    small
-      .edgeValues
-      .foldLeft(large.addVertices(small.vertexValues)): (graph, entry) =>
-        updated(
-          graph,
-          entry(0),
-          combine(graph.multiplicity(entry(0)), entry(1)),
-        )
+    : G[V, E] = edges.foldLeft(graph.addVertices(vertices)): (graph, entry) =>
+    updated(
+      graph,
+      entry(0),
+      combine(graph.multiplicity(entry(0)), entry(1)),
+    )
 
   /**
     * @return
@@ -124,11 +133,11 @@ trait GraphKind[
       .edgeValues
       .toSeq
       .flatMap: (edge, multiplicity) =>
-        edge.flatMapVertices(inner(_).vertexValues).map(_ -> multiplicity)
+        edge.substitute(inner(_).vertexValues).map(_ -> multiplicity)
     val replacements = inner
       .values
       .foldLeft(empty: G[W, E]): (sum, part) =>
-        merged(sum, part)(_ + _)
+        merged(sum, part.vertexValues, part.edgeValues)(_ + _)
     increased(replacements, outer)
 
   /**
@@ -145,4 +154,13 @@ trait GraphKind[
         u <- first.vertexValues.toSeq
         v <- second.vertexValues.toSeq
       yield link(u, v) -> algebra.one
-    increased(merged(first, second)(_ + _), links)
+    val sum = merged(
+      first,
+      second.vertexValues,
+      second.edgeValues,
+    )(_ + _)
+    increased(sum, links)
+
+  /** @return [[entry]], with its count read as a multiplicity in [[M]]. */
+  private def counted[Y](entry: (Y, Count)): (Y, M) = entry(0) ->
+    algebra.fromInt(entry(1).toInt)

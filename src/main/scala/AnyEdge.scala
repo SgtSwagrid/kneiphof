@@ -6,7 +6,8 @@ package kneiphof
   * type [[E]].
   *
   * Edges are plain values: two edges are equal exactly when they join the same
-  * vertices in the same way and carry equal labels.
+  * vertices in the same way and carry equal labels. Every edge is also the
+  * multigraph of its kind containing just itself, once.
   *
   * @tparam X
   *   The kind of edge, which transformations preserve.
@@ -14,7 +15,7 @@ package kneiphof
 trait AnyEdge[+V, +E, +X[+v, +e]]:
 
   /** The distinct vertices incident to this edge. */
-  def vertices: ValueSet[V]
+  def vertexValues: ValueSet[V]
 
   /** The label of this edge, which is `()` for unlabelled edges. */
   def label: E
@@ -29,18 +30,25 @@ trait AnyEdge[+V, +E, +X[+v, +e]]:
     */
   def map[W, F](vertexMap: V => W, labelMap: E => F): X[W, F]
 
+  /** @return This edge, with each vertex transformed by [[transform]]. */
+  def mapVertices[W](transform: V => W): X[W, E]
+
   /**
     * @return
     *   Every edge obtained by replacing each end of this edge with one of its
     *   [[choices]].
     */
-  def flatMapVertices[W](choices: V => Iterable[W]): Iterable[X[W, E]]
-
-  /** @return This edge, with each vertex transformed by [[transform]]. */
-  def mapVertices[W](transform: V => W): X[W, E] = map(transform, identity)
+  def substitute[W](choices: V => Iterable[W]): Iterable[X[W, E]]
 
   /** @return This edge, with its label transformed by [[transform]]. */
   def mapLabel[F](transform: E => F): X[V, F] = map(identity, transform)
 
   /** @return This edge, with its label replaced by [[label]]. */
   infix def % [F](label: F): X[V, F] = mapLabel(_ => label)
+
+  /**
+    * A hash of the ends and label of this edge, consistent with equality
+    * between edges, which graphs use to hash their edges without hashing the
+    * edges themselves.
+    */
+  def shapeHash: Int

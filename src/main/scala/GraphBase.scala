@@ -43,25 +43,36 @@ trait GraphBase[+V, +E, M]
         override val value: kneiphof.Edge[V, E] = found,
     )
 
-  /** @return This graph with one more copy of [[edge]]. */
-  infix def + [W >: V, F >: E](edge: kneiphof.Edge[W, F]): GraphBase[W, F, M] =
-    updated(edge, multiplicity(edge) + algebra.one)
-
   /**
     * @return
     *   The sum of this graph and [[that]], which adds the multiplicities of
-    *   their edges. For edge sets, this is the same as their union.
+    *   their edges. For edge sets, this is the same as their union. [[that]]
+    *   may have any multiplicities which embed in [[M]], so it may also be an
+    *   edge or chain, such as `1 ~ 2 ~ 3`.
     */
-  infix def + [W >: V, F >: E](that: GraphBase[W, F, M]): GraphBase[W, F, M] =
-    graphs.merged(this, that)(_ + _)
+  infix def + [W >: V, F >: E, N]
+    (that: GraphBase[W, F, N])
+    (using embed: Embedding[N, M])
+    : GraphBase[W, F, M] = graphs.merged(
+    this,
+    that.vertexValues,
+    that.edgeValues.map((e, n) => e -> embed(n)),
+  )(_ + _)
 
   /**
     * @return
     *   The union of this graph and [[that]], which takes the join of their
-    *   multiplicities. Vertices with equal values coincide.
+    *   multiplicities. Vertices with equal values coincide. [[that]] may have
+    *   any multiplicities which embed in [[M]], as for `+`.
     */
-  infix def | [W >: V, F >: E](that: GraphBase[W, F, M]): GraphBase[W, F, M] =
-    graphs.merged(this, that)(_ | _)
+  infix def | [W >: V, F >: E, N]
+    (that: GraphBase[W, F, N])
+    (using embed: Embedding[N, M])
+    : GraphBase[W, F, M] = graphs.merged(
+    this,
+    that.vertexValues,
+    that.edgeValues.map((e, n) => e -> embed(n)),
+  )(_ | _)
 
   /**
     * @return
@@ -231,7 +242,12 @@ object GraphBase:
   /** The kind of graphs, in the representation of [[empty]]. */
   class Kind[M : Multiplicity]
     (override val empty: GraphBase[Nothing, Nothing, M])
-    extends GraphKind[M, Edge, [v, e] =>> GraphBase[v, e, M]]:
+    extends GraphKind[
+      M,
+      Edge,
+      [v, e] =>> GraphBase[v, e, M],
+      [v, e] =>> GraphBase[v, e, Count],
+    ]:
 
     override def updated[V, E]
       (

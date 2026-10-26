@@ -5,9 +5,19 @@ package kneiphof
   * A directed edge from a set of vertices of type [[S]] (its tail) to a set of
   * vertices of type [[T]] (its head).
   *
-  * The tail and head may overlap, and either may be empty.
+  * The tail and head may overlap, and either may be empty. Every directed
+  * hyperedge is also the directed multihypergraph containing just itself, once.
   */
-trait DirectedHyperedge[+S, +T, +E] extends AnyEdge[S | T, E, Hyperarc]:
+trait DirectedHyperedge[+S, +T, +E]
+  extends AnyEdge[S | T, E, Hyperarc],
+          DirectedHypergraphBase[S | T, E, Count],
+          Delegating[
+            S | T,
+            E,
+            Count,
+            Hyperarc,
+            [v, e] =>> DirectedHypergraphBase[v, e, Count],
+          ]:
 
   /** The vertices this hyperedge leaves. */
   def tail: ValueSet[S]
@@ -19,7 +29,16 @@ trait DirectedHyperedge[+S, +T, +E] extends AnyEdge[S | T, E, Hyperarc]:
   def reverse: DirectedHyperedge[T, S, E] =
     DirectedHyperedge.from(head, tail, label)
 
-  override def vertices: ValueSet[S | T] = tail | head
+  override def transpose: DirectedHyperedge[T, S, E] = reverse
+
+  override def vertexValues: ValueSet[S | T] = tail | head
+
+  override def edgeValues: ValueMap[Hyperarc[S | T, E], Count] = ValueMap
+    .empty
+    .updated(this, Count(1))
+
+  override def incidentEdgeValues(vertex: Any): ValueSet[Hyperarc[S | T, E]] =
+    if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override def occurrences(vertex: Any): Int =
     Seq(tail, head).count(_.contains(vertex))
@@ -32,7 +51,11 @@ trait DirectedHyperedge[+S, +T, +E] extends AnyEdge[S | T, E, Hyperarc]:
     labelMap(label),
   )
 
-  override def flatMapVertices[W]
+  override def mapVertices[W]
+    (transform: (S | T) => W)
+    : DirectedHyperedge[W, W, E] = map(transform, identity)
+
+  override def substitute[W]
     (choices: (S | T) => Iterable[W])
     : Iterable[DirectedHyperedge[W, W, E]] =
     for
@@ -40,17 +63,28 @@ trait DirectedHyperedge[+S, +T, +E] extends AnyEdge[S | T, E, Hyperarc]:
       targets <- cartesian(head.toSeq.map(choices))
     yield DirectedHyperedge.from(sources, targets, label)
 
+  override def updated[W >: S | T, F >: E]
+    (edge: Hyperarc[W, F], multiplicity: Count)
+    : DirectedHypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
+
+  override def shapeHash: Int = (tail, head, label).##
+
   override final def equals(that: Any): Boolean = that match
     case that: DirectedHyperedge[?, ?, ?] => tail == that.tail &&
       head == that.head && label == that.label
-    case _ => false
+    case that: AnyGraph[?, ?, ?] => sameGraph(that)
+    case _                       => false
 
-  override final def hashCode: Int = (tail, head, label).##
+  override final def hashCode: Int =
+    AnyGraph.hash(vertexValues, Seq(shapeHash -> Count(1)))
 
   override def toString: String = labelled(
     s"${ tail.mkString("{", ", ", "}") } ~> ${ head.mkString("{", ", ", "}") }",
     label,
   )
+
+  override protected def delegate: DirectedHypergraphBase[S | T, E, Count] =
+    DirectedHypergraphBase.kind[Count].from(Seq(this))
 
 /** The companion object for [[DirectedHyperedge]]. */
 object DirectedHyperedge:

@@ -35,7 +35,7 @@ private[kneiphof] trait IncidenceOps[
     build(store.withVertex(vertex))
 
   override def removeVertex(vertex: Any): G[V, E] =
-    build(store.withoutVertex(vertex)(_.vertices))
+    build(store.withoutVertex(vertex)(_.vertexValues))
 
   override def withMultiplicity(edge: Any, multiplicity: M): G[V, E] =
     edgeValues.getKey(edge).fold(this: G[V, E])(set(_, multiplicity))
@@ -50,8 +50,8 @@ private[kneiphof] trait IncidenceOps[
     */
   protected def set[W >: V, F >: E](edge: X[W, F], multiplicity: M): G[W, F] =
     build[W, F]:
-      if multiplicity.isZero then store.withoutEdge(edge, edge.vertices)
-      else store.withEdge(edge, edge.vertices, multiplicity)
+      if multiplicity.isZero then store.withoutEdge(edge, edge.vertexValues)
+      else store.withEdge(edge, edge.vertexValues, multiplicity)
 
   /**
     * @return
@@ -68,4 +68,4 @@ private[kneiphof] trait IncidenceOps[
         val image = edgeMap(entry(0))
         val total = store.multiplicities.getOrElse(image, algebra.zero) +
           entry(1)
-        store.withEdge(image, image.vertices, total)
+        store.withEdge(image, image.vertexValues, total)

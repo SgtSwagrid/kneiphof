@@ -94,34 +94,39 @@ trait GraphOps[
   /** @return This graph without any copies of [[edge]]. */
   def removeEdge(edge: Any): G[V, E] = withMultiplicity(edge, algebra.zero)
 
-  /** @return This graph with one fewer copy of [[edge]]. */
-  infix def - (edge: AnyEdge[?, ?, ?]): G[V, E] =
-    withMultiplicity(edge, multiplicity(edge) - algebra.one)
-
   /**
     * @return
     *   The difference of this graph and [[that]], which keeps the vertices of
     *   this graph and subtracts the multiplicity of each edge in [[that]].
+    *   [[that]] may have any multiplicities which embed in [[M]], so it may
+    *   also be an edge or chain, as in `g - (1 ~ 2)`.
     */
-  infix def - (that: AnyGraph[Any, Any, M]): G[V, E] = edgeValues
+  infix def - [N]
+    (that: AnyGraph[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : G[V, E] = edgeValues
     .keys
     .foldLeft(this: G[V, E]): (graph, edge) =>
       graph.withMultiplicity(
         edge,
-        multiplicity(edge) - that.multiplicity(edge),
+        multiplicity(edge) - embed(that.multiplicity(edge)),
       )
 
   /**
     * @return
     *   The intersection of this graph and [[that]], which keeps their common
-    *   vertices and the meet of each edge's multiplicities.
+    *   vertices and the meet of each edge's multiplicities. [[that]] may have
+    *   any multiplicities which embed in [[M]], as for `-`.
     */
-  infix def & (that: AnyGraph[Any, Any, M]): G[V, E] = edgeValues
+  infix def & [N]
+    (that: AnyGraph[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : G[V, E] = edgeValues
     .keys
     .foldLeft(filterVertices(that.hasVertex)): (graph, edge) =>
       graph.withMultiplicity(
         edge,
-        multiplicity(edge) & that.multiplicity(edge),
+        multiplicity(edge) & embed(that.multiplicity(edge)),
       )
 
   /**
@@ -218,7 +223,7 @@ trait GraphOps[
     /** The vertices joined to this vertex by an edge. */
     def neighbours: Set[Vertex] = incidentEdgeValues(value)
       .flatMap: edge =>
-        edge.vertices.filter(v => v != value || edge.occurrences(value) > 1)
+        edge.vertexValues.filter(v => v != value || edge.occurrences(value) > 1)
       .flatMap(vertex)
       .toSet
 
@@ -243,7 +248,7 @@ trait GraphOps[
     def label: E = value.label
 
     /** The vertices incident to this edge. */
-    def vertices: Set[Vertex] = value.vertices.flatMap(vertex).toSet
+    def vertices: Set[Vertex] = value.vertexValues.flatMap(vertex).toSet
 
     /** The number of copies of this edge in the graph. */
     def multiplicity: M = GraphOps.this.multiplicity(value)

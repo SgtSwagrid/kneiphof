@@ -31,27 +31,36 @@ trait HypergraphBase[+V, +E, M]
   def updated[W >: V, F >: E](edge: Hyperedge[W, F], multiplicity: M)
     : HypergraphBase[W, F, M]
 
-  /** @return This hypergraph with one more copy of [[edge]]. */
-  infix def + [W >: V, F >: E](edge: Hyperedge[W, F]): HypergraphBase[W, F, M] =
-    updated(edge, multiplicity(edge) + algebra.one)
-
   /**
     * @return
     *   The sum of this hypergraph and [[that]], which adds the multiplicities
-    *   of their edges. For edge sets, this is the same as their union.
+    *   of their edges. For edge sets, this is the same as their union. [[that]]
+    *   may have any multiplicities which embed in [[M]], so it may also be an
+    *   edge or chain, such as `Hyperedge(1, 2, 3)`.
     */
-  infix def + [W >: V, F >: E]
-    (that: HypergraphBase[W, F, M])
-    : HypergraphBase[W, F, M] = hypergraphs.merged(this, that)(_ + _)
+  infix def + [W >: V, F >: E, N]
+    (that: HypergraphBase[W, F, N])
+    (using embed: Embedding[N, M])
+    : HypergraphBase[W, F, M] = hypergraphs.merged(
+    this,
+    that.vertexValues,
+    that.edgeValues.map((e, n) => e -> embed(n)),
+  )(_ + _)
 
   /**
     * @return
     *   The union of this hypergraph and [[that]], which takes the join of their
-    *   multiplicities. Vertices with equal values coincide.
+    *   multiplicities. Vertices with equal values coincide. [[that]] may have
+    *   any multiplicities which embed in [[M]], as for `+`.
     */
-  infix def | [W >: V, F >: E]
-    (that: HypergraphBase[W, F, M])
-    : HypergraphBase[W, F, M] = hypergraphs.merged(this, that)(_ | _)
+  infix def | [W >: V, F >: E, N]
+    (that: HypergraphBase[W, F, N])
+    (using embed: Embedding[N, M])
+    : HypergraphBase[W, F, M] = hypergraphs.merged(
+    this,
+    that.vertexValues,
+    that.edgeValues.map((e, n) => e -> embed(n)),
+  )(_ | _)
 
   /**
     * @return
@@ -225,6 +234,7 @@ object HypergraphBase:
       M,
       Hyperedge,
       [v, e] =>> HypergraphBase[v, e, M],
+      [v, e] =>> HypergraphBase[v, e, Count],
     ]:
 
     override def updated[V, E]

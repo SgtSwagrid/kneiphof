@@ -9,8 +9,18 @@ import scala.util.hashing.MurmurHash3
   *
   * Counting repeated vertices makes a graph exactly a hypergraph in which every
   * edge has two ends: a loop is the hyperedge in which one vertex occurs twice.
+  * Every hyperedge is also the multihypergraph containing just itself, once.
   */
-trait Hyperedge[+V, +E] extends AnyEdge[V, E, Hyperedge]:
+trait Hyperedge[+V, +E]
+  extends AnyEdge[V, E, Hyperedge],
+          HypergraphBase[V, E, Count],
+          Delegating[
+            V,
+            E,
+            Count,
+            Hyperedge,
+            [v, e] =>> HypergraphBase[v, e, Count],
+          ]:
 
   /**
     * The ends of this hyperedge, each vertex repeated as often as it occurs.
@@ -21,29 +31,54 @@ trait Hyperedge[+V, +E] extends AnyEdge[V, E, Hyperedge]:
   /** The number of ends of this hyperedge, counting repeats. */
   def rank: Int = ends.size
 
-  override def vertices: ValueSet[V] = ValueSet.from(ends)
+  override def vertexValues: ValueSet[V] = ValueSet.from(ends)
+
+  override def edgeValues: ValueMap[Hyperedge[V, E], Count] = ValueMap
+    .empty
+    .updated(this, Count(1))
+
+  override def incidentEdgeValues(vertex: Any): ValueSet[Hyperedge[V, E]] =
+    if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override def occurrences(vertex: Any): Int = ends.count(_ == vertex)
 
   override def map[W, F](vertexMap: V => W, labelMap: E => F): Hyperedge[W, F] =
     Hyperedge.from(ends.map(vertexMap), labelMap(label))
 
-  override def flatMapVertices[W]
+  override def mapVertices[W](transform: V => W): Hyperedge[W, E] =
+    map(transform, identity)
+
+  override def substitute[W]
     (choices: V => Iterable[W])
     : Iterable[Hyperedge[W, E]] =
     cartesian(ends.map(choices)).map(Hyperedge.from(_, label))
 
+  override def updated[W >: V, F >: E]
+    (
+      edge: Hyperedge[W, F],
+      multiplicity: Count,
+    )
+    : HypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
+
+  override def shapeHash: Int = MurmurHash3.unorderedHash(ends, label.##)
+
   override final def equals(that: Any): Boolean = that match
     case that: Hyperedge[?, ?] => label == that.label && rank == that.rank &&
       multiset == that.multiset
-    case _ => false
+    case that: AnyGraph[?, ?, ?] => sameGraph(that)
+    case _                       => false
 
-  override final def hashCode: Int = MurmurHash3.unorderedHash(ends, label.##)
+  override final def hashCode: Int =
+    AnyGraph.hash(vertexValues, Seq(shapeHash -> Count(1)))
 
   override def toString: String = labelled(
     ends.mkString("Hyperedge(", ", ", ")"),
     label,
   )
+
+  override protected def delegate: HypergraphBase[V, E, Count] = HypergraphBase
+    .kind[Count]
+    .from(Seq(this))
 
   /** The number of times each vertex occurs, which identifies the ends. */
   private def multiset: Map[Any, Int] =

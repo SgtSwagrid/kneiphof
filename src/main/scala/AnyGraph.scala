@@ -2,6 +2,7 @@ package com.alecdorrington
 package kneiphof
 
 import scala.compiletime.deferred
+import scala.util.hashing.MurmurHash3
 
 /**
   * A graph of any kind, with vertices of type [[V]], edge labels of type [[E]]
@@ -38,8 +39,41 @@ trait AnyGraph[+V, +E, M]:
   def size: Int = edgeValues.values.map(_.count).sum
 
   override def equals(that: Any): Boolean = that match
-    case that: AnyGraph[?, ?, ?] => vertexValues == that.vertexValues &&
-      edgeValues == that.edgeValues
-    case _ => false
+    case that: AnyGraph[?, ?, ?] => sameGraph(that)
+    case _                       => false
 
-  override def hashCode: Int = (vertexValues, edgeValues).##
+  override def hashCode: Int = AnyGraph.hash(
+    vertexValues,
+    edgeValues.map((edge, multiplicity) => AnyGraph.shape(edge) -> multiplicity),
+  )
+
+  /**
+    * @return
+    *   `true` if and only if this graph and [[that]] have the same vertices and
+    *   the same multiplicity for every edge.
+    */
+  protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean =
+    vertexValues == that.vertexValues && edgeValues == that.edgeValues
+
+/** The companion object for [[AnyGraph]]. */
+object AnyGraph:
+
+  /**
+    * @return
+    *   The hash of a graph with the given [[vertices]], and edges with the
+    *   given [[shapes]] (see [[AnyEdge.shapeHash]]) and multiplicities.
+    *
+    * Edges hash themselves this way too, as the graph of one edge, so this
+    * mustn't depend on the hashes of the edges themselves.
+    */
+  private[kneiphof] def hash
+    (
+      vertices: ValueSet[?],
+      shapes: Iterable[(Int, Any)],
+    )
+    : Int = (vertices, MurmurHash3.unorderedHash(shapes)).##
+
+  /** @return The hash of [[edge]] which doesn't depend on its hash code. */
+  private def shape(edge: Any): Int = edge match
+    case edge: AnyEdge[?, ?, ?] => edge.shapeHash
+    case _                      => edge.##
