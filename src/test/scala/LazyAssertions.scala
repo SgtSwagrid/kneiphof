@@ -20,8 +20,8 @@ trait LazyAssertions extends Assertions:
     GraphBase
       .kind[M]
       .fromMultiplicities(
-        graph.built.vertexValues,
-        graph.built.edgeValues,
+        graph.materialise.vertexValues,
+        graph.materialise.edgeValues,
       ),
     absent,
   )
@@ -42,8 +42,8 @@ trait LazyAssertions extends Assertions:
     DirectedGraphBase
       .kind[M]
       .fromMultiplicities(
-        graph.built.vertexValues,
-        graph.built.edgeValues,
+        graph.materialise.vertexValues,
+        graph.materialise.edgeValues,
       ),
     absent,
   )
@@ -64,7 +64,10 @@ trait LazyAssertions extends Assertions:
     )
     (using Location)
     : Unit =
-    assert(!graph.eager, "The graph isn't lazy.")
+    assert(
+      !graph.structure.stored,
+      "The graph is stored.",
+    )
     assertEquals(graph.order, built.order)
     assertEquals(graph.size, built.size)
     assertEquals(graph.vertexValues, built.vertexValues)

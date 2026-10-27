@@ -1,6 +1,8 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.incidence.IncidenceStructure
+
 /**
   * A multigraph built by chaining edges, as in `1 ~ 2 ~ 3`, which holds the
   * edges `1 ~ 2` and `2 ~ 3`.
@@ -50,23 +52,9 @@ object Chain:
   /** A chain of at least two edges. */
   private final class Steps[+V, +E, +L]
     (earlier: Seq[Edge[V, E]], last: Edge[V, L])
-    extends Chain[V, E, L],
-            Delegating[
-              V,
-              E | L,
-              Count,
-              Edge,
-              [v, e] =>> GraphBase[v, e, Count],
-            ]:
+    extends Chain[V, E, L]:
 
     override def tip: V = last.second
-
-    override def updated[W >: V, F >: E | L]
-      (
-        edge: kneiphof.Edge[W, F],
-        multiplicity: Count,
-      )
-      : GraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
 
     override def labelled[F : NotGraph](label: F): Chain[V, E, F] =
       Steps(earlier, last.labelled(label))
@@ -74,6 +62,8 @@ object Chain:
     override private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]] =
       earlier :+ last
 
-    override protected lazy val delegate: GraphBase[V, E | L, Count] = GraphBase
+    override private[kneiphof] lazy val structure
+      : IncidenceStructure[V, Count, kneiphof.Edge[V, E | L]] = GraphBase
       .kind[Count]
       .from(steps)
+      .structure

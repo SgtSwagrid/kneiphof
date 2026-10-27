@@ -76,7 +76,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     assert(!union.hasEdge(Left(1) ~ Right(2)))
     assertEquals(union(Right(3)).degree, 9)
 
-  test("operations on eager graphs are eager"):
+  test("every operation is lazy, even on stored graphs"):
     val graph                           = Graph(1 ~ 2 ~ 3)
     val other                           = Graph(2 ~ 3 ~ 4)
     val results: Seq[AnyGraph[?, ?, ?]] = Seq(
@@ -90,15 +90,14 @@ class LazySuite extends FunSuite, LazyAssertions:
       graph.filterEdges(_.isLoop),
       graph.edgeInduced(_.vertexValues.contains(1)),
       graph.mapVertices(_ * 2),
-      graph.toHypergraph,
       graph.symmetric,
       graph.symmetric.transpose,
       graph.symmetric.underlying,
       graph.addVertex(7).removeVertex(1).removeEdge(2 ~ 3),
     )
-    results.foreach(result => assert(result.eager, result))
+    results.foreach(result => assert(!result.structure.stored, result))
 
-  test("joins and substitutions are lazy even for eager graphs"):
+  test("joins, substitutions and shapes are lazy"):
     val graph                           = Graph(1 ~ 2)
     val results: Seq[AnyGraph[?, ?, ?]] = Seq(
       graph :~: Graph(3 ~ 4),
@@ -106,10 +105,28 @@ class LazySuite extends FunSuite, LazyAssertions:
       graph.join(Graph.vertex(3)),
       graph.lexicographicProduct(graph),
       graph.flatMapVertices(v => Graph.vertex(v)),
-      graph.view,
       Graph.complete(3),
     )
-    results.foreach(result => assert(!result.eager, result))
+    results.foreach(result => assert(!result.structure.stored, result))
+
+  test("materialising a graph stores it without changing it"):
+    val graph  = Graph.complete(4) - (0 ~ 1)
+    val stored = graph.materialise
+    assert(!graph.structure.stored)
+    assert(stored.structure.stored)
+    assertEquals(stored, graph)
+    assert(stored.materialise eq stored)
+    assert(Graph(1 ~ 2).toHypergraph.structure.stored)
+    assert(!Graph.path(3).toHypergraph.structure.stored)
+
+  test("chains of a thousand maps answer queries and materialise"):
+    val start: Graph[Int, Unit] = Graph.path(10)
+    val mapped                  = (0 until 1_000).foldLeft(start)((graph, _) =>
+      graph.mapVertices(identity),
+    )
+    assert(mapped.hasEdge(3 ~ 4))
+    assertEquals(mapped.degree(0), 1)
+    assertEquals(mapped.materialise, Graph.path(10))
 
   test("operations on lazy graphs are lazy, and agree with their built graphs"):
     val cycle = Graph.cycle(5)
@@ -172,10 +189,10 @@ class LazySuite extends FunSuite, LazyAssertions:
     assertLazyDirected(Graph.path(3).symmetric, 0 ~> 2, 1 ~> 0)
     assertLazy(cycle.underlying, 0 ~ 2, 1 ~ 0)
     val hypergraph = Graph.cycle(3).toHypergraph
-    assert(!hypergraph.eager)
+    assert(!hypergraph.structure.stored)
     assert(hypergraph.hasEdge(0 ~ 1))
     val grown = hypergraph.updated(Hyperedge(0, 1, 2), true)
-    assert(!grown.eager)
+    assert(!grown.structure.stored)
     assert(grown.hasEdge(Hyperedge(0, 1, 2)))
     assertEquals(grown.size, 4)
 
@@ -248,7 +265,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     assertEquals(updated.edgeValues.size, 20_001)
     val summed = (0 until 20_000).foldLeft(start): (graph, vertex) =>
       graph + (vertex ~ (vertex + 1))
-    assert(!summed.eager)
+    assert(!summed.structure.stored)
     assertEquals(summed.size, 20_001)
     assertEquals(summed.edgeValues.size, 20_001)
     val removed = (0 until 20_000).foldLeft(updated): (graph, vertex) =>
@@ -266,7 +283,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     )
     assertLazy(Graph.complete(12).filterEdges(_.vertexValues.contains(0)))
     assertLazy(
-      Graph.complete(12) - Graph(0 ~ 1, 2 ~ 3).view,
+      Graph.complete(12) - Graph(0 ~ 1, 2 ~ 3).mapVertices(identity),
       0 ~ 1,
     )
     assertLazy(
@@ -317,9 +334,9 @@ class LazySuite extends FunSuite, LazyAssertions:
       .complete(3_000)
       .lexicographicProduct(Graph.vertices(0, 1))
     assertEquals(product.size, 4_498_500 * 4)
-    val looped = Multigraph(1 ~ 1, 1 ~ 2, 2 ~ 3)
-      .view
-      .lexicographicProduct(Multigraph.complete(2))
+    val looped = Multigraph(1 ~ 1, 1 ~ 2, 2 ~ 3).lexicographicProduct(
+      Multigraph.complete(2),
+    )
     assertLazy(
       looped,
       (1, 0) ~ (1, 1),

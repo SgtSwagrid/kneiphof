@@ -1,14 +1,14 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.shapes.{Indexing, Shape}
+import com.alecdorrington.kneiphof.shapes.{Index, Rule}
 
 /**
   * Constructors for common shapes of unlabelled graph, of kind [[G]].
   *
   * A shape's edges are never stored: queries such as `hasEdge`, `size` and
-  * vertex degrees are answered from the shape, and the edges are only built if
-  * something needs all of them, such as iterating over them.
+  * vertex degrees are answered from the shape, and the edges are only computed
+  * if something needs all of them, such as iterating over them.
   *
   * Each shape can be built on the vertices `0, 1, ...`, given how many there
   * are, as in `path(3)`. Shapes whose vertices come in a single sequence can
@@ -42,7 +42,7 @@ trait Shapes[+G[+v, +e]]:
   def complete(sizes: Int*): G[Int, Unit] = counted(total(sizes)): order =>
     sizes match
       case Seq(_) => allPairs(order)
-      case _      => Shape.Multipartite(sizes, directed)
+      case _      => Rule.Multipartite(sizes, directed)
 
   /**
     * @return
@@ -52,7 +52,7 @@ trait Shapes[+G[+v, +e]]:
     *   set, for directed graphs).
     */
   def hypercube(dimension: Int): G[Int, Unit] =
-    counted(1 << dimensions(dimension))(_ => Shape.Hypercube(dimension))
+    counted(1 << dimensions(dimension))(_ => Rule.Hypercube(dimension))
 
   /**
     * @return
@@ -63,7 +63,7 @@ trait Shapes[+G[+v, +e]]:
     *   `circulant(2 * n, 1, n)` is the Möbius ladder.
     */
   def circulant(order: Int, jumps: Int*): G[Int, Unit] = counted(order): n =>
-    Shape.Circulant(n, loopless(n, jumps), directed)
+    Rule.Circulant(n, loopless(n, jumps), directed)
 
   /** @return The Petersen graph, which is `petersen(5, 2)`. */
   def petersen: G[Int, Unit] = petersen(5, 2)
@@ -78,7 +78,7 @@ trait Shapes[+G[+v, +e]]:
     *   is the dodecahedron.
     */
   def petersen(n: Int, k: Int): G[Int, Unit] =
-    counted(2 * n)(_ => Shape.Petersen(n, skips(n, k)))
+    counted(2 * n)(_ => Rule.Petersen(n, skips(n, k)))
 
   /**
     * @return
@@ -87,7 +87,7 @@ trait Shapes[+G[+v, +e]]:
     *   row or column (pointing down and right, for directed graphs).
     */
   def grid(rows: Int, columns: Int): G[(Int, Int), Unit] =
-    paired(rows, columns)(Shape.Path(_), Shape.Path(_))
+    paired(rows, columns)(Rule.Path(_), Rule.Path(_))
 
   /**
     * @return
@@ -97,8 +97,8 @@ trait Shapes[+G[+v, +e]]:
     */
   def torus(rows: Int, columns: Int): G[(Int, Int), Unit] =
     paired(rows, columns)(
-      order => Shape.Cycle(cyclic(order)),
-      order => Shape.Cycle(cyclic(order)),
+      order => Rule.Cycle(cyclic(order)),
+      order => Rule.Cycle(cyclic(order)),
     )
 
   /**
@@ -108,15 +108,15 @@ trait Shapes[+G[+v, +e]]:
     *   The cycles are as for [[cycle]], and need at least `1` vertex each.
     */
   def prism(order: Int): G[(Int, Int), Unit] = paired(order, 2)(
-    order => Shape.Cycle(cyclic(order)),
-    Shape.Path(_),
+    order => Rule.Cycle(cyclic(order)),
+    Rule.Path(_),
   )
 
   /** @return The path through the vertices `0 until order`, in order. */
-  def path(order: Int): G[Int, Unit] = counted(order)(Shape.Path(_))
+  def path(order: Int): G[Int, Unit] = counted(order)(Rule.Path(_))
 
   /** @return The path through the given [[vertices]], in order. */
-  def path[V](vertices: V*): G[V, Unit] = listed(vertices)(Shape.Path(_))
+  def path[V](vertices: V*): G[V, Unit] = listed(vertices)(Rule.Path(_))
 
   /**
     * @return
@@ -126,7 +126,7 @@ trait Shapes[+G[+v, +e]]:
     *   graphs whose edges form a set.
     */
   def cycle(order: Int): G[Int, Unit] =
-    counted(order)(order => Shape.Cycle(cyclic(order)))
+    counted(order)(order => Rule.Cycle(cyclic(order)))
 
   /**
     * @return
@@ -134,7 +134,7 @@ trait Shapes[+G[+v, +e]]:
     *   be at least `1`, as for `cycle(order)`.
     */
   def cycle[V](vertices: V*): G[V, Unit] =
-    listed(vertices)(order => Shape.Cycle(cyclic(order)))
+    listed(vertices)(order => Rule.Cycle(cyclic(order)))
 
   /**
     * @return
@@ -142,11 +142,11 @@ trait Shapes[+G[+v, +e]]:
     *   `1 to leaves` (pointing outwards, for directed graphs).
     */
   def star(leaves: Int): G[Int, Unit] =
-    counted(nonNegative(leaves) + 1)(Shape.Star(_))
+    counted(nonNegative(leaves) + 1)(Rule.Star(_))
 
   /** @return The star with [[centre]] adjacent to each of the [[leaves]]. */
   def star[V](centre: V, leaves: V*): G[V, Unit] =
-    listed(centre +: leaves)(Shape.Star(_))
+    listed(centre +: leaves)(Rule.Star(_))
 
   /**
     * @return
@@ -154,7 +154,7 @@ trait Shapes[+G[+v, +e]]:
     *   which form a cycle as for [[cycle]]. There must be at least `1` of them.
     */
   def wheel(rim: Int): G[Int, Unit] =
-    counted(rim + 1)(order => Shape.Wheel(cyclic(order - 1) + 1))
+    counted(rim + 1)(order => Rule.Wheel(cyclic(order - 1) + 1))
 
   /**
     * @return
@@ -163,21 +163,21 @@ trait Shapes[+G[+v, +e]]:
     *   them.
     */
   def wheel[V](hub: V, rim: V*): G[V, Unit] =
-    listed(hub +: rim)(order => Shape.Wheel(cyclic(order - 1) + 1))
+    listed(hub +: rim)(order => Rule.Wheel(cyclic(order - 1) + 1))
 
   /**
     * @return
     *   The fan with the hub `0` adjacent to each of the vertices `1 to rim`,
     *   which form a path.
     */
-  def fan(rim: Int): G[Int, Unit] = counted(nonNegative(rim) + 1)(Shape.Fan(_))
+  def fan(rim: Int): G[Int, Unit] = counted(nonNegative(rim) + 1)(Rule.Fan(_))
 
   /**
     * @return
     *   The fan with [[hub]] adjacent to each of the [[rim]] vertices, which
     *   form a path in order.
     */
-  def fan[V](hub: V, rim: V*): G[V, Unit] = listed(hub +: rim)(Shape.Fan(_))
+  def fan[V](hub: V, rim: V*): G[V, Unit] = listed(hub +: rim)(Rule.Fan(_))
 
   /**
     * @return
@@ -188,7 +188,7 @@ trait Shapes[+G[+v, +e]]:
     *   branching`.
     */
   def tree(branching: Int, order: Int): G[Int, Unit] =
-    counted(order)(Shape.Tree(_, branches(branching)))
+    counted(order)(Rule.Tree(_, branches(branching)))
 
   /**
     * @return
@@ -196,37 +196,37 @@ trait Shapes[+G[+v, +e]]:
     *   which each vertex has up to [[branching]] children.
     */
   def tree[V](branching: Int, vertices: V*): G[V, Unit] =
-    listed(vertices)(Shape.Tree(_, branches(branching)))
+    listed(vertices)(Rule.Tree(_, branches(branching)))
 
-  /** @return The shape on the given [[vertices]], from their number. */
-  private[kneiphof] def shaped[V](vertices: Indexing[V], shape: Shape)
-    : G[V, Unit]
+  /** @return The shape whose vertices [[index]] names, linked by [[rule]]. */
+  private[kneiphof] def shaped[V](index: Index[V], rule: Rule): G[V, Unit]
 
   /** `true` if and only if this kind of graph is directed. */
   private[kneiphof] def directed: Boolean
 
-  /** @return The shape [[shape]] on the vertices `0 until order`. */
-  protected def counted(order: Int)(shape: Int => Shape): G[Int, Unit] =
-    shaped(Indexing.Counting(order), shape(order))
+  /** @return The shape [[rule]] makes on the vertices `0 until order`. */
+  protected def counted(order: Int)(rule: Int => Rule): G[Int, Unit] =
+    shaped(Index.Numbers(order), rule(order))
 
-  /** @return The shape [[shape]] on the given [[vertices]]. */
-  protected def listed[V](vertices: Seq[V])(shape: Int => Shape): G[V, Unit] =
+  /** @return The shape [[rule]] makes on the given [[vertices]]. */
+  protected def listed[V](vertices: Seq[V])(rule: Int => Rule): G[V, Unit] =
     shaped(
-      Indexing.Listing(vertices.toIndexedSeq),
-      shape(vertices.size),
+      Index.Vertices(vertices.toIndexedSeq),
+      rule(vertices.size),
     )
 
   /**
     * @return
-    *   The Cartesian product of the shapes [[first]] and [[second]] make for
-    *   the numbers of [[rows]] and [[columns]], on the pairs `(row, column)`.
+    *   The Cartesian product of the shapes the rules [[first]] and [[second]]
+    *   make for the numbers of [[rows]] and [[columns]], on the pairs
+    *   `(row, column)`.
     */
   private def paired
     (rows: Int, columns: Int)
-    (first: Int => Shape, second: Int => Shape)
+    (first: Int => Rule, second: Int => Rule)
     : G[(Int, Int), Unit] = shaped(
-    Indexing.Pairing(rows, columns),
-    Shape.Cartesian(first(rows), second(columns)),
+    Index.Pairs(rows, columns),
+    Rule.Cartesian(first(rows), second(columns)),
   )
 
   /**
@@ -234,8 +234,8 @@ trait Shapes[+G[+v, +e]]:
     *   The shape of a complete graph of this kind on [[order]] vertices, in
     *   which every two vertices are adjacent.
     */
-  private def allPairs(order: Int): Shape =
-    if directed then Shape.CompleteDigraph(order) else Shape.Clique(order)
+  private def allPairs(order: Int): Rule =
+    if directed then Rule.CompleteDigraph(order) else Rule.Clique(order)
 
   /** @return [[count]], checking that it isn't negative. */
   private def nonNegative(count: Int): Int =
@@ -318,7 +318,7 @@ trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
     *   from each vertex to every later one.
     */
   def transitiveTournament(order: Int): G[Int, Unit] =
-    counted(order)(Shape.Clique(_))
+    counted(order)(Rule.Clique(_))
 
   /**
     * @return
@@ -326,4 +326,4 @@ trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
     *   each vertex to every later one.
     */
   def transitiveTournament[V](vertices: V*): G[V, Unit] =
-    listed(vertices)(Shape.Clique(_))
+    listed(vertices)(Rule.Clique(_))

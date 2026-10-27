@@ -46,13 +46,6 @@ trait Hyperedge[+V, +E]
     : Iterable[Hyperedge[W, E]] =
     cartesian(ends.map(choices)).map(Hyperedge.from(_, label))
 
-  override def updated[W >: V, F >: E]
-    (
-      edge: Hyperedge[W, F],
-      multiplicity: Count,
-    )
-    : HypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
   override def shapeHash: Int = MurmurHash3.unorderedHash(ends, label.##)
 
   override final def equals(that: Any): Boolean = that match
@@ -66,10 +59,6 @@ trait Hyperedge[+V, +E]
     ends.mkString("Hyperedge(", ", ", ")"),
     label,
   )
-
-  override protected def delegate: HypergraphBase[V, E, Count] = HypergraphBase
-    .kind[Count]
-    .from(Seq(this))
 
   /** The number of times each vertex occurs, which identifies the ends. */
   private def multiset: Map[Any, Int] =

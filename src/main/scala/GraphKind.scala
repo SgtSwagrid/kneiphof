@@ -1,18 +1,17 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.views.{
-  Combining, Imaging, Joining, Queries, Refining, Substitution, Tagging,
+import com.alecdorrington.kneiphof.incidence.{
+  Copy, Difference, Explicit, Image, IncidenceStructure, Intersection, Subgraph,
+  Substitution, Sum, Union,
 }
 import scala.compiletime.deferred
 
 /**
   * A kind of graph [[G]], with edges of kind [[X]] and multiplicities in [[M]],
-  * together with a representation for building new graphs.
+  * which builds the graphs of that kind around their incidence structures.
   *
-  * Each kind's companion offers one in the default representation, such as
-  * [[Graph]] or [[GraphBase.kind]]. Another representation can be selected by
-  * constructing a kind from its empty graph, e.g. `GraphBase.Kind(empty)`.
+  * Each kind's companion offers one, such as [[Graph]] or [[GraphBase.kind]].
   *
   * @tparam C
   *   The multigraphs of the same kind, such as edges and chains, from which
@@ -28,20 +27,15 @@ trait GraphKind[
   /** The algebra of edge multiplicities. */
   protected given algebra: Multiplicity[M] = deferred
 
-  /** The empty graph of this kind, in this kind's representation. */
-  def empty: G[Nothing, Nothing]
-
   /**
     * @return
-    *   [[graph]] with the multiplicity of [[edge]] set to [[multiplicity]].
+    *   The graph of this kind whose incidence structure is [[structure]].
     */
-  def updated[V, E]
-    (
-      graph: G[V, E],
-      edge: X[V, E],
-      multiplicity: M,
-    )
+  private[kneiphof] def wrap[V, E](structure: IncidenceStructure[V, M, X[V, E]])
     : G[V, E]
+
+  /** The empty graph of this kind. */
+  def empty: G[Nothing, Nothing] = wrap(Explicit.empty)
 
   /**
     * @return
@@ -49,27 +43,30 @@ trait GraphKind[
     *   as edges (`1 ~ 2`), chains (`1 ~ 2 ~ 3`) or multigraphs, adding the
     *   counts of repeated edges.
     */
-  def apply[V, E](parts: C[V, E]*): G[V, E] = parts.foldLeft(empty: G[V, E]):
-    (graph, part) =>
-      merged(
-        graph,
-        part.vertexValues,
-        part.edgeValues.map(counted),
-      )(_ + _)
+  def apply[V, E](parts: C[V, E]*): G[V, E] = wrap:
+    parts.foldLeft(Explicit.empty[M]: Explicit[V, M, X[V, E]]): (sum, part) =>
+      increased(
+        sum.withVertices(part.vertexValues),
+        part
+          .edgeValues
+          .map((edge, count) => edge -> algebra.fromInt(count.toInt)),
+      )
 
   /**
     * @return
     *   The graph with the single vertex [[vertex]] and no edges, which is the
     *   unit of `flatMapVertices`.
     */
-  def vertex[V](vertex: V): G[V, Nothing] = empty.addVertex(vertex)
+  def vertex[V](vertex: V): G[V, Nothing] =
+    wrap(Explicit.empty.withVertex(vertex))
 
   /** @return The graph with the given [[vertices]] and no edges. */
-  def vertices[V](vertices: V*): G[V, Nothing] = empty.addVertices(vertices)
+  def vertices[V](vertices: V*): G[V, Nothing] =
+    wrap(Explicit.empty.withVertices(vertices))
 
   /** @return The graph with the given [[edges]] and their vertices. */
   def from[V, E](edges: Iterable[X[V, E]]): G[V, E] =
-    increased(empty, edges.map(_ -> algebra.one))
+    fromMultiplicities(Nil, edges.map(_ -> algebra.one))
 
   /**
     * @return
@@ -81,7 +78,7 @@ trait GraphKind[
       vertices: Iterable[V],
       edges: Iterable[X[V, E]],
     )
-    : G[V, E] = from(edges).addVertices(vertices)
+    : G[V, E] = fromMultiplicities(vertices, edges.map(_ -> algebra.one))
 
   /**
     * @return
@@ -93,172 +90,159 @@ trait GraphKind[
       vertices: Iterable[V],
       edges: Iterable[(X[V, E], M)],
     )
-    : G[V, E] = increased(empty.addVertices(vertices), edges)
+    : G[V, E] = wrap:
+    increased(
+      Explicit.empty[M].withVertices(vertices),
+      edges,
+    )
 
-  /** @return [[graph]] with each of [[edges]] added, summing multiplicities. */
-  private[kneiphof] def increased[V, E]
+  /**
+    * @return
+    *   [[graph]] with the multiplicity of [[edge]] set to [[multiplicity]],
+    *   adding its vertices unless the edge is now absent.
+    */
+  private[kneiphof] def updated[V, E]
     (
       graph: G[V, E],
-      edges: Iterable[(X[V, E], M)],
+      edge: X[V, E],
+      multiplicity: M,
     )
-    : G[V, E] = merged(graph, Nil, edges)(_ + _)
-
-  /**
-    * @return
-    *   [[graph]] with [[vertices]] and [[edges]] added, where the
-    *   multiplicities of each edge are combined by [[combine]].
-    */
-  private[kneiphof] def merged[V, E]
-    (
-      graph: G[V, E],
-      vertices: Iterable[V],
-      edges: Iterable[(X[V, E], M)],
-    )
-    (combine: (M, M) => M)
-    : G[V, E] = edges.foldLeft(graph.addVertices(vertices)): (graph, entry) =>
-    updated(
-      graph,
-      entry(0),
-      combine(graph.multiplicity(entry(0)), entry(1)),
-    )
-
-  /**
-    * @return
-    *   The lazy graph answering [[queries]] without being built, and anything
-    *   else as the graph from [[build]], which is only built when first needed.
-    */
-  private[kneiphof] def view[V, E]
-    (
-      queries: Queries[V, E, M, X[V, E]],
-      build: => G[V, E],
-    )
-    : G[V, E]
-
-  /**
-    * @return
-    *   The result of an operation on [[operands]], which is the graph from
-    *   [[build]] if every operand is eager, and otherwise the lazy graph
-    *   answering [[queries]] (see [[view]]). Laziness is the meaning of every
-    *   operation, and building eager results straight away is an optimisation.
-    *   It's only used for operations whose results are no bigger than their
-    *   operands; operations which generate structure, such as joins and
-    *   products, are always lazy, since chaining them could otherwise build a
-    *   result exponential in the length of the expression.
-    */
-  private[kneiphof] def lazily[V, E]
-    (operands: AnyGraph[?, ?, ?]*)
-    (
-      queries: => Queries[V, E, M, X[V, E]],
-      build: => G[V, E],
-    )
-    : G[V, E] = if operands.forall(_.eager) then build else view(queries, build)
-
-  /**
-    * @return
-    *   The union or sum of [[first]] and [[operand]], which [[second]]
-    *   describes and whose vertices and edges are [[vertices]] and [[edges]],
-    *   combining each edge's multiplicities by [[combine]]. An eager operand is
-    *   added one edge at a time, which patches a lazy [[first]] rather than
-    *   nesting a view.
-    *
-    * @param additive
-    *   `true` if and only if combining adds the counts of the multiplicities.
-    */
-  private[kneiphof] def combined[V, E]
-    (
-      first: G[V, E],
-      second: Queries[V, E, M, X[V, E]],
-      operand: AnyGraph[?, ?, ?],
-      vertices: => Iterable[V],
-      edges: => Iterable[(X[V, E], M)],
-      additive: Boolean,
-    )
-    (combine: (M, M) => M)
-    : G[V, E] =
-    if operand.eager then merged(first, vertices, edges)(combine)
-    else
-      view(
-        Combining(
-          first.viewing,
-          second,
-          combine,
-          additive,
-          first.edgeValues.keys,
-          edges.map(_(0)),
-        ),
-        merged(first, vertices, edges)(combine),
+    : G[V, E] = wrap:
+    graph
+      .structure
+      .patched
+      .withEdge(
+        edge,
+        if multiplicity.isZero then Nil else edge.vertexValues,
+        multiplicity,
       )
 
+  /** @return [[graph]] with [[vertex]] added. */
+  private[kneiphof] def withVertex[V, E](graph: G[V, E], vertex: V): G[V, E] =
+    wrap(graph.structure.patched.withVertex(vertex))
+
+  /** @return [[graph]] without [[vertex]] and its incident edges. */
+  private[kneiphof] def withoutVertex[V, E]
+    (graph: G[V, E], vertex: Any)
+    : G[V, E] =
+    if !graph.hasVertex(vertex) then graph
+    else wrap(graph.structure.patched.withoutVertex(vertex))
+
   /**
     * @return
-    *   The subgraph of [[graph]] with only the vertices satisfying [[keep]] and
-    *   the edges satisfying [[keepEdge]], and each remaining edge's
-    *   multiplicity changed by [[reweigh]], which may depend on [[operands]].
-    *   Only the edges in [[changed]] may have their multiplicities changed, and
-    *   only those in [[support]], if given, may remain.
+    *   [[graph]] with the multiplicity of [[edge]] set to [[multiplicity]], or
+    *   [[graph]] unchanged if it doesn't contain [[edge]].
     */
-  private[kneiphof] def refined[V, E]
+  private[kneiphof] def withMultiplicity[V, E]
+    (graph: G[V, E], edge: Any, multiplicity: M)
+    : G[V, E] = graph
+    .structure
+    .find(edge)
+    .fold(graph)(found =>
+      wrap(graph.structure.patched.withEdge(found, Nil, multiplicity)),
+    )
+
+  /** @return [[graph]], with every edge stored. */
+  private[kneiphof] def materialise[V, E](graph: G[V, E]): G[V, E] =
+    if graph.structure.stored then graph else wrap(graph.structure.explicit)
+
+  /**
+    * @return
+    *   The sum of [[first]] and the graph whose incidence structure is
+    *   [[second]]. For edge sets, this is their union.
+    */
+  private[kneiphof] def sum[V, E]
+    (
+      first: G[V, E],
+      second: IncidenceStructure[V, M, X[V, E]],
+    )
+    : G[V, E] =
+    if !algebra.additive then union(first, second)
+    else overlaid(first, second)(_ + _)(Sum(first.structure, second))
+
+  /**
+    * @return
+    *   The union of [[first]] and the graph whose incidence structure is
+    *   [[second]].
+    */
+  private[kneiphof] def union[V, E]
+    (
+      first: G[V, E],
+      second: IncidenceStructure[V, M, X[V, E]],
+    )
+    : G[V, E] = overlaid(first, second)(_ | _)(Union(first.structure, second))
+
+  /**
+    * @return
+    *   The intersection of [[graph]] and the graph whose incidence structure is
+    *   [[other]].
+    */
+  private[kneiphof] def intersection[V, E]
+    (
+      graph: G[V, E],
+      other: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
+    )
+    : G[V, E] = wrap(Intersection(graph.structure, other))
+
+  /**
+    * @return
+    *   The difference of [[graph]] and the graph whose incidence structure is
+    *   [[other]]. If [[other]] is stored, each of its edges is subtracted from
+    *   a patch of [[graph]], so that long chains of differences stay shallow.
+    */
+  private[kneiphof] def difference[V, E]
+    (
+      graph: G[V, E],
+      other: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
+    )
+    : G[V, E] =
+    if !other.stored then wrap(Difference(graph.structure, other))
+    else
+      wrap:
+        other
+          .edges
+          .foldLeft(graph.structure.patched):
+            case (patch, (edge, multiplicity)) => patch
+                .find(edge)
+                .fold(patch)(found =>
+                  patch.withEdge(
+                    found,
+                    Nil,
+                    patch.multiplicity(found) - multiplicity,
+                  ),
+                )
+
+  /**
+    * @return
+    *   The subgraph of [[graph]] with only the vertices satisfying [[keep]],
+    *   and the edges between them satisfying [[keepEdge]], if given.
+    */
+  private[kneiphof] def subgraph[V, E]
     (
       graph: G[V, E],
       keep: V => Boolean,
       keepEdge: Option[X[V, E] => Boolean],
-      reweigh: (Any, M) => M,
-      changed: => Iterable[Any],
-      support: Option[() => Iterable[Any]],
-      operands: Seq[AnyGraph[?, ?, ?]],
     )
-    : G[V, E] = lazily(graph +: operands*)(
-    Refining(
-      graph.viewing,
-      keep,
-      keepEdge,
-      reweigh,
-      changed,
-      support,
-    ),
-    changed
-      .flatMap(graph.edgeValues.getKey)
-      .foldLeft(graph.removeVertices(graph.vertexValues.filterNot(keep))):
-        (refined, edge) =>
-          val multiplicity = refined.multiplicity(edge)
-          val reweighed    =
-            if keepEdge.forall(_(edge)) then reweigh(edge, multiplicity)
-            else algebra.zero
-          if reweighed == multiplicity then refined
-          else refined.withMultiplicity(edge, reweighed),
-  )
+    : G[V, E] = wrap(Subgraph(graph.structure, keep, keepEdge))
 
   /**
     * @return
-    *   The image of [[graph]], which [[queries]] describes and whose edges are
-    *   [[edges]], with each vertex mapped by [[vertexMap]] and each edge
-    *   replaced by its [[edgeImages]], summing the multiplicities of equal
-    *   images.
+    *   The image of the graph whose incidence structure is [[structure]], with
+    *   each vertex mapped by [[vertexMap]] and each edge replaced by its
+    *   [[edgeImages]], summing the multiplicities of equal images.
     *
     * @param kept
     *   `true` if and only if every copy of each edge has exactly one image, and
     *   the multiplicities of equal images add their counts.
     */
-  private[kneiphof] def imaged[V, E, Y, W, F]
-    (
-      graph: AnyGraph[V, E, M],
-      queries: Queries[V, E, M, Y],
-      edges: => Iterable[(Y, M)],
-    )
+  private[kneiphof] def imaged[V, Y <: AnyEdge[?, ?, ?], W, F]
+    (structure: IncidenceStructure[V, M, Y])
     (
       vertexMap: V => W,
       edgeImages: Y => Iterable[X[W, F]],
       kept: Boolean,
     )
-    : G[W, F] = lazily(graph)(
-    Imaging(queries, vertexMap, edgeImages, kept),
-    fromMultiplicities(
-      graph.vertexValues.map(vertexMap),
-      edges.flatMap((edge, multiplicity) =>
-        edgeImages(edge).map(_ -> multiplicity),
-      ),
-    ),
-  )
+    : G[W, F] = wrap(Image(structure, vertexMap, edgeImages, kept))
 
   /**
     * @return
@@ -268,13 +252,12 @@ trait GraphKind[
     */
   private[kneiphof] def flatMapVertices[V, E, W]
     (graph: G[V, E], transform: V => G[W, E])
-    : G[W, E] = view(
-    Substitution(graph, transform, None),
-    substituted(
-      graph,
-      graph.vertexValues.map(v => v -> transform(v)).toMap,
-    ),
-  )
+    : G[W, E] = wrap:
+    Substitution[V, W, E, M, X](
+      graph.structure,
+      transform(_).structure,
+      None,
+    )
 
   /**
     * @return
@@ -284,17 +267,15 @@ trait GraphKind[
   private[kneiphof] def lexicographicSum[V, E, W]
     (graph: G[V, E], transform: V => G[W, E])
     : G[(V, W), E] =
-    val part: V => G[(V, W), E] = vertex => paired(vertex, transform(vertex))
     val owner: Any => Option[V] =
       case (first, _) => graph.vertexValues.get(first)
       case _          => None
-    view(
-      Substitution(graph, part, Some(owner)),
-      substituted(
-        graph,
-        graph.vertexValues.map(v => v -> part(v)).toMap,
-      ),
-    )
+    wrap:
+      Substitution[V, (V, W), E, M, X](
+        graph.structure,
+        vertex => paired(vertex, transform(vertex).structure),
+        Some(owner),
+      )
 
   /**
     * @return
@@ -304,53 +285,79 @@ trait GraphKind[
   private[kneiphof] def disjointUnion[V, W, E]
     (first: G[V, E], second: G[W, E])
     : G[Either[V, W], E] =
-    val sides = empty.addVertices(Seq(false, true))
-    val left  = tagged(
-      first,
+    val left = Copy[V, Either[V, W], E, M, X](
+      first.structure,
       Left(_),
       {
         case Left(v) => first.vertexValues.get(v)
         case _       => None
       },
     )
-    val right = tagged(
-      second,
+    val right = Copy[W, Either[V, W], E, M, X](
+      second.structure,
       Right(_),
       {
         case Right(w) => second.vertexValues.get(w)
         case _        => None
       },
     )
-    val parts: Map[Boolean, G[Either[V, W], E]] =
-      Map(false -> left, true -> right)
+    val parts
+      : Map[
+        Boolean,
+        IncidenceStructure[Either[V, W], M, X[Either[V, W], E]],
+      ]                               = Map(false -> left, true -> right)
     val owner: Any => Option[Boolean] =
       case Left(_)  => Some(false)
       case Right(_) => Some(true)
       case _        => None
-    lazily(first, second)(
-      Substitution(sides, parts, Some(owner)),
-      substituted(sides, parts),
-    )
+    wrap:
+      Substitution[Boolean, Either[V, W], E, M, X](
+        Explicit.empty[M].withVertices(Seq(false, true)),
+        parts,
+        Some(owner),
+      )
 
   /**
     * @return
-    *   [[graph]] with each vertex `v` relabelled `tag(v)`, where [[tag]] is
-    *   injective with inverse [[untag]]. This is always lazy, since it's only
-    *   used within other operations, which decide whether to build the result.
+    *   The sum or union of [[first]] and the graph whose incidence structure is
+    *   [[second]], whose multiplicities are combined by [[combine]]. If
+    *   [[second]] is stored, each of its edges is added to a patch of
+    *   [[first]], so that long chains of sums stay shallow. Otherwise, the
+    *   result is [[overlay]].
     */
-  private[kneiphof] def tagged[V, T, E]
+  private def overlaid[V, E]
     (
-      graph: G[V, E],
-      tag: V => T,
-      untag: Any => Option[V],
+      first: G[V, E],
+      second: IncidenceStructure[V, M, X[V, E]],
     )
-    : G[T, E] = view(
-    Tagging(graph, tag, untag),
-    graph.mapVertices(tag),
-  )
+    (combine: (M, M) => M)
+    (overlay: => IncidenceStructure[V, M, X[V, E]])
+    : G[V, E] =
+    if !second.stored then wrap(overlay)
+    else
+      val extended = second
+        .vertexValues
+        .foldLeft(first.structure.patched)(_.withVertex(_))
+      wrap:
+        second
+          .edges
+          .foldLeft(extended):
+            case (patch, (edge, multiplicity)) => patch.withEdge(
+                edge,
+                edge.vertexValues,
+                combine(patch.multiplicity(edge), multiplicity),
+              )
 
-  /** @return [[part]], with each vertex tagged by [[vertex]]. */
-  private def paired[V, W, E](vertex: V, part: G[W, E]): G[(V, W), E] = tagged(
+  /**
+    * @return
+    *   The structure of [[part]], with each vertex tagged by [[vertex]].
+    */
+  private def paired[V, W, E]
+    (
+      vertex: V,
+      part: IncidenceStructure[W, M, X[W, E]],
+    )
+    : IncidenceStructure[(V, W), M, X[(V, W), E]] = Copy[W, (V, W), E, M, X](
     part,
     (vertex, _),
     {
@@ -359,53 +366,15 @@ trait GraphKind[
     },
   )
 
-  /** @return The graph from `flatMapVertices`, built from every edge. */
-  private def substituted[V, E, W]
-    (graph: G[V, E], parts: Map[V, G[W, E]])
-    : G[W, E] =
-    val outer = graph
-      .edgeValues
-      .toSeq
-      .flatMap: (edge, multiplicity) =>
-        edge.substitute(parts(_).vertexValues).map(_ -> multiplicity)
-    val replacements = parts
-      .values
-      .foldLeft(empty: G[W, E]): (sum, part) =>
-        merged(sum, part.vertexValues, part.edgeValues)(_ + _)
-    increased(replacements, outer)
-
   /**
     * @return
-    *   The join of [[first]] and [[second]], being their sum plus the edge
-    *   `link(u, v)` for every vertex `u` of [[first]] and `v` of [[second]].
+    *   [[explicit]], with each of [[edges]] added, summing multiplicities.
     */
-  private[kneiphof] def joined[V, E]
-    (first: G[V, E], second: G[V, E])
-    (link: (V, V) => X[V, E])
-    : G[V, E] =
-    val links =
-      for
-        u <- first.vertexValues.toSeq
-        v <- second.vertexValues.toSeq
-      yield link(u, v) -> algebra.one
-    val sum = merged(
-      first,
-      second.vertexValues,
-      second.edgeValues,
-    )(_ + _)
-    increased(sum, links)
-
-  /**
-    * @return
-    *   The queries about the join of [[left]] and [[right]], whose new edges
-    *   are `link(u, v)`, where [[links]] counts the new edges equal to an edge.
-    */
-  private[kneiphof] def joining[V, E, L]
-    (left: G[V, E], right: G[V, E])
-    (link: (V, V) => X[V, E | L], links: Any => Int)
-    : Queries[V, E | L, M, X[V, E | L]] =
-    Joining[V, E, L, M, X, G](left, right, link, links)
-
-  /** @return [[entry]], with its count read as a multiplicity in [[M]]. */
-  private def counted[Y](entry: (Y, Count)): (Y, M) = entry(0) ->
-    algebra.fromInt(entry(1).toInt)
+  private def increased[V, E]
+    (
+      explicit: Explicit[V, M, X[V, E]],
+      edges: Iterable[(X[V, E], M)],
+    )
+    : Explicit[V, M, X[V, E]] = edges.foldLeft(explicit):
+    case (explicit, (edge, multiplicity)) =>
+      explicit.increased(edge, edge.vertexValues, multiplicity)

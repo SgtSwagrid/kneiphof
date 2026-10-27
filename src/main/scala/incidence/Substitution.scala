@@ -1,12 +1,12 @@
 package com.alecdorrington
 package kneiphof
-package views
+package incidence
 
 /**
-  * The queries about the graph in which each vertex `v` of [[outer]] is
-  * replaced by the graph `inner(v)`, and each edge by its copies between the
-  * replacements of its ends (see `flatMapVertices`), answered without building
-  * the copies.
+  * The graph in which each vertex `v` of the graph whose incidence structure is
+  * [[outer]] is replaced by the graph whose structure is `inner(v)`, and each
+  * edge by its copies between the replacements of its ends (see
+  * `flatMapVertices`), answered without building the copies.
   *
   * Each query only looks at the replacements containing the vertices it asks
   * about (their owners), and at the edges of [[outer]] incident to those
@@ -23,14 +23,13 @@ private[kneiphof] final class Substitution[
   E,
   M : Multiplicity as M,
   X[+v, +e] <: AnyEdge[v, e, X],
-  G[+v, +e] <: GraphOps[v, e, M, X, G],
 ]
   (
-    outer: G[V, E],
-    inner: V => G[W, E],
+    outer: IncidenceStructure[V, M, X[V, E]],
+    inner: V => IncidenceStructure[W, M, X[W, E]],
     owner: Option[Any => Option[V]],
   )
-  extends Queries[W, E, M, X[W, E]]:
+  extends IncidenceStructure[W, M, X[W, E]]:
 
   override lazy val vertexValues: ValueSet[W] = parts
     .values
@@ -57,7 +56,8 @@ private[kneiphof] final class Substitution[
     * [[vertex]] is found exactly once.
     */
   override def incidentEdges(vertex: Any): Iterable[(X[W, E], M)] =
-    if !disjoint then super.incidentEdges(vertex)
+    if !disjoint then
+      incidentEdgeValues(vertex).toSeq.map(edge => edge -> multiplicity(edge))
     else
       owners(vertex)
         .iterator
@@ -78,38 +78,42 @@ private[kneiphof] final class Substitution[
   /**
     * The number of edges, which can be counted from [[outer]] when the
     * replacements are disjoint and no edge of [[outer]] repeats a vertex, since
-    * then no two copies coincide. The outer edges are streamed rather than
-    * built.
+    * then no two copies coincide. Otherwise, every edge is counted.
     */
-  override def size: Option[Int] =
-    if !disjoint then None
-    else
-      outerEdges.foldLeft(Option(Queries.total(parts.values.map(_.size)))):
-        case (total, (edge, multiplicity)) => total.flatMap: sum =>
-            Option.when(simple(edge)):
-              Math.addExact(
-                sum,
-                Math.toIntExact(copies(edge -> multiplicity)),
-              )
+  override lazy val size: Int =
+    val counted =
+      if !disjoint then None
+      else
+        outer
+          .edges
+          .foldLeft(Option(IncidenceStructure.total(parts.values.map(_.size)))):
+            case (total, (edge, multiplicity)) => total.flatMap: sum =>
+                Option.when(simple(edge)):
+                  Math.addExact(
+                    sum,
+                    Math.toIntExact(copies(edge -> multiplicity)),
+                  )
+    counted.getOrElse(super.size)
 
   /**
     * The degree of [[vertex]], which can be counted from its own replacement
     * and the outer edges at its owner when the replacements are disjoint and
     * those edges repeat no vertex, since then no two copies coincide.
     */
-  override def degree(vertex: Any): Option[Int] =
-    if !hasVertex(vertex) then Some(0)
+  override def degree(vertex: Any): Int =
+    if !hasVertex(vertex) then 0
     else
       owners(vertex).toList match
         case List(owner) if disjoint =>
           val outerEdges = outer.incidentEdgeValues(owner)
-          Option.when(outerEdges.forall(simple)):
+          if !outerEdges.forall(simple) then super.degree(vertex)
+          else
             part(owner).degree(vertex) +
               outerEdges.toSeq.map(copiesThrough(_, owner)).sum
-        case _ => None
+        case _ => super.degree(vertex)
 
   /** The replacement of each vertex of [[outer]]. */
-  private lazy val parts: Map[V, G[W, E]] = outer
+  private lazy val parts: Map[V, IncidenceStructure[W, M, X[W, E]]] = outer
     .vertexValues
     .map(vertex => vertex -> inner(vertex))
     .toMap
@@ -120,41 +124,13 @@ private[kneiphof] final class Substitution[
     .flatMap((owner, part) => part.vertexValues.map((_: Any) -> owner))
     .groupMapReduce(_(0))(entry => ValueSet(entry(1)))(_ | _)
 
-  /**
-    * Every edge of [[outer]], once, with its multiplicity. A lazy [[outer]]
-    * isn't built: each edge is found at its first end in [[outerPositions]].
-    */
-  private def outerEdges: Iterator[(X[V, E], M)] =
-    if outer.eager then outer.edgeValues.iterator
-    else
-      outer
-        .vertexValues
-        .iterator
-        .zipWithIndex
-        .flatMap: (vertex, position) =>
-          outer
-            .incidentEdges(vertex)
-            .iterator
-            .filter((edge, _) =>
-              edge
-                .vertexValues
-                .forall(outerPositions.get(_).forall(_ >= position)),
-            )
-
-  /** The position of each vertex of [[outer]] in its vertex set. */
-  private lazy val outerPositions: Map[Any, Int] = outer
-    .vertexValues
-    .iterator
-    .zipWithIndex
-    .map((vertex, position) => (vertex: Any) -> position)
-    .toMap
-
   /** `true` if and only if no two replacements share a vertex. */
   private lazy val disjoint: Boolean = owner.isDefined ||
     index.values.forall(_.size == 1)
 
   /** @return The replacement of [[vertex]]. */
-  private def part(vertex: V): G[W, E] = parts.getOrElse(vertex, inner(vertex))
+  private def part(vertex: V): IncidenceStructure[W, M, X[W, E]] = parts
+    .getOrElse(vertex, inner(vertex))
 
   /**
     * @return
@@ -219,7 +195,7 @@ private[kneiphof] final class Substitution[
     .vertexValues
     .filter(_ != owner)
     .toSeq
-    .map(part(_).order)
+    .map(part(_).vertexValues.size)
     .product * outer.multiplicity(outerEdge).count
 
   /**
@@ -230,7 +206,7 @@ private[kneiphof] final class Substitution[
   private def copies(entry: (X[V, E], M)): Long = entry(0)
     .vertexValues
     .toSeq
-    .map(part(_).order.toLong)
+    .map(part(_).vertexValues.size.toLong)
     .product * entry(1).count
 
   /**

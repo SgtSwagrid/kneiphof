@@ -55,14 +55,6 @@ final case class DirectedEdge[+S, +T, +E]
       end   <- choices(target)
     yield DirectedEdge(start, end, label)
 
-  override def updated[W >: S | T, F >: E]
-    (edge: Arc[W, F], multiplicity: Count)
-    : DirectedGraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
-  override def updated[W >: S | T, F >: E]
-    (edge: Hyperarc[W, F], multiplicity: Count)
-    : DirectedHypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
   override def labelled[F : NotGraph](label: F): DirectedEdge[S, T, F] =
     DirectedEdge(source, target, label)
 
@@ -72,9 +64,6 @@ final case class DirectedEdge[+S, +T, +E]
   override def toString: String = describe(s"$source ~> $target", label)
 
   override private[kneiphof] def steps: Seq[DirectedEdge[S, T, E]] = Seq(this)
-
-  override protected def delegate: DirectedGraphBase[S | T, E, Count] =
-    DirectedGraphBase.kind[Count].from(Seq(this))
 
 /** The companion object for [[DirectedEdge]]. */
 object DirectedEdge:

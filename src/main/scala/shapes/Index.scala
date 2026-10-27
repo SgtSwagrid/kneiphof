@@ -3,7 +3,7 @@ package kneiphof
 package shapes
 
 /** The vertices of a shape, numbered from `0`. */
-private[kneiphof] trait Indexing[+V]:
+private[kneiphof] trait Index[+V]:
 
   /** The number of vertices. */
   def order: Int
@@ -14,11 +14,11 @@ private[kneiphof] trait Indexing[+V]:
   /** @return The number of [[vertex]], if it's one of these vertices. */
   def index(vertex: Any): Option[Int]
 
-/** The companion object for [[Indexing]]. */
-private[kneiphof] object Indexing:
+/** The companion object for [[Index]]. */
+private[kneiphof] object Index:
 
   /** The vertices `0 until order`, which are their own numbers. */
-  final class Counting(override val order: Int) extends Indexing[Int]:
+  final class Numbers(override val order: Int) extends Index[Int]:
 
     require(
       order >= 0,
@@ -27,11 +27,10 @@ private[kneiphof] object Indexing:
 
     override def vertex(index: Int): Int = index
 
-    override def index(vertex: Any): Option[Int] =
-      Indexing.number(vertex, order)
+    override def index(vertex: Any): Option[Int] = Index.number(vertex, order)
 
   /** The given [[vertices]], numbered in the order given. */
-  final class Listing[+V](vertices: IndexedSeq[V]) extends Indexing[V]:
+  final class Vertices[+V](vertices: IndexedSeq[V]) extends Index[V]:
 
     require(
       vertices.distinct.size == vertices.size,
@@ -55,7 +54,7 @@ private[kneiphof] object Indexing:
     * The pairs `(row, column)` for each row in `0 until rows` and column in
     * `0 until columns`, numbered `row * columns + column`.
     */
-  final class Pairing(rows: Int, columns: Int) extends Indexing[(Int, Int)]:
+  final class Pairs(rows: Int, columns: Int) extends Index[(Int, Int)]:
 
     require(
       rows >= 0 && columns >= 0,
@@ -70,8 +69,8 @@ private[kneiphof] object Indexing:
     override def index(vertex: Any): Option[Int] = vertex match
       case (row, column) =>
         for
-          row    <- Indexing.number(row, rows)
-          column <- Indexing.number(column, columns)
+          row    <- Index.number(row, rows)
+          column <- Index.number(column, columns)
         yield row * columns + column
       case _ => None
 

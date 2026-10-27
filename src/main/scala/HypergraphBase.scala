@@ -1,10 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.IncidenceHypergraph
-import com.alecdorrington.kneiphof.views.{
-  Joining, LazyHypergraph, Queries, Viewing,
-}
+import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
 
 /**
   * A hypergraph, whose edges may join any number of vertices, with
@@ -31,8 +28,10 @@ trait HypergraphBase[+V, +E, M]
     *   This hypergraph with the multiplicity of [[edge]] set to
     *   [[multiplicity]], adding its vertices if necessary.
     */
-  def updated[W >: V, F >: E](edge: Hyperedge[W, F], multiplicity: M)
-    : HypergraphBase[W, F, M]
+  def updated[W >: V, F >: E]
+    (edge: Hyperedge[W, F], multiplicity: M)
+    : HypergraphBase[W, F, M] =
+    hypergraphs.updated[W, F](this, edge, multiplicity)
 
   /**
     * @return
@@ -44,7 +43,8 @@ trait HypergraphBase[+V, +E, M]
   def sum[W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : HypergraphBase[W, F, M] = combined(that, embed, algebra.additive)(_ + _)
+    : HypergraphBase[W, F, M] =
+    hypergraphs.sum[W, F](this, Support(that.structure, embed))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -61,7 +61,8 @@ trait HypergraphBase[+V, +E, M]
   def union[W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : HypergraphBase[W, F, M] = combined(that, embed, false)(_ | _)
+    : HypergraphBase[W, F, M] =
+    hypergraphs.union[W, F](this, Support(that.structure, embed))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -163,13 +164,11 @@ trait HypergraphBase[+V, +E, M]
 
   override def map[W, F]
     (vertexMap: V => W, labelMap: E => F)
-    : HypergraphBase[W, F, M] = hypergraphs.imaged(this, viewing, edgeValues)(
+    : HypergraphBase[W, F, M] = hypergraphs.imaged(structure)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
   )
-
-  override def view: HypergraphBase[V, E, M] = hypergraphs.view(viewing, this)
 
   override def vertex(value: Any): Option[Vertex] = vertexValues
     .get(value)
@@ -185,48 +184,47 @@ trait HypergraphBase[+V, +E, M]
 
   override protected def kindName: String = "Hypergraph"
 
-  override protected def refined
+  override def empty: HypergraphBase[Nothing, Nothing, M] = hypergraphs.empty
+
+  override def addVertex[W >: V](vertex: W): HypergraphBase[W, E, M] =
+    hypergraphs.withVertex[W, E](this, vertex)
+
+  override def removeVertex(vertex: Any): HypergraphBase[V, E, M] = hypergraphs
+    .withoutVertex(this, vertex)
+
+  override def withMultiplicity
+    (edge: Any, multiplicity: M)
+    : HypergraphBase[V, E, M] =
+    hypergraphs.withMultiplicity(this, edge, multiplicity)
+
+  override def materialise: HypergraphBase[V, E, M] =
+    hypergraphs.materialise(this)
+
+  override protected def subgraph
     (
       keep: V => Boolean,
       keepEdge: Option[Hyperedge[V, E] => Boolean],
-      reweigh: (Any, M) => M,
-      changed: => Iterable[Any],
-      support: Option[() => Iterable[Any]],
-      operands: AnyGraph[?, ?, ?]*,
     )
-    : HypergraphBase[V, E, M] = hypergraphs.refined(
-    this,
-    keep,
-    keepEdge,
-    reweigh,
-    changed,
-    support,
-    operands,
-  )
+    : HypergraphBase[V, E, M] = hypergraphs.subgraph(this, keep, keepEdge)
 
-  /**
-    * @return
-    *   The union or sum of this hypergraph and [[that]], whose multiplicities
-    *   are combined by [[combine]].
-    */
-  private def combined[W >: V, F >: E, N]
+  override protected def intersected[N]
     (
-      that: HypergraphBase[W, F, N],
+      that: AnyGraph[Any, Any, N],
       embed: Embedding[N, M],
-      additive: Boolean,
     )
-    (combine: (M, M) => M)
-    : HypergraphBase[W, F, M] = hypergraphs.combined[W, F](
-    this,
-    that.viewing(embed),
-    that,
-    that.vertexValues,
-    that.edgeValues.map((edge, n) => edge -> embed(n)),
-    additive,
-  )(combine)
+    : HypergraphBase[V, E, M] =
+    hypergraphs.intersection(this, Support(that.structure, embed))
+
+  override protected def subtracted[N]
+    (
+      that: AnyGraph[Any, Any, N],
+      embed: Embedding[N, M],
+    )
+    : HypergraphBase[V, E, M] =
+    hypergraphs.difference(this, Support(that.structure, embed))
 
   /** The kind of this hypergraph, in its own representation. */
-  private def hypergraphs: HypergraphBase.Kind[M] = HypergraphBase.Kind(empty)
+  private def hypergraphs: HypergraphBase.Kind[M] = HypergraphBase.kind[M]
 
 /** The companion object for [[HypergraphBase]]. */
 object HypergraphBase:
@@ -261,8 +259,8 @@ object HypergraphBase:
       : Join[V, E, Unit, M] = Joined(left, right, ())
 
     /**
-      * A join, held as the hypergraphs it joins. It's always lazy, since its
-      * size is the product of theirs.
+      * A join, held as the hypergraphs it joins. Its new edges are computed
+      * from them only when they're needed.
       */
     private final class Joined[V, E, L, M : Multiplicity]
       (
@@ -270,25 +268,40 @@ object HypergraphBase:
         right: HypergraphBase[V, E, M],
         label: L,
       )
-      extends LazyHypergraph[V, E | L, M](
-        left.empty,
-        Kind(left.empty).joining[V, E, L](left, right)(
+      extends Join[V, E, L, M]:
+
+      override private[kneiphof] lazy val structure
+        : IncidenceStructure[V, M, Hyperedge[V, E | L]] =
+        incidence.Join[V, E, L, M, Hyperedge](
+          left.structure,
+          right.structure,
           kneiphof.Edge(_, _, label),
-          Joining.undirectedLinks(left, right, label, _),
-        ),
-        () =>
-          Kind(left.empty).joined[V, E | L](left, right)(
-            kneiphof.Edge(_, _, label),
-          ),
-      ),
-              Join[V, E, L, M]:
+          incidence
+            .Join
+            .undirectedLinks(
+              left.structure,
+              right.structure,
+              label,
+              _,
+            ),
+        )
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
-  /** The kind of hypergraphs, in the representation of [[empty]]. */
+  /** A hypergraph with the given incidence [[structure]]. */
+  private final class Wrapper[V, E, M : Multiplicity]
+    (
+      override private[kneiphof] val structure: IncidenceStructure[
+        V,
+        M,
+        Hyperedge[V, E],
+      ],
+    )
+    extends HypergraphBase[V, E, M]
+
+  /** The kind of hypergraphs. */
   class Kind[M : Multiplicity]
-    (override val empty: HypergraphBase[Nothing, Nothing, M])
     extends GraphKind[
       M,
       Hyperedge,
@@ -296,28 +309,15 @@ object HypergraphBase:
       [v, e] =>> HypergraphBase[v, e, Count],
     ]:
 
-    override private[kneiphof] def view[V, E]
-      (
-        queries: Queries[V, E, M, Hyperedge[V, E]],
-        build: => HypergraphBase[V, E, M],
-      )
-      : HypergraphBase[V, E, M] = LazyHypergraph(empty, queries, () => build)
+    override private[kneiphof] def wrap[V, E]
+      (structure: IncidenceStructure[V, M, Hyperedge[V, E]])
+      : HypergraphBase[V, E, M] = Wrapper(structure)
 
-    override def updated[V, E]
-      (
-        graph: HypergraphBase[V, E, M],
-        edge: Hyperedge[V, E],
-        multiplicity: M,
-      )
-      : HypergraphBase[V, E, M] = graph.updated(edge, multiplicity)
+  /** @return The kind of hypergraphs with multiplicities in [[M]]. */
+  def kind[M : Multiplicity]: Kind[M] = Kind[M]()
 
-  /** @return The kind of hypergraphs, in the default representation. */
-  def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceHypergraph.empty)
+/** Hypergraphs whose edges form a set. */
+object Hypergraph extends HypergraphBase.Kind[Boolean]
 
-/** Hypergraphs whose edges form a set, in the default representation. */
-object Hypergraph
-  extends HypergraphBase.Kind[Boolean](IncidenceHypergraph.empty)
-
-/** Hypergraphs with edge counts, in the default representation. */
-object Multihypergraph
-  extends HypergraphBase.Kind[Count](IncidenceHypergraph.empty)
+/** Hypergraphs with edge counts. */
+object Multihypergraph extends HypergraphBase.Kind[Count]

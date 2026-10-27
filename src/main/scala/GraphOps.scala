@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.views.{Queries, Viewing}
+import com.alecdorrington.kneiphof.incidence.IncidenceStructure
 import java.util.NoSuchElementException
 
 /**
@@ -31,12 +31,16 @@ trait GraphOps[
   /** An edge of this graph, from which its vertices can be explored. */
   type Edge <: EdgeOps
 
-  override def edgeValues: ValueMap[X[V, E], M]
+  override private[kneiphof] def structure: IncidenceStructure[V, M, X[V, E]]
+
+  override lazy val edgeValues: ValueMap[X[V, E], M] =
+    ValueMap.from(structure.edges)
 
   /** @return The values of the edges incident to [[vertex]]. */
-  def incidentEdgeValues(vertex: Any): ValueSet[X[V, E]]
+  def incidentEdgeValues(vertex: Any): ValueSet[X[V, E]] = structure
+    .incidentEdgeValues(vertex)
 
-  /** @return An empty graph of the same kind and representation. */
+  /** @return An empty graph of the same kind. */
   def empty: G[Nothing, Nothing]
 
   /** @return This graph with [[vertex]] added, if it's not already present. */
@@ -62,10 +66,11 @@ trait GraphOps[
 
   /**
     * @return
-    *   This graph as a lazy graph, so that operations on it are computed only
-    *   when they're queried, rather than built straight away.
+    *   This graph with every edge stored. Every operation computes its result
+    *   only as it's queried, so a graph which will be queried repeatedly, or
+    *   built from a long chain of operations, should be materialised.
     */
-  def view: G[V, E]
+  def materialise: G[V, E]
 
   /** @return The vertex with the given [[value]], if it's in this graph. */
   def vertex(value: Any): Option[Vertex]
@@ -78,46 +83,43 @@ trait GraphOps[
 
   /**
     * @return
-    *   The subgraph with only the vertices satisfying [[keep]] and the edges
-    *   satisfying [[keepEdge]], and each remaining edge's multiplicity changed
-    *   by [[reweigh]], which may depend on [[operands]]. Only the edges in
-    *   [[changed]] may have their multiplicities changed, and only those in
-    *   [[support]], if given, may remain.
+    *   The subgraph with only the vertices satisfying [[keep]], and the edges
+    *   between them satisfying [[keepEdge]], if given.
     */
-  protected def refined
+  protected def subgraph
     (
       keep: V => Boolean,
       keepEdge: Option[X[V, E] => Boolean],
-      reweigh: (Any, M) => M,
-      changed: => Iterable[Any],
-      support: Option[() => Iterable[Any]],
-      operands: AnyGraph[?, ?, ?]*,
     )
     : G[V, E]
 
-  /** This graph as it's stored, which builds it if it's lazy. */
-  private[kneiphof] def built: G[V, E] = this
-
-  /** The queries about this graph, answered by this graph itself. */
-  private[kneiphof] def viewing: Queries[V, E, M, X[V, E]] =
-    viewing(Embedding.identity[M])
+  /**
+    * @return
+    *   The intersection of this graph and [[that]], whose multiplicities are
+    *   read in [[M]] by [[embed]].
+    */
+  protected def intersected[N]
+    (
+      that: AnyGraph[Any, Any, N],
+      embed: Embedding[N, M],
+    )
+    : G[V, E]
 
   /**
     * @return
-    *   The queries about this graph, with its multiplicities read in [[N]] by
-    *   [[embed]], answered by this graph itself.
+    *   The difference of this graph and [[that]], whose multiplicities are read
+    *   in [[M]] by [[embed]].
     */
-  private[kneiphof] def viewing[N : Multiplicity]
-    (embed: Embedding[M, N])
-    : Queries[V, E, N, X[V, E]] = Viewing[V, E, M, N, X, G](this, embed)
+  protected def subtracted[N]
+    (
+      that: AnyGraph[Any, Any, N],
+      embed: Embedding[N, M],
+    )
+    : G[V, E]
 
-  /**
-    * @return
-    *   The edges incident to [[vertex]], each with its multiplicity, so that
-    *   lazy graphs needn't look each one up again.
-    */
+  /** @return The edges incident to [[vertex]], each with its multiplicity. */
   private[kneiphof] def incidentEdges(vertex: Any): Iterable[(X[V, E], M)] =
-    incidentEdgeValues(vertex).toSeq.map(edge => edge -> multiplicity(edge))
+    structure.incidentEdges(vertex)
 
   /** The vertices of this graph. */
   def vertices: Set[Vertex] = vertexValues.flatMap(vertex).toSet
@@ -139,15 +141,7 @@ trait GraphOps[
     *   The number of edges incident to [[vertex]], counting every copy of each
     *   edge, and counting loops twice.
     */
-  def degree(vertex: Any): Int = incidentEdgeValues(vertex)
-    .toSeq
-    .map(edge =>
-      Math.multiplyExact(
-        edge.occurrences(vertex),
-        multiplicity(edge).count,
-      ),
-    )
-    .foldLeft(0)(Math.addExact)
+  def degree(vertex: Any): Int = structure.degree(vertex)
 
   /** @return This graph with all of [[vertices]] added. */
   def addVertices[W >: V](vertices: Iterable[W]): G[W, E] =
@@ -173,17 +167,7 @@ trait GraphOps[
   def difference[N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
-    : G[V, E] =
-    if that.eager then subtracted(that.edgeValues, embed)
-    else
-      refined(
-        _ => true,
-        None,
-        (edge, multiplicity) => multiplicity - embed(that.multiplicity(edge)),
-        that.edgeValues.keys,
-        None,
-        that,
-      )
+    : G[V, E] = subtracted(that, embed)
 
   /** Alias of [[difference]]. */
   infix def - [N](that: AnyGraph[Any, Any, N])(using Embedding[N, M]): G[V, E] =
@@ -201,14 +185,7 @@ trait GraphOps[
   def intersection[N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
-    : G[V, E] = refined(
-    that.hasVertex,
-    None,
-    (edge, multiplicity) => multiplicity & embed(that.multiplicity(edge)),
-    edgeValues.keys,
-    Some(() => that.edgeValues.keys),
-    that,
-  )
+    : G[V, E] = intersected(that, embed)
 
   /** Alias of [[intersection]]. */
   infix def & [N](that: AnyGraph[Any, Any, N])(using Embedding[N, M]): G[V, E] =
@@ -219,13 +196,8 @@ trait GraphOps[
     *   The subgraph induced by the vertices satisfying [[predicate]], with
     *   every edge between them.
     */
-  def filterVertices(predicate: V => Boolean): G[V, E] = refined(
-    predicate,
-    None,
-    (_, multiplicity) => multiplicity,
-    Nil,
-    None,
-  )
+  def filterVertices(predicate: V => Boolean): G[V, E] =
+    subgraph(predicate, None)
 
   /**
     * @return
@@ -239,25 +211,17 @@ trait GraphOps[
     *   The spanning subgraph with every vertex, but only the edges satisfying
     *   [[predicate]].
     */
-  def filterEdges(predicate: X[V, E] => Boolean): G[V, E] = refined(
-    _ => true,
-    Some(predicate),
-    (_, multiplicity) => multiplicity,
-    edgeValues.keys,
-    None,
-  )
+  def filterEdges(predicate: X[V, E] => Boolean): G[V, E] =
+    subgraph(_ => true, Some(predicate))
 
   /**
     * @return
     *   The subgraph induced by the edges satisfying [[predicate]], with only
     *   the vertices incident to them.
     */
-  def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] = refined(
+  def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] = subgraph(
     incidentEdgeValues(_).exists(predicate),
     Some(predicate),
-    (_, multiplicity) => multiplicity,
-    edgeValues.keys,
-    None,
   )
 
   /**
@@ -290,26 +254,7 @@ trait GraphOps[
     *   The edge of this graph equal to [[edge]], if there is one, found among
     *   the edges at one of its ends.
     */
-  private[kneiphof] def found(edge: Any): Option[X[V, E]] = Queries
-    .ends(edge)
-    .headOption
-    .flatMap(incidentEdgeValues(_).get(edge))
-
-  /**
-    * @return
-    *   This graph, with the multiplicities in [[edges]], read in [[M]] by
-    *   [[embed]], subtracted one edge at a time.
-    */
-  private def subtracted[N]
-    (
-      edges: ValueMap[Any, N],
-      embed: Embedding[N, M],
-    )
-    : G[V, E] = edges.foldLeft(this: G[V, E]):
-    case (graph, (edge, multiplicity)) => graph.withMultiplicity(
-        edge,
-        graph.multiplicity(edge) - embed(multiplicity),
-      )
+  private[kneiphof] def found(edge: Any): Option[X[V, E]] = structure.find(edge)
 
   /** The vertices of this graph without any incident edges. */
   private def isolated: Iterable[V] =

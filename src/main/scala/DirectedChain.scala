@@ -1,6 +1,8 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.incidence.IncidenceStructure
+
 /**
   * A directed multigraph built by chaining edges, as in `1 ~> 2 ~> 3`, which
   * holds the edges `1 ~> 2` and `2 ~> 3`.
@@ -44,28 +46,17 @@ object DirectedChain:
   /** A chain of at least two edges. */
   private final class Steps[+V, +E, +L]
     (earlier: Seq[Arc[V, E]], last: Arc[V, L])
-    extends DirectedChain[V, E, L],
-            Delegating[
-              V,
-              E | L,
-              Count,
-              Arc,
-              [v, e] =>> DirectedGraphBase[v, e, Count],
-            ]:
+    extends DirectedChain[V, E, L]:
 
     override def tip: V = last.target
-
-    override def updated[W >: V, F >: E | L]
-      (edge: Arc[W, F], multiplicity: Count)
-      : DirectedGraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
-    override def transpose: DirectedGraphBase[V, E | L, Count] =
-      delegate.transpose
 
     override def labelled[F : NotGraph](label: F): DirectedChain[V, E, F] =
       Steps(earlier, last.labelled(label))
 
     override private[kneiphof] def steps: Seq[Arc[V, E | L]] = earlier :+ last
 
-    override protected lazy val delegate: DirectedGraphBase[V, E | L, Count] =
-      DirectedGraphBase.kind[Count].from(steps)
+    override private[kneiphof] lazy val structure
+      : IncidenceStructure[V, Count, Arc[V, E | L]] = DirectedGraphBase
+      .kind[Count]
+      .from(steps)
+      .structure

@@ -1,6 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.incidence.IncidenceStructure
 import scala.compiletime.deferred
 import scala.util.hashing.MurmurHash3
 
@@ -17,36 +18,29 @@ trait AnyGraph[+V, +E, M]:
   /** The algebra of edge multiplicities. */
   protected given algebra: Multiplicity[M] = deferred
 
+  /** The incidence structure of this graph, which answers every query about it. */
+  private[kneiphof] def structure: IncidenceStructure[V, M, AnyEdge[?, ?, ?]]
+
   /** The values of the vertices of this graph. */
-  def vertexValues: ValueSet[V]
+  def vertexValues: ValueSet[V] = structure.vertexValues
 
   /** The multiplicity of each edge value present in this graph. */
   def edgeValues: ValueMap[Any, M]
 
   /** @return `true` if and only if [[vertex]] is a vertex of this graph. */
-  def hasVertex(vertex: Any): Boolean = vertexValues.contains(vertex)
+  def hasVertex(vertex: Any): Boolean = structure.hasVertex(vertex)
 
   /** @return `true` if and only if [[edge]] is an edge of this graph. */
-  def hasEdge(edge: Any): Boolean = edgeValues.contains(edge)
+  def hasEdge(edge: Any): Boolean = multiplicity(edge).nonZero
 
   /** @return The multiplicity of [[edge]], which is `zero` if it's absent. */
-  def multiplicity(edge: Any): M = edgeValues.getOrElse(edge, algebra.zero)
-
-  /**
-    * `true` if and only if this graph is stored (or written out, like an edge
-    * or chain) rather than computed lazily. An operation whose result is no
-    * bigger than its operands is eager if and only if all of its operands are.
-    * Operations which generate structure, such as shapes, joins, products and
-    * substitutions, are always lazy, since chaining them eagerly could build a
-    * graph exponential in the length of the expression.
-    */
-  private[kneiphof] def eager: Boolean = true
+  def multiplicity(edge: Any): M = structure.multiplicity(edge)
 
   /** The number of vertices in this graph. */
   def order: Int = vertexValues.size
 
   /** The number of edges in this graph, counting every copy of each edge. */
-  def size: Int = edgeValues.values.map(_.count).foldLeft(0)(Math.addExact)
+  def size: Int = structure.size
 
   override def equals(that: Any): Boolean = that match
     case that: AnyGraph[?, ?, ?] => sameGraph(that)

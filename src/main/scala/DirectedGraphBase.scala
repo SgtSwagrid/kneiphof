@@ -1,11 +1,8 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.IncidenceDirectedGraph
-import com.alecdorrington.kneiphof.shapes.{Indexing, Shape, Shaping}
-import com.alecdorrington.kneiphof.views.{
-  Joining, LazyDirectedGraph, Queries, Viewing,
-}
+import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
+import com.alecdorrington.kneiphof.shapes.{Index, Rule, Shape}
 import scala.annotation.targetName
 
 /**
@@ -35,8 +32,10 @@ trait DirectedGraphBase[+V, +E, M]
     *   This graph with the multiplicity of [[edge]] set to [[multiplicity]],
     *   adding its vertices if necessary.
     */
-  def updated[W >: V, F >: E](edge: Arc[W, F], multiplicity: M)
-    : DirectedGraphBase[W, F, M]
+  def updated[W >: V, F >: E]
+    (edge: Arc[W, F], multiplicity: M)
+    : DirectedGraphBase[W, F, M] =
+    graphs.updated[W, F](this, edge, multiplicity)
 
   override def updated[W >: V, F >: E]
     (edge: Hyperarc[W, F], multiplicity: M)
@@ -49,12 +48,11 @@ trait DirectedGraphBase[+V, +E, M]
       override val value: Arc[V, E] = found,
   )
 
-  override def transpose: DirectedGraphBase[V, E, M] =
-    graphs.imaged(this, viewing, edgeValues)(
-      identity,
-      edge => List(edge.reverse),
-      kept = true,
-    )
+  override def transpose: DirectedGraphBase[V, E, M] = graphs.imaged(structure)(
+    identity,
+    edge => List(edge.reverse),
+    kept = true,
+  )
 
   /**
     * @return
@@ -67,7 +65,7 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedGraphBase[W, F, M] =
-    combined(that, embed, algebra.additive)(_ + _)
+    graphs.sum[W, F](this, Support(that.structure, embed))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -84,7 +82,8 @@ trait DirectedGraphBase[+V, +E, M]
   def union[W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
-    : DirectedGraphBase[W, F, M] = combined(that, embed, false)(_ | _)
+    : DirectedGraphBase[W, F, M] =
+    graphs.union[W, F](this, Support(that.structure, embed))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -185,21 +184,14 @@ trait DirectedGraphBase[+V, +E, M]
     (vertex: W)
     : DirectedGraphBase.Join[W, E, Unit, M] = coneFrom(vertex)
 
-  /** This graph as a directed hypergraph, in the default representation. */
+  /** This graph as a directed hypergraph. */
   def toDirectedHypergraph: DirectedHypergraphBase[V, E, M] =
-    val hypergraphs = DirectedHypergraphBase.kind[M]
-    hypergraphs.lazily(this)(
-      viewing,
-      hypergraphs.fromMultiplicities(vertexValues, edgeValues),
-    )
+    DirectedHypergraphBase.kind[M].wrap(structure)
 
-  /**
-    * The undirected graph obtained by forgetting the direction of every edge,
-    * in the default representation.
-    */
+  /** The undirected graph obtained by forgetting the direction of every edge. */
   override def underlying: GraphBase[V, E, M] = GraphBase
     .kind[M]
-    .imaged(this, viewing, edgeValues)(
+    .imaged(structure)(
       identity,
       edge => List(kneiphof.Edge(edge.source, edge.target, edge.label)),
       kept = algebra.additive,
@@ -207,58 +199,55 @@ trait DirectedGraphBase[+V, +E, M]
 
   override def map[W, F]
     (vertexMap: V => W, labelMap: E => F)
-    : DirectedGraphBase[W, F, M] = graphs.imaged(this, viewing, edgeValues)(
+    : DirectedGraphBase[W, F, M] = graphs.imaged(structure)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
   )
 
-  override def view: DirectedGraphBase[V, E, M] = graphs.view(viewing, this)
-
   override protected def kindName: String = "DirectedGraph"
 
-  override protected def refined
+  override def empty: DirectedGraphBase[Nothing, Nothing, M] = graphs.empty
+
+  override def addVertex[W >: V](vertex: W): DirectedGraphBase[W, E, M] = graphs
+    .withVertex[W, E](this, vertex)
+
+  override def removeVertex(vertex: Any): DirectedGraphBase[V, E, M] = graphs
+    .withoutVertex(this, vertex)
+
+  override def withMultiplicity
+    (edge: Any, multiplicity: M)
+    : DirectedGraphBase[V, E, M] =
+    graphs.withMultiplicity(this, edge, multiplicity)
+
+  override def materialise: DirectedGraphBase[V, E, M] =
+    graphs.materialise(this)
+
+  override protected def subgraph
     (
       keep: V => Boolean,
       keepEdge: Option[Arc[V, E] => Boolean],
-      reweigh: (Any, M) => M,
-      changed: => Iterable[Any],
-      support: Option[() => Iterable[Any]],
-      operands: AnyGraph[?, ?, ?]*,
     )
-    : DirectedGraphBase[V, E, M] = graphs.refined(
-    this,
-    keep,
-    keepEdge,
-    reweigh,
-    changed,
-    support,
-    operands,
-  )
+    : DirectedGraphBase[V, E, M] = graphs.subgraph(this, keep, keepEdge)
 
-  /**
-    * @return
-    *   The union or sum of this graph and [[that]], whose multiplicities are
-    *   combined by [[combine]].
-    */
-  private def combined[W >: V, F >: E, N]
+  override protected def intersected[N]
     (
-      that: DirectedGraphBase[W, F, N],
+      that: AnyGraph[Any, Any, N],
       embed: Embedding[N, M],
-      additive: Boolean,
     )
-    (combine: (M, M) => M)
-    : DirectedGraphBase[W, F, M] = graphs.combined[W, F](
-    this,
-    that.viewing(embed),
-    that,
-    that.vertexValues,
-    that.edgeValues.map((edge, n) => edge -> embed(n)),
-    additive,
-  )(combine)
+    : DirectedGraphBase[V, E, M] =
+    graphs.intersection(this, Support(that.structure, embed))
+
+  override protected def subtracted[N]
+    (
+      that: AnyGraph[Any, Any, N],
+      embed: Embedding[N, M],
+    )
+    : DirectedGraphBase[V, E, M] =
+    graphs.difference(this, Support(that.structure, embed))
 
   /** The kind of this graph, in its own representation. */
-  private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.Kind(empty)
+  private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.kind[M]
 
 /** The companion object for [[DirectedGraphBase]]. */
 object DirectedGraphBase:
@@ -295,8 +284,8 @@ object DirectedGraphBase:
       : Join[V, E, Unit, M] = Joined(left, right, ())
 
     /**
-      * A join, held as the graphs it joins. It's always lazy, since its size is
-      * the product of theirs.
+      * A join, held as the graphs it joins. Its new edges are computed from
+      * them only when they're needed.
       */
     private final class Joined[V, E, L, M : Multiplicity]
       (
@@ -304,25 +293,40 @@ object DirectedGraphBase:
         right: DirectedGraphBase[V, E, M],
         label: L,
       )
-      extends LazyDirectedGraph[V, E | L, M](
-        left.empty,
-        Kind(left.empty).joining[V, E, L](left, right)(
+      extends Join[V, E, L, M]:
+
+      override private[kneiphof] lazy val structure
+        : IncidenceStructure[V, M, Arc[V, E | L]] =
+        incidence.Join[V, E, L, M, Arc](
+          left.structure,
+          right.structure,
           DirectedEdge(_, _, label),
-          Joining.directedLinks(left, right, label, _),
-        ),
-        () =>
-          Kind(left.empty).joined[V, E | L](left, right)(
-            DirectedEdge(_, _, label),
-          ),
-      ),
-              Join[V, E, L, M]:
+          incidence
+            .Join
+            .directedLinks(
+              left.structure,
+              right.structure,
+              label,
+              _,
+            ),
+        )
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
-  /** The kind of directed graphs, in the representation of [[empty]]. */
+  /** A directed graph with the given incidence [[structure]]. */
+  private final class Wrapper[V, E, M : Multiplicity]
+    (
+      override private[kneiphof] val structure: IncidenceStructure[
+        V,
+        M,
+        Arc[V, E],
+      ],
+    )
+    extends DirectedGraphBase[V, E, M]
+
+  /** The kind of directed graphs. */
   class Kind[M : Multiplicity]
-    (override val empty: DirectedGraphBase[Nothing, Nothing, M])
     extends GraphKind[
       M,
       Arc,
@@ -331,38 +335,19 @@ object DirectedGraphBase:
     ],
             DirectedShapes[[v, e] =>> DirectedGraphBase[v, e, M]]:
 
-    override private[kneiphof] def view[V, E]
-      (
-        queries: Queries[V, E, M, Arc[V, E]],
-        build: => DirectedGraphBase[V, E, M],
-      )
-      : DirectedGraphBase[V, E, M] =
-      LazyDirectedGraph(empty, queries, () => build)
-
-    override def updated[V, E]
-      (
-        graph: DirectedGraphBase[V, E, M],
-        edge: Arc[V, E],
-        multiplicity: M,
-      )
-      : DirectedGraphBase[V, E, M] = graph.updated(edge, multiplicity)
+    override private[kneiphof] def wrap[V, E]
+      (structure: IncidenceStructure[V, M, Arc[V, E]])
+      : DirectedGraphBase[V, E, M] = Wrapper(structure)
 
     override private[kneiphof] def shaped[V]
-      (vertices: Indexing[V], shape: Shape)
-      : DirectedGraphBase[V, Unit, M] =
-      val shaping = Shaping.directed[V, M](vertices, shape)
-      view(
-        shaping,
-        from(shaping.vertexValues, shaping.edges),
-      )
+      (index: Index[V], rule: Rule)
+      : DirectedGraphBase[V, Unit, M] = wrap(Shape.directed[V, M](index, rule))
 
-  /** @return The kind of directed graphs, in the default representation. */
-  def kind[M : Multiplicity]: Kind[M] = Kind(IncidenceDirectedGraph.empty)
+  /** @return The kind of directed graphs with multiplicities in [[M]]. */
+  def kind[M : Multiplicity]: Kind[M] = Kind[M]()
 
-/** Directed graphs whose edges form a set, in the default representation. */
-object DirectedGraph
-  extends DirectedGraphBase.Kind[Boolean](IncidenceDirectedGraph.empty)
+/** Directed graphs whose edges form a set. */
+object DirectedGraph extends DirectedGraphBase.Kind[Boolean]
 
-/** Directed graphs with edge counts, in the default representation. */
-object DirectedMultigraph
-  extends DirectedGraphBase.Kind[Count](IncidenceDirectedGraph.empty)
+/** Directed graphs with edge counts. */
+object DirectedMultigraph extends DirectedGraphBase.Kind[Count]

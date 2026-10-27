@@ -47,20 +47,6 @@ final case class Edge[+V, +E]
       end   <- choices(second)
     yield Edge(start, end, label)
 
-  override def updated[W >: V, F >: E]
-    (
-      edge: kneiphof.Edge[W, F],
-      multiplicity: Count,
-    )
-    : GraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
-  override def updated[W >: V, F >: E]
-    (
-      edge: Hyperedge[W, F],
-      multiplicity: Count,
-    )
-    : HypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
   override def labelled[F : NotGraph](label: F): kneiphof.Edge[V, F] =
     Edge(first, second, label)
 
@@ -70,10 +56,6 @@ final case class Edge[+V, +E]
   override def toString: String = describe(s"$first ~ $second", label)
 
   override private[kneiphof] def steps: Seq[kneiphof.Edge[V, E]] = Seq(this)
-
-  override protected def delegate: GraphBase[V, E, Count] = GraphBase
-    .kind[Count]
-    .from(Seq(this))
 
 /** The companion object for [[Edge]]. */
 object Edge:

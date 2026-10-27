@@ -1,20 +1,27 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.incidence.{Explicit, IncidenceStructure}
+
 /**
   * The graph operations of an edge of kind [[X]], which is the multigraph of
   * kind [[G]] containing just itself, once. Its edges and incidence are
-  * answered by the edge itself, and everything else by the graph it builds.
+  * answered by the edge itself.
   */
 private[kneiphof] trait SingleEdge[
   +V,
   +E,
   +X[+v, +e] <: AnyEdge[v, e, X],
   +G[+v, +e] <: GraphOps[v, e, Count, X, G],
-] extends Delegating[V, E, Count, X, G]:
+] extends GraphOps[V, E, Count, X, G]:
   this: X[V, E] & G[V, E] =>
 
-  override def edgeValues: ValueMap[X[V, E], Count] = ValueMap
+  override private[kneiphof] lazy val structure
+    : IncidenceStructure[V, Count, X[V, E]] = Explicit
+    .empty[Count]
+    .increased(this, vertexValues, Count(1))
+
+  override lazy val edgeValues: ValueMap[X[V, E], Count] = ValueMap
     .empty
     .updated(this, Count(1))
 

@@ -56,10 +56,6 @@ trait DirectedHyperedge[+S, +T, +E]
       targets <- cartesian(head.toSeq.map(choices))
     yield DirectedHyperedge.from(sources, targets, label)
 
-  override def updated[W >: S | T, F >: E]
-    (edge: Hyperarc[W, F], multiplicity: Count)
-    : DirectedHypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
-
   override def shapeHash: Int = (tail, head, label).##
 
   override final def equals(that: Any): Boolean = that match
@@ -73,9 +69,6 @@ trait DirectedHyperedge[+S, +T, +E]
     s"${ tail.mkString("{", ", ", "}") } ~> ${ head.mkString("{", ", ", "}") }",
     label,
   )
-
-  override protected def delegate: DirectedHypergraphBase[S | T, E, Count] =
-    DirectedHypergraphBase.kind[Count].from(Seq(this))
 
 /** The companion object for [[DirectedHyperedge]]. */
 object DirectedHyperedge:
