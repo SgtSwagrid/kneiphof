@@ -25,7 +25,7 @@ private[kneiphof] trait SingleEdge[
     .empty
     .updated(this, Count(1))
 
-  override def incidentEdgeValues(vertex: Any): ValueSet[X[V, E]] =
+  override def incidentEdgeValues[A : NotHandle](vertex: A): ValueSet[X[V, E]] =
     if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty
 
   override final def hashCode: Int =

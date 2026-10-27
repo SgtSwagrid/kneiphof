@@ -37,8 +37,8 @@ trait GraphOps[
     ValueMap.from(structure.edges)
 
   /** @return The values of the edges incident to [[vertex]]. */
-  def incidentEdgeValues(vertex: Any): ValueSet[X[V, E]] = structure
-    .incidentEdgeValues(vertex)
+  def incidentEdgeValues[A : NotHandle](vertex: A): ValueSet[X[V, E]] =
+    structure.incidentEdgeValues(vertex)
 
   /** @return An empty graph of the same kind. */
   def empty: G[Nothing, Nothing]
@@ -47,14 +47,14 @@ trait GraphOps[
   def addVertex[W >: V](vertex: W): G[W, E]
 
   /** @return This graph without [[vertex]] and its incident edges. */
-  def removeVertex(vertex: Any): G[V, E]
+  def removeVertex[A : NotHandle](vertex: A): G[V, E]
 
   /**
     * @return
     *   This graph with the multiplicity of [[edge]] set to [[multiplicity]], or
     *   this graph unchanged if it doesn't contain [[edge]].
     */
-  def withMultiplicity(edge: Any, multiplicity: M): G[V, E]
+  def withMultiplicity[A : NotHandle](edge: A, multiplicity: M): G[V, E]
 
   /**
     * @return
@@ -73,10 +73,10 @@ trait GraphOps[
   def materialise: G[V, E]
 
   /** @return The vertex with the given [[value]], if it's in this graph. */
-  def vertex(value: Any): Option[Vertex]
+  def vertex[A : NotHandle](value: A): Option[Vertex]
 
   /** @return The edge with the given [[value]], if it's in this graph. */
-  def edge(value: Any): Option[Edge]
+  def edge[A : NotHandle](value: A): Option[Edge]
 
   /** The name of this kind of graph. */
   protected def kindName: String
@@ -133,7 +133,7 @@ trait GraphOps[
     * @throws NoSuchElementException
     *   If [[value]] isn't a vertex of this graph.
     */
-  def apply(value: Any): Vertex = vertex(value).getOrElse:
+  def apply[A : NotHandle](value: A): Vertex = vertex(value).getOrElse:
     throw NoSuchElementException(s"$value is not a vertex of this graph.")
 
   /**
@@ -141,18 +141,19 @@ trait GraphOps[
     *   The number of edges incident to [[vertex]], counting every copy of each
     *   edge, and counting loops twice.
     */
-  def degree(vertex: Any): Int = structure.degree(vertex)
+  def degree[A : NotHandle](vertex: A): Int = structure.degree(vertex)
 
   /** @return This graph with all of [[vertices]] added. */
   def addVertices[W >: V](vertices: Iterable[W]): G[W, E] =
     vertices.foldLeft(this: G[W, E])(_.addVertex(_))
 
   /** @return This graph without any of [[vertices]] or their incident edges. */
-  def removeVertices(vertices: Iterable[Any]): G[V, E] =
-    vertices.foldLeft(this: G[V, E])(_.removeVertex(_))
+  def removeVertices[A : NotHandle](vertices: Iterable[A]): G[V, E] = vertices
+    .foldLeft(this: G[V, E])(_.removeVertex(_))
 
   /** @return This graph without any copies of [[edge]]. */
-  def removeEdge(edge: Any): G[V, E] = withMultiplicity(edge, algebra.zero)
+  def removeEdge[A : NotHandle](edge: A): G[V, E] =
+    withMultiplicity(edge, algebra.zero)
 
   /**
     * @return
@@ -203,7 +204,7 @@ trait GraphOps[
     * @return
     *   The subgraph induced by [[vertices]], with every edge between them.
     */
-  def induced(vertices: Iterable[Any]): G[V, E] =
+  def induced[A : NotHandle](vertices: Iterable[A]): G[V, E] =
     filterVertices(ValueSet.from(vertices).contains)
 
   /**
@@ -266,7 +267,7 @@ trait GraphOps[
     else s"$edge × ${ multiplicity.count }"
 
   /** The operations on a vertex of this graph. */
-  trait VertexOps:
+  trait VertexOps extends Handle:
 
     /** The value of this vertex. */
     def value: V
@@ -299,7 +300,7 @@ trait GraphOps[
     override def toString: String = value.toString
 
   /** The operations on an edge of this graph. */
-  trait EdgeOps:
+  trait EdgeOps extends Handle:
 
     /** The value of this edge. */
     def value: X[V, E]

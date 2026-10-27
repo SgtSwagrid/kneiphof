@@ -38,13 +38,13 @@ trait AnyGraph[+V, +E, M]:
   def edgeValues: ValueMap[Any, M]
 
   /** @return `true` if and only if [[vertex]] is a vertex of this graph. */
-  def hasVertex(vertex: Any): Boolean = structure.hasVertex(vertex)
+  def hasVertex[A : NotHandle](vertex: A): Boolean = structure.hasVertex(vertex)
 
   /** @return `true` if and only if [[edge]] is an edge of this graph. */
-  def hasEdge(edge: Any): Boolean = multiplicity(edge).nonZero
+  def hasEdge[A : NotHandle](edge: A): Boolean = multiplicity(edge).nonZero
 
   /** @return The multiplicity of [[edge]], which is `zero` if it's absent. */
-  def multiplicity(edge: Any): M = structure.multiplicity(edge)
+  def multiplicity[A : NotHandle](edge: A): M = structure.multiplicity(edge)
 
   /** The number of vertices in this graph. */
   def order: Int = vertexValues.size

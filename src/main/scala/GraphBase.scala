@@ -37,9 +37,10 @@ trait GraphBase[+V, +E, M]
     case edge: kneiphof.Edge[W, F] => updated(edge, multiplicity)
     case _                         => toHypergraph.updated(edge, multiplicity)
 
-  override def edge(value: Any): Option[Edge] = found(value).map(found =>
-    new EdgeOps:
-      override val value: kneiphof.Edge[V, E] = found,
+  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map(
+    found =>
+      new EdgeOps:
+        override val value: kneiphof.Edge[V, E] = found,
   )
 
   /**
@@ -246,11 +247,11 @@ trait GraphBase[+V, +E, M]
   override def addVertex[W >: V](vertex: W): GraphBase[W, E, M] = graphs
     .withVertex[W, E](this, vertex)
 
-  override def removeVertex(vertex: Any): GraphBase[V, E, M] = graphs
-    .withoutVertex(this, vertex)
+  override def removeVertex[A : NotHandle](vertex: A): GraphBase[V, E, M] =
+    graphs.withoutVertex(this, vertex)
 
-  override def withMultiplicity
-    (edge: Any, multiplicity: M)
+  override def withMultiplicity[A : NotHandle]
+    (edge: A, multiplicity: M)
     : GraphBase[V, E, M] = graphs.withMultiplicity(this, edge, multiplicity)
 
   override def materialise: GraphBase[V, E, M] = graphs.materialise(this)

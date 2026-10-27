@@ -43,9 +43,10 @@ trait DirectedGraphBase[+V, +E, M]
     case edge: Arc[W, F] => updated(edge, multiplicity)
     case _               => toDirectedHypergraph.updated(edge, multiplicity)
 
-  override def edge(value: Any): Option[Edge] = found(value).map(found =>
-    new DirectedEdgeOps:
-      override val value: Arc[V, E] = found,
+  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map(
+    found =>
+      new DirectedEdgeOps:
+        override val value: Arc[V, E] = found,
   )
 
   override def transpose: DirectedGraphBase[V, E, M] = graphs.imaged(structure)(
@@ -257,11 +258,12 @@ trait DirectedGraphBase[+V, +E, M]
   override def addVertex[W >: V](vertex: W): DirectedGraphBase[W, E, M] = graphs
     .withVertex[W, E](this, vertex)
 
-  override def removeVertex(vertex: Any): DirectedGraphBase[V, E, M] = graphs
-    .withoutVertex(this, vertex)
+  override def removeVertex[A : NotHandle]
+    (vertex: A)
+    : DirectedGraphBase[V, E, M] = graphs.withoutVertex(this, vertex)
 
-  override def withMultiplicity
-    (edge: Any, multiplicity: M)
+  override def withMultiplicity[A : NotHandle]
+    (edge: A, multiplicity: M)
     : DirectedGraphBase[V, E, M] =
     graphs.withMultiplicity(this, edge, multiplicity)
 

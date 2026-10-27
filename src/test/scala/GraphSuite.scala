@@ -127,6 +127,42 @@ class GraphSuite extends FunSuite:
       Graph(0 ~ 1),
     )
 
+  test("handles can't be passed where vertex or edge values are expected"):
+    val graph  = Graph(1 ~ 2, 2 ~ 3)
+    val vertex = graph(1)
+    val edge   = graph.edge(1 ~ 2).get
+    Seq(
+      compileErrors("graph.hasVertex(vertex)"),
+      compileErrors("graph.hasEdge(edge)"),
+      compileErrors("graph.multiplicity(edge)"),
+      compileErrors("graph.degree(vertex)"),
+      compileErrors("graph.vertex(vertex)"),
+      compileErrors("graph.edge(edge)"),
+      compileErrors("graph(vertex)"),
+      compileErrors("graph.incidentEdgeValues(vertex)"),
+      compileErrors("graph.removeVertex(vertex)"),
+      compileErrors("graph.removeVertices(vertex.neighbours)"),
+      compileErrors("graph.induced(graph.vertices)"),
+      compileErrors("graph.withMultiplicity(edge, false)"),
+      compileErrors("graph.removeEdge(edge)"),
+      compileErrors("DirectedGraph(1 ~> 2).hasVertex(DirectedGraph(1 ~> 2)(1))"),
+    ).foreach(errors =>
+      assert(
+        errors.contains("is a handle on a vertex or edge"),
+        errors,
+      ),
+    )
+    assert(graph.hasVertex(vertex.value))
+    assert(graph.hasEdge(edge.value))
+    assertEquals(
+      graph.induced(vertex.neighbours.map(_.value)),
+      Graph.vertex(2),
+    )
+    assertEquals(
+      graph.removeVertices(graph.vertices.map(_.value)),
+      Graph.empty,
+    )
+
   test("graphs are only equal within their family"):
     assertNotEquals[Any, Any](
       Graph.vertices(1),

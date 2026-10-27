@@ -189,16 +189,17 @@ trait HypergraphBase[+V, +E, M]
     kept = algebra.additive,
   )
 
-  override def vertex(value: Any): Option[Vertex] = vertexValues
+  override def vertex[A : NotHandle](value: A): Option[Vertex] = vertexValues
     .get(value)
     .map(found =>
       new VertexOps:
         override val value: V = found,
     )
 
-  override def edge(value: Any): Option[Edge] = found(value).map(found =>
-    new EdgeOps:
-      override val value: Hyperedge[V, E] = found,
+  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map(
+    found =>
+      new EdgeOps:
+        override val value: Hyperedge[V, E] = found,
   )
 
   /**
@@ -237,11 +238,11 @@ trait HypergraphBase[+V, +E, M]
   override def addVertex[W >: V](vertex: W): HypergraphBase[W, E, M] =
     hypergraphs.withVertex[W, E](this, vertex)
 
-  override def removeVertex(vertex: Any): HypergraphBase[V, E, M] = hypergraphs
-    .withoutVertex(this, vertex)
+  override def removeVertex[A : NotHandle](vertex: A): HypergraphBase[V, E, M] =
+    hypergraphs.withoutVertex(this, vertex)
 
-  override def withMultiplicity
-    (edge: Any, multiplicity: M)
+  override def withMultiplicity[A : NotHandle]
+    (edge: A, multiplicity: M)
     : HypergraphBase[V, E, M] =
     hypergraphs.withMultiplicity(this, edge, multiplicity)
 
