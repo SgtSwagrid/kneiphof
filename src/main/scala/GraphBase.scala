@@ -124,7 +124,11 @@ trait GraphBase[+V, +E, M]
     * @return
     *   The join of this graph and [[that]], with an extra edge labelled
     *   [[label]] between every vertex of this graph and every vertex of
-    *   [[that]]. Vertices in both also gain a loop.
+    *   [[that]]. This is the flattening of the edge `this ~ that`, labelled
+    *   [[label]], so it pairs each vertex of this graph with each vertex of
+    *   [[that]] even where the two share vertices: a vertex in both gains a
+    *   loop, and two vertices in both are joined once for each way of pairing
+    *   them (which is just once, for edge sets).
     */
   def join[W >: V, F >: E]
     (that: GraphBase[W, F, M], label: F)

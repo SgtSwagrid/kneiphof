@@ -113,7 +113,11 @@ trait HypergraphBase[+V, +E, M]
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
     *   [[label]] between every vertex of this hypergraph and every vertex of
-    *   [[that]]. Vertices in both also gain a loop.
+    *   [[that]]. This is the flattening of the edge `this ~ that`, labelled
+    *   [[label]], so it pairs each vertex of this hypergraph with each vertex
+    *   of [[that]] even where the two share vertices: a vertex in both gains a
+    *   loop, and two vertices in both are joined once for each way of pairing
+    *   them (which is just once, for edge sets).
     */
   def join[W >: V, F >: E]
     (that: HypergraphBase[W, F, M], label: F)
