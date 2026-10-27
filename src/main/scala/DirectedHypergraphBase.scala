@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.IncidenceStructure
+import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
 
 /**
   * A directed hypergraph, whose edges each lead from a set of vertices to a set
@@ -232,6 +232,33 @@ trait DirectedHypergraphBase[+V, +E, M]
   override def edge(value: Any): Option[Edge] = found(value).map: found =>
     new DirectedEdgeOps:
       override val value: Hyperarc[V, E] = found
+
+  /**
+    * @return
+    *   The edge set of this hypergraph, in which each edge with any copies is
+    *   present once.
+    */
+  def support
+    (using embed: Embedding[M, Boolean])
+    : DirectedHypergraphBase[V, E, Boolean] = DirectedHypergraphBase
+    .kind[Boolean]
+    .wrap(embed.embedded(structure))
+
+  /**
+    * @return
+    *   This hypergraph as a multihypergraph, with one copy of each edge. An
+    *   edge set doesn't count copies, so it only mixes with multihypergraphs
+    *   through this, as in `m & g.counted`, or `m - g.counted` to remove one
+    *   copy of each edge of `g`.
+    */
+  def counted(using edges: M =:= Boolean): DirectedHypergraphBase[V, E, Count] =
+    DirectedHypergraphBase
+      .kind[Count]
+      .wrap(Support.counted(
+        edges.substituteCo[[m] =>> IncidenceStructure[V, m, Hyperarc[V, E]]](
+          structure,
+        ),
+      ))
 
   override protected def kindName: String = "DirectedHypergraph"
 

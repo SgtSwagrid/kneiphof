@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.IncidenceStructure
+import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
 
 /**
   * A hypergraph, whose edges may join any number of vertices, with
@@ -200,6 +200,33 @@ trait HypergraphBase[+V, +E, M]
     new EdgeOps:
       override val value: Hyperedge[V, E] = found,
   )
+
+  /**
+    * @return
+    *   The edge set of this hypergraph, in which each edge with any copies is
+    *   present once.
+    */
+  def support
+    (using embed: Embedding[M, Boolean])
+    : HypergraphBase[V, E, Boolean] = HypergraphBase
+    .kind[Boolean]
+    .wrap(embed.embedded(structure))
+
+  /**
+    * @return
+    *   This hypergraph as a multihypergraph, with one copy of each edge. An
+    *   edge set doesn't count copies, so it only mixes with multihypergraphs
+    *   through this, as in `m & g.counted`, or `m - g.counted` to remove one
+    *   copy of each edge of `g`.
+    */
+  def counted(using edges: M =:= Boolean): HypergraphBase[V, E, Count] =
+    HypergraphBase
+      .kind[Count]
+      .wrap(Support.counted(
+        edges.substituteCo[[m] =>> IncidenceStructure[V, m, Hyperedge[V, E]]](
+          structure,
+        ),
+      ))
 
   override protected def kindName: String = "Hypergraph"
 

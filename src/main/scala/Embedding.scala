@@ -30,7 +30,7 @@ trait Embedding[N, M]:
   private[kneiphof] def embedded[V, X <: AnyEdge[?, ?, ?]]
     (structure: IncidenceStructure[V, N, X])
     (using Multiplicity[M])
-    : IncidenceStructure[V, M, X] = Support(structure, this)
+    : IncidenceStructure[V, M, X] = Support(structure, apply, exact)
 
 /** The companion object for [[Embedding]]. */
 object Embedding extends CountEmbeddings:

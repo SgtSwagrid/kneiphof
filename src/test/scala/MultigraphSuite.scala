@@ -17,6 +17,41 @@ class MultigraphSuite extends FunSuite:
     assertEquals(graph | graph, graph)
     assertEquals(graph & Multigraph(1 ~ 2), Multigraph(1 ~ 2))
 
+  test("edge sets and multigraphs convert into each other explicitly"):
+    val counts = Multigraph(1 ~ 2, 1 ~ 2, 2 ~ 3)
+    val set    = Graph(1 ~ 2, 3 ~ 4)
+    assertEquals(counts.support, Graph(1 ~ 2, 2 ~ 3))
+    assertEquals(set.support, set)
+    assertEquals(set.counted, Multigraph(1 ~ 2, 3 ~ 4))
+    assertEquals(set.counted.size, 2)
+    assertEquals(
+      counts & set.counted,
+      Multigraph(1 ~ 2).addVertex(3),
+    )
+    assertEquals(
+      counts - set.counted,
+      Multigraph(1 ~ 2, 2 ~ 3),
+    )
+    assertEquals(
+      counts.filterEdges(edge => !set.hasEdge(edge)),
+      Multigraph(2 ~ 3).addVertex(1),
+    )
+    assertEquals((1 ~ 2 ~ 1).support, Graph(1 ~ 2))
+    assertEquals(
+      DirectedMultigraph(1 ~> 2, 1 ~> 2).support,
+      DirectedGraph(1 ~> 2),
+    )
+    assertEquals(
+      DirectedGraph(1 ~> 2).counted,
+      DirectedMultigraph(1 ~> 2),
+    )
+    assertEquals(
+      Multihypergraph(Hyperedge(1, 2, 3), Hyperedge(1, 2, 3)).support,
+      Hypergraph(Hyperedge(1, 2, 3)),
+    )
+    assert(compileErrors("Multigraph(1 ~ 2).counted").nonEmpty)
+    assert(compileErrors("Multigraph(1 ~ 2) & Graph(1 ~ 2)").nonEmpty)
+
   test("difference removes copies, stopping at zero"):
     val graph = Multigraph(1 ~ 2, 1 ~ 2)
     assertEquals((graph - Multigraph(1 ~ 2)).size, 1)

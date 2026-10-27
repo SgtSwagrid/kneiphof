@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.IncidenceStructure
+import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
 import com.alecdorrington.kneiphof.shapes.{Index, Rule, Shape}
 import scala.annotation.targetName
 
@@ -223,6 +223,32 @@ trait DirectedGraphBase[+V, +E, M]
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
   )
+
+  /**
+    * @return
+    *   The edge set of this graph, in which each edge with any copies is
+    *   present once.
+    */
+  override def support
+    (using embed: Embedding[M, Boolean])
+    : DirectedGraphBase[V, E, Boolean] = DirectedGraphBase
+    .kind[Boolean]
+    .wrap(embed.embedded(structure))
+
+  /**
+    * @return
+    *   This graph as a multigraph, with one copy of each edge. An edge set
+    *   doesn't count copies, so it only mixes with multigraphs through this, as
+    *   in `m & g.counted`, or `m - g.counted` to remove one copy of each edge
+    *   of `g`.
+    */
+  override def counted
+    (using edges: M =:= Boolean)
+    : DirectedGraphBase[V, E, Count] = DirectedGraphBase
+    .kind[Count]
+    .wrap(Support.counted(
+      edges.substituteCo[[m] =>> IncidenceStructure[V, m, Arc[V, E]]](structure),
+    ))
 
   override protected def kindName: String = "DirectedGraph"
 
