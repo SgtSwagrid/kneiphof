@@ -97,3 +97,6 @@ class ArithmeticSuite extends FunSuite:
     intercept[UnsupportedOperationException](
       grid == Graph.torus(100_000, 100_000),
     )
+    intercept[UnsupportedOperationException](grid.mapVertices(identity) == grid)
+    intercept[UnsupportedOperationException](grid == grid.mapVertices(identity))
+    assert(Graph.grid(1_000, 1_000) != Graph.torus(1_000, 1_000))

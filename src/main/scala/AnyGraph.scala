@@ -85,14 +85,19 @@ trait AnyGraph[+V, +E, M]:
     *   the same multiplicity for every edge, compared by listing them.
     */
   private def sameValues(that: AnyGraph[?, ?, ?]): Boolean =
-    (structure.knownOrder, that.structure.knownOrder) match
-      case (Some(order), Some(other)) if order != other => false
-      case (Some(order), _) if order > Int.MaxValue     =>
-        throw UnsupportedOperationException(
-          s"A graph of $order vertices is too large to compare by listing them.",
-        )
-      case _ => vertexValues == that.vertexValues &&
-        edgeValues == that.edgeValues
+    val orders = Seq(
+      structure.knownOrder,
+      that.structure.knownOrder,
+    ).flatten
+    if orders.distinct.size > 1 then false
+    else
+      orders
+        .find(_ > Int.MaxValue)
+        .foreach: order =>
+          throw UnsupportedOperationException(
+            s"A graph of $order vertices is too large to compare by listing them.",
+          )
+      vertexValues == that.vertexValues && edgeValues == that.edgeValues
 
 /** The companion object for [[AnyGraph]]. */
 object AnyGraph:
