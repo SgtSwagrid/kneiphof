@@ -163,9 +163,12 @@ trait GraphOps[
   /**
     * @return
     *   The difference of this graph and [[that]], which keeps the vertices of
-    *   this graph and subtracts the multiplicity of each edge in [[that]].
-    *   [[that]] may have any multiplicities which embed in [[M]], so it may
-    *   also be an edge or chain, as in `g - (1 ~ 2)`.
+    *   this graph and subtracts the multiplicity of each edge in [[that]]. So
+    *   `Graph.complete(n) - g` is the complement of a `Graph[Int, Unit]` `g` on
+    *   the vertices `0 until n`. To remove the vertices of [[that]] as well,
+    *   with their edges, use `removeVertices(that.vertexValues)`. [[that]] may
+    *   have any multiplicities which embed in [[M]], so it may also be an edge
+    *   or chain, as in `g - (1 ~ 2)`.
     */
   infix def - [N]
     (that: AnyGraph[Any, Any, N])
@@ -185,8 +188,10 @@ trait GraphOps[
   /**
     * @return
     *   The intersection of this graph and [[that]], which keeps their common
-    *   vertices and the meet of each edge's multiplicities. [[that]] may have
-    *   any multiplicities which embed in [[M]], as for `-`.
+    *   vertices and the meet of each edge's multiplicities, so that it's the
+    *   largest subgraph of both. For the subgraph of this graph with every edge
+    *   between the vertices of [[that]], use `induced(that.vertexValues)`.
+    *   [[that]] may have any multiplicities which embed in [[M]], as for `-`.
     */
   infix def & [N]
     (that: AnyGraph[Any, Any, N])

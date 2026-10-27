@@ -69,6 +69,24 @@ class GraphSuite extends FunSuite:
       Graph.from(Seq(1), Seq(2 ~ 3)),
     )
 
+  test("difference and intersection subtract and meet edges, not vertices"):
+    val square = Graph.cycle(4)
+    assertEquals(
+      Graph.complete(4) - square,
+      Graph(0 ~ 2, 1 ~ 3),
+    )
+    val pair = Graph.vertices(0, 1)
+    assertEquals(square - pair, square)
+    assertEquals(
+      square.removeVertices(pair.vertexValues),
+      Graph(2 ~ 3),
+    )
+    assertEquals(square & pair, pair)
+    assertEquals(
+      square.induced(pair.vertexValues),
+      Graph(0 ~ 1),
+    )
+
   test("graphs with different vertex types combine"):
     val graph = Graph(1 ~ 2) | Graph("a" ~ "b")
     assertEquals(graph.order, 4)
