@@ -4,20 +4,20 @@ package incidence
 
 /**
   * The subgraph of the graph whose incidence structure is [[base]], with only
-  * the vertices satisfying [[keep]], and the edges between them satisfying
-  * [[keepEdge]], if given.
+  * the vertices satisfying every one of [[keeps]], and the edges between them
+  * satisfying every one of [[edgeKeeps]]. A subgraph of a subgraph is one
+  * subgraph, keeping what satisfies both, which checks the predicates in turn
+  * rather than nesting them, so that long chains of filters stay shallow.
   */
 private[kneiphof] final class Subgraph[
-  V,
+  +V,
   M : Multiplicity as M,
-  X <: AnyEdge[?, ?, ?],
-]
-  (
-    base: IncidenceStructure[V, M, X],
-    keep: V => Boolean,
-    keepEdge: Option[X => Boolean],
-  )
-  extends IncidenceStructure[V, M, X]:
+  +X <: AnyEdge[?, ?, ?],
+] private (
+  base: IncidenceStructure[V, M, X],
+  keeps: Seq[V => Boolean],
+  edgeKeeps: Seq[X => Boolean],
+) extends IncidenceStructure[V, M, X]:
 
   override lazy val vertexValues: ValueSet[V] = base.vertexValues.filter(keep)
 
@@ -28,10 +28,8 @@ private[kneiphof] final class Subgraph[
 
   override def multiplicity(edge: Any): M =
     if !IncidenceStructure.ends(edge).forall(hasVertex) then M.zero
-    else
-      keepEdge match
-        case Some(predicate) if !base.find(edge).exists(predicate) => M.zero
-        case _ => base.multiplicity(edge)
+    else if edgeKeeps.nonEmpty && !base.find(edge).exists(keepEdge) then M.zero
+    else base.multiplicity(edge)
 
   override def incidentEdges(vertex: Any): Iterable[(X, M)] =
     if !hasVertex(vertex) then Nil
@@ -39,7 +37,7 @@ private[kneiphof] final class Subgraph[
       base
         .incidentEdges(vertex)
         .filter((edge, _) =>
-          edge.vertexValues.forall(hasVertex) && keepEdge.forall(_(edge)),
+          edge.vertexValues.forall(hasVertex) && keepEdge(edge),
         )
 
   override def find(edge: Any): Option[X] = base
@@ -51,8 +49,31 @@ private[kneiphof] final class Subgraph[
     * edge between the remaining ones is kept, and otherwise from every edge.
     */
   override lazy val size: Int =
-    if keepEdge.isDefined then super.size
+    if edgeKeeps.nonEmpty then super.size
     else Math.subtractExact(base.size, detachment)
+
+  /**
+    * @return
+    *   This subgraph, keeping only the vertices which also satisfy
+    *   [[predicate]], and the edges which also satisfy [[edgePredicate]], if
+    *   given.
+    */
+  def restricted
+    (
+      predicate: V => Boolean,
+      edgePredicate: Option[X => Boolean],
+    )
+    : Subgraph[V, M, X] = Subgraph(
+    base,
+    keeps :+ predicate,
+    edgeKeeps ++ edgePredicate,
+  )
+
+  /** @return `true` if and only if [[vertex]] satisfies every predicate. */
+  private def keep(vertex: V): Boolean = keeps.forall(_(vertex))
+
+  /** @return `true` if and only if [[edge]] satisfies every edge predicate. */
+  private def keepEdge(edge: X): Boolean = edgeKeeps.forall(_(edge))
 
   /** The removed vertices, in the order they're counted in. */
   private lazy val removed: IndexedSeq[V] = base
@@ -91,3 +112,23 @@ private[kneiphof] final class Subgraph[
   private def first(edge: AnyEdge[?, ?, ?], position: Int): Boolean = edge
     .vertexValues
     .forall(positions.get(_).forall(_ >= position))
+
+/** The companion object for [[Subgraph]]. */
+private[kneiphof] object Subgraph:
+
+  /**
+    * @return
+    *   The subgraph of the graph whose incidence structure is [[base]], with
+    *   only the vertices satisfying [[keep]], and the edges between them
+    *   satisfying [[keepEdge]], if given, restricting [[base]] further if it's
+    *   already a subgraph.
+    */
+  def of[V, M : Multiplicity, X <: AnyEdge[?, ?, ?]]
+    (
+      base: IncidenceStructure[V, M, X],
+      keep: V => Boolean,
+      keepEdge: Option[X => Boolean],
+    )
+    : Subgraph[V, M, X] = base match
+    case base: Subgraph[V, M, X] => base.restricted(keep, keepEdge)
+    case _                       => Subgraph(base, Seq(keep), keepEdge.toSeq)

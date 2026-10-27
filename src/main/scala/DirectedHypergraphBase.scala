@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
+import com.alecdorrington.kneiphof.incidence.IncidenceStructure
 
 /**
   * A directed hypergraph, whose edges each lead from a set of vertices to a set
@@ -52,7 +52,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedHypergraphBase[W, F, M] =
-    hypergraphs.sum[W, F](this, Support(that.structure, embed))
+    hypergraphs.sum[W, F](this, embed.embedded(that.structure))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -70,7 +70,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedHypergraphBase[W, F, M] =
-    hypergraphs.union[W, F](this, Support(that.structure, embed))
+    hypergraphs.union[W, F](this, embed.embedded(that.structure))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -266,7 +266,7 @@ trait DirectedHypergraphBase[+V, +E, M]
       embed: Embedding[N, M],
     )
     : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.intersection(this, Support(that.structure, embed))
+    hypergraphs.intersection(this, embed.embedded(that.structure))
 
   override protected def subtracted[N]
     (
@@ -274,7 +274,7 @@ trait DirectedHypergraphBase[+V, +E, M]
       embed: Embedding[N, M],
     )
     : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.difference(this, Support(that.structure, embed))
+    hypergraphs.difference(this, embed.embedded(that.structure))
 
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: DirectedHypergraphBase.Kind[M] =

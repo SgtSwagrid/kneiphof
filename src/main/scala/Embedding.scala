@@ -1,6 +1,8 @@
 package com.alecdorrington
 package kneiphof
 
+import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
+
 /**
   * Evidence that multiplicities in [[N]] can be read as multiplicities in
   * [[M]], preserving sums.
@@ -20,6 +22,16 @@ trait Embedding[N, M]:
     */
   def exact: Boolean
 
+  /**
+    * @return
+    *   The incidence structure of [[structure]] with its multiplicities read in
+    *   [[M]] by this embedding.
+    */
+  private[kneiphof] def embedded[V, X <: AnyEdge[?, ?, ?]]
+    (structure: IncidenceStructure[V, N, X])
+    (using Multiplicity[M])
+    : IncidenceStructure[V, M, X] = Support(structure, this)
+
 /** The companion object for [[Embedding]]. */
 object Embedding extends CountEmbeddings:
 
@@ -29,11 +41,7 @@ object Embedding extends CountEmbeddings:
     override def apply(multiplicity: M): M = multiplicity
     override def exact: Boolean            = true
 
-/** The embeddings of counts, which apply when no identity embedding does. */
-trait CountEmbeddings:
-
-  /** Counts embed in every multiplicity, as repeated sums of `one`. */
-  given counts: [M : Multiplicity as M] => Embedding[Count, M]:
-
-    override def apply(count: Count): M = M.fromInt(count.toInt)
-    override def exact: Boolean         = false
+    override private[kneiphof] def embedded[V, X <: AnyEdge[?, ?, ?]]
+      (structure: IncidenceStructure[V, M, X])
+      (using Multiplicity[M])
+      : IncidenceStructure[V, M, X] = structure

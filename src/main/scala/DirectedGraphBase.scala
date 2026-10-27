@@ -1,7 +1,7 @@
 package com.alecdorrington
 package kneiphof
 
-import com.alecdorrington.kneiphof.incidence.{IncidenceStructure, Support}
+import com.alecdorrington.kneiphof.incidence.IncidenceStructure
 import com.alecdorrington.kneiphof.shapes.{Index, Rule, Shape}
 import scala.annotation.targetName
 
@@ -65,7 +65,7 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedGraphBase[W, F, M] =
-    graphs.sum[W, F](this, Support(that.structure, embed))
+    graphs.sum[W, F](this, embed.embedded(that.structure))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -83,7 +83,7 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedGraphBase[W, F, M] =
-    graphs.union[W, F](this, Support(that.structure, embed))
+    graphs.union[W, F](this, embed.embedded(that.structure))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -255,7 +255,7 @@ trait DirectedGraphBase[+V, +E, M]
       embed: Embedding[N, M],
     )
     : DirectedGraphBase[V, E, M] =
-    graphs.intersection(this, Support(that.structure, embed))
+    graphs.intersection(this, embed.embedded(that.structure))
 
   override protected def subtracted[N]
     (
@@ -263,7 +263,7 @@ trait DirectedGraphBase[+V, +E, M]
       embed: Embedding[N, M],
     )
     : DirectedGraphBase[V, E, M] =
-    graphs.difference(this, Support(that.structure, embed))
+    graphs.difference(this, embed.embedded(that.structure))
 
   /** The kind of this graph, in its own representation. */
   private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.kind[M]

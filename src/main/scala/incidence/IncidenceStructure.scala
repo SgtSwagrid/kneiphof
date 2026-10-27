@@ -123,6 +123,21 @@ private[kneiphof] object IncidenceStructure:
     case edge: AnyEdge[?, ?, ?] => edge.vertexValues
     case _                      => ValueSet.empty
 
+  /**
+    * @return
+    *   The [[structures]] containing each vertex, so that a query about a
+    *   vertex only looks at those.
+    */
+  def owners[S <: IncidenceStructure[?, ?, ?]]
+    (structures: Seq[S])
+    : Map[Any, Seq[S]] = structures
+    .iterator
+    .flatMap(structure =>
+      structure.vertexValues.iterator.map(vertex => (vertex: Any) -> structure),
+    )
+    .toSeq
+    .groupMap(_(0))(_(1))
+
   /** @return The sum of [[counts]], failing rather than overflowing. */
   def total(counts: IterableOnce[Int]): Int = counts
     .iterator

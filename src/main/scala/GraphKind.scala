@@ -158,7 +158,7 @@ trait GraphKind[
     )
     : G[V, E] =
     if !algebra.additive then union(first, second)
-    else overlaid(first, second)(_ + _)(Sum(first.structure, second))
+    else overlaid(first, second)(_ + _)(Sum.of(first.structure, second))
 
   /**
     * @return
@@ -170,7 +170,8 @@ trait GraphKind[
       first: G[V, E],
       second: IncidenceStructure[V, M, X[V, E]],
     )
-    : G[V, E] = overlaid(first, second)(_ | _)(Union(first.structure, second))
+    : G[V, E] =
+    overlaid(first, second)(_ | _)(Union.of(first.structure, second))
 
   /**
     * @return
@@ -182,7 +183,7 @@ trait GraphKind[
       graph: G[V, E],
       other: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
     )
-    : G[V, E] = wrap(Intersection(graph.structure, other))
+    : G[V, E] = wrap(Intersection.of(graph.structure, other))
 
   /**
     * @return
@@ -196,7 +197,7 @@ trait GraphKind[
       other: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
     )
     : G[V, E] =
-    if !other.stored then wrap(Difference(graph.structure, other))
+    if !other.stored then wrap(Difference.of(graph.structure, other))
     else
       wrap:
         other
@@ -223,7 +224,7 @@ trait GraphKind[
       keep: V => Boolean,
       keepEdge: Option[X[V, E] => Boolean],
     )
-    : G[V, E] = wrap(Subgraph(graph.structure, keep, keepEdge))
+    : G[V, E] = wrap(Subgraph.of(graph.structure, keep, keepEdge))
 
   /**
     * @return
@@ -242,7 +243,7 @@ trait GraphKind[
       edgeImages: Y => Iterable[X[W, F]],
       kept: Boolean,
     )
-    : G[W, F] = wrap(Image(structure, vertexMap, edgeImages, kept))
+    : G[W, F] = wrap(Image.of(structure, vertexMap, edgeImages, kept))
 
   /**
     * @return

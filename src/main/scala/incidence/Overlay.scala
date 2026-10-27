@@ -3,20 +3,16 @@ package kneiphof
 package incidence
 
 /**
-  * The overlay of the graphs whose incidence structures are [[first]] and
-  * [[second]], with every vertex and edge of either, and each edge's
-  * multiplicities combined by [[combine]]: a [[Sum]] or a [[Union]].
+  * The overlay of the graphs whose incidence structures are [[operands]], with
+  * every vertex and edge of any of them, and each edge's multiplicities
+  * combined by [[combine]]: a [[Sum]] or a [[Union]]. Overlays of overlays of
+  * the same operation merge into one, so that long chains of them stay shallow.
   */
-private[kneiphof] abstract class Overlay[
-  V,
-  M : Multiplicity as M,
-  X <: AnyEdge[?, ?, ?],
-]
-  (
-    first: IncidenceStructure[V, M, X],
-    second: IncidenceStructure[V, M, X],
-  )
+private[kneiphof] trait Overlay[+V, M, +X <: AnyEdge[?, ?, ?]]
   extends IncidenceStructure[V, M, X]:
+
+  /** The incidence structures of the graphs overlaid. */
+  def operands: Seq[IncidenceStructure[V, M, X]]
 
   /**
     * @return
@@ -24,33 +20,46 @@ private[kneiphof] abstract class Overlay[
     */
   protected def combine(x: M, y: M): M
 
-  override lazy val vertexValues: ValueSet[V] = first.vertexValues |
-    second.vertexValues
+  override lazy val vertexValues: ValueSet[V] =
+    operands.foldLeft(ValueSet.empty[V])(_ | _.vertexValues)
 
-  override def hasVertex(vertex: Any): Boolean = first.hasVertex(vertex) ||
-    second.hasVertex(vertex)
+  override def hasVertex(vertex: Any): Boolean = owners.contains(vertex)
 
-  override def multiplicity(edge: Any): M = combine(
-    first.multiplicity(edge),
-    second.multiplicity(edge),
-  )
+  override def multiplicity(edge: Any): M = IncidenceStructure
+    .ends(edge)
+    .headOption
+    .fold(algebra.zero): end =>
+      ownersOf(end).foldLeft(algebra.zero): (sum, operand) =>
+        combine(sum, operand.multiplicity(edge))
 
-  override def incidentEdgeValues(vertex: Any): ValueSet[X] = first
-    .incidentEdgeValues(vertex) | second.incidentEdgeValues(vertex)
+  override def incidentEdgeValues(vertex: Any): ValueSet[X] = ownersOf(vertex)
+    .foldLeft(ValueSet.empty[X])(_ | _.incidentEdgeValues(vertex))
 
-  override def incidentEdges(vertex: Any): Iterable[(X, M)] =
-    val firsts  = ValueMap.from(first.incidentEdges(vertex))
-    val seconds = ValueMap.from(second.incidentEdges(vertex))
-    (firsts.keys ++ seconds.keys.filterNot(firsts.contains)).map: edge =>
-      edge -> combine(
-        firsts.getOrElse(edge, M.zero),
-        seconds.getOrElse(edge, M.zero),
-      )
+  override def incidentEdges(vertex: Any): Iterable[(X, M)] = ownersOf(vertex)
+    .foldLeft(ValueMap.empty[X, M]): (sums, operand) =>
+      operand
+        .incidentEdges(vertex)
+        .foldLeft(sums):
+          case (sums, (edge, multiplicity)) => sums.updated(
+              edge,
+              combine(
+                sums.getOrElse(edge, algebra.zero),
+                multiplicity,
+              ),
+            )
 
-  override def find(edge: Any): Option[X] = first
-    .find(edge)
-    .orElse(second.find(edge))
+  override def find(edge: Any): Option[X] = IncidenceStructure
+    .ends(edge)
+    .headOption
+    .flatMap(ownersOf(_).iterator.flatMap(_.find(edge)).nextOption())
 
-  /** `true` if and only if the two graphs share no vertex. */
-  protected lazy val disjoint: Boolean =
-    !first.vertexValues.exists(second.hasVertex)
+  /** `true` if and only if no two of the graphs share a vertex. */
+  protected lazy val disjoint: Boolean = owners.values.forall(_.size == 1)
+
+  /** @return The operands containing [[vertex]]. */
+  protected def ownersOf(vertex: Any): Seq[IncidenceStructure[V, M, X]] = owners
+    .getOrElse(vertex, Nil)
+
+  /** The operands containing each vertex. */
+  private lazy val owners: Map[Any, Seq[IncidenceStructure[V, M, X]]] =
+    IncidenceStructure.owners(operands)

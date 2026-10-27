@@ -1,5 +1,8 @@
 package com.alecdorrington.kneiphof
 
+import com.alecdorrington.kneiphof.incidence.{
+  Difference, Image, Intersection, Subgraph, Sum, Union,
+}
 import munit.FunSuite
 
 /**
@@ -119,14 +122,61 @@ class LazySuite extends FunSuite, LazyAssertions:
     assert(Graph(1 ~ 2).toHypergraph.structure.stored)
     assert(!Graph.path(3).toHypergraph.structure.stored)
 
-  test("chains of a thousand maps answer queries and materialise"):
-    val start: Graph[Int, Unit] = Graph.path(10)
-    val mapped                  = (0 until 1_000).foldLeft(start)((graph, _) =>
-      graph.mapVertices(identity),
+  test("long chains of the same operation merge into one structure"):
+    val steps                   = 1 until 10_000
+    val start: Graph[Int, Unit] = Graph.path(2)
+    val unioned                 =
+      steps.foldLeft(start)((graph, i) => graph | Graph.path(i, i + 1))
+    assertEquals(unioned.size, 10_000)
+    assertEquals(unioned.degree(5_000), 2)
+    assertEquals(
+      unioned.materialise,
+      Graph.path(10_001),
     )
-    assert(mapped.hasEdge(3 ~ 4))
-    assertEquals(mapped.degree(0), 1)
-    assertEquals(mapped.materialise, Graph.path(10))
+    unioned.structure match
+      case union: Union[?, ?, ?] => assertEquals(union.operands.size, 10_000)
+      case structure             => fail(s"$structure isn't one union.")
+    val counts: Multigraph[Int, Unit] = Multigraph.path(2)
+    val summed                        =
+      steps.foldLeft(counts)((graph, _) => graph + Multigraph.path(2))
+    assertEquals(
+      summed.multiplicity(0 ~ 1),
+      Count(10_000),
+    )
+    assertEquals(summed.degree(0), 10_000)
+    summed.structure match
+      case sum: Sum[?, ?, ?] => assertEquals(sum.operands.size, 10_000)
+      case structure         => fail(s"$structure isn't one sum.")
+    val clique: Graph[Int, Unit] = Graph.complete(5)
+    val met = steps.foldLeft(clique)((graph, _) => graph & Graph.complete(5))
+    assertEquals(met, Graph.complete(5).materialise)
+    met.structure match
+      case intersection: Intersection[?, ?, ?] =>
+        assertEquals(intersection.others.size, 9_999)
+      case structure => fail(s"$structure isn't one intersection.")
+    val thinned = steps.foldLeft(clique)((graph, _) => graph - Graph.path(3))
+    assertEquals(thinned.size, 8)
+    assert(!thinned.hasEdge(0 ~ 1))
+    thinned.structure match
+      case difference: Difference[?, ?, ?] =>
+        assertEquals(difference.others.size, 9_999)
+      case structure => fail(s"$structure isn't one difference.")
+    val mapped =
+      steps.foldLeft(start)((graph, _) => graph.mapVertices(identity))
+    assertEquals(mapped.materialise, Graph.path(2))
+    mapped.structure match
+      case _: Image[?, ?, ?, ?, ?] => ()
+      case structure               => fail(s"$structure isn't one image.")
+    val path: Graph[Int, Unit] = Graph.path(10_001)
+    val filtered               =
+      steps.foldLeft(path)((graph, i) => graph.filterVertices(_ != i))
+    assertEquals(
+      filtered.materialise,
+      Graph.vertices(0, 10_000),
+    )
+    filtered.structure match
+      case _: Subgraph[?, ?, ?] => ()
+      case structure            => fail(s"$structure isn't one subgraph.")
 
   test("operations on lazy graphs are lazy, and agree with their built graphs"):
     val cycle = Graph.cycle(5)
