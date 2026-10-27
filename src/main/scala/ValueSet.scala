@@ -22,15 +22,24 @@ final class ValueSet[+A] private (elements: Map[Any, A]) extends Iterable[A]:
   def get(element: Any): Option[A] = elements.get(element)
 
   /** @return This set with [[element]] added. */
-  infix def + [B >: A](element: B): ValueSet[B] =
+  def incl[B >: A](element: B): ValueSet[B] =
     new ValueSet(elements.updated(element, element))
 
+  /** Alias of [[incl]]. */
+  infix def + [B >: A](element: B): ValueSet[B] = incl(element)
+
   /** @return This set without [[element]]. */
-  infix def - (element: Any): ValueSet[A] = new ValueSet(elements - element)
+  def excl(element: Any): ValueSet[A] = new ValueSet(elements - element)
+
+  /** Alias of [[excl]]. */
+  infix def - (element: Any): ValueSet[A] = excl(element)
 
   /** @return The union of this set and [[that]]. */
-  infix def | [B >: A](that: ValueSet[B]): ValueSet[B] =
+  def union[B >: A](that: ValueSet[B]): ValueSet[B] =
     that.foldLeft(this: ValueSet[B])(_ + _)
+
+  /** Alias of [[union]]. */
+  infix def | [B >: A](that: ValueSet[B]): ValueSet[B] = union(that)
 
   override def filter(predicate: A => Boolean): ValueSet[A] =
     new ValueSet(elements.filter((_, element) => predicate(element)))

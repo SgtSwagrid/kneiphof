@@ -49,22 +49,34 @@ trait DirectedHypergraphBase[+V, +E, M]
     *   may have any multiplicities which embed in [[M]], so it may also be an
     *   edge or chain, such as `DirectedHyperedge(Seq(1, 2), Seq(3))`.
     */
-  infix def + [W >: V, F >: E, N]
+  def sum[W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedHypergraphBase[W, F, M] =
     combined(that, embed, algebra.additive)(_ + _)
 
+  /** Alias of [[sum]]. */
+  infix def + [W >: V, F >: E, N]
+    (that: DirectedHypergraphBase[W, F, N])
+    (using Embedding[N, M])
+    : DirectedHypergraphBase[W, F, M] = sum(that)
+
   /**
     * @return
     *   The union of this hypergraph and [[that]], which takes the join of their
     *   multiplicities. Vertices with equal values coincide. [[that]] may have
-    *   any multiplicities which embed in [[M]], as for `+`.
+    *   any multiplicities which embed in [[M]], as for [[sum]].
     */
-  infix def | [W >: V, F >: E, N]
+  def union[W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedHypergraphBase[W, F, M] = combined(that, embed, false)(_ | _)
+
+  /** Alias of [[union]]. */
+  infix def | [W >: V, F >: E, N]
+    (that: DirectedHypergraphBase[W, F, N])
+    (using Embedding[N, M])
+    : DirectedHypergraphBase[W, F, M] = union(that)
 
   /**
     * @return
@@ -76,7 +88,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     : DirectedHypergraphBase[Either[V, W], F, M] =
     hypergraphs.disjointUnion(this, that)
 
-  /** An alias for [[disjointUnion]]. */
+  /** Alias of [[disjointUnion]]. */
   infix def ⊔ [W, F >: E]
     (that: DirectedHypergraphBase[W, F, M])
     : DirectedHypergraphBase[Either[V, W], F, M] = disjointUnion(that)
@@ -126,52 +138,49 @@ trait DirectedHypergraphBase[+V, +E, M]
   /**
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
-    *   [[label]] from every vertex of this hypergraph to every vertex of
-    *   [[that]]. This is the flattening of the edge `this ~> that`, labelled
-    *   [[label]], so it pairs each vertex of this hypergraph with each vertex
-    *   of [[that]] even where the two share vertices: a vertex in both gains a
-    *   loop, and two vertices in both gain an edge each way.
+    *   `()` from every vertex of this hypergraph to every vertex of [[that]],
+    *   which `labelled` can relabel. This is the flattening of the edge
+    *   `this ~> that`, so it pairs each vertex of this hypergraph with each
+    *   vertex of [[that]] even where the two share vertices: a vertex in both
+    *   gains a loop, and two vertices in both gain an edge each way.
     */
   def join[W >: V, F >: E]
-    (
-      that: DirectedHypergraphBase[W, F, M],
-      label: F,
-    )
-    : DirectedHypergraphBase[W, F, M] =
-    DirectedHypergraphBase.Join(this, that) % label
-
-  /**
-    * @return
-    *   The join `that :~>: this`, with an edge labelled `()` from every vertex
-    *   of [[that]] to every vertex of this hypergraph (see [[join]]). The new
-    *   edges can be relabelled, as in `(that :~>: this) % label`.
-    */
-  infix def :~>: [W >: V, F >: E]
     (that: DirectedHypergraphBase[W, F, M])
     : DirectedHypergraphBase.Join[W, F, Unit, M] =
-    DirectedHypergraphBase.Join(that, this)
+    DirectedHypergraphBase.Join(this, that)
+
+  /** Alias of [[join]]. */
+  infix def :~>: [W >: V, F >: E]
+    (that: DirectedHypergraphBase[W, F, M])
+    : DirectedHypergraphBase.Join[W, F, Unit, M] = that.join(this)
 
   /**
     * @return
-    *   The cone `this :~> vertex`, with an edge labelled `()` from every vertex
-    *   of this hypergraph to [[vertex]] (see [[join]]). The new edges can be
-    *   relabelled, as in `(this :~> vertex) % label`.
+    *   The cone over this hypergraph with apex [[vertex]], with an edge
+    *   labelled `()` from every vertex of this hypergraph to [[vertex]] (see
+    *   [[join]]).
     */
-  infix def :~> [W >: V]
-    (vertex: W)
-    : DirectedHypergraphBase.Join[W, E, Unit, M] =
+  def coneTo[W >: V](vertex: W): DirectedHypergraphBase.Join[W, E, Unit, M] =
     DirectedHypergraphBase.Join(this, hypergraphs.vertex(vertex))
 
+  /** Alias of [[coneTo]]. */
+  infix def :~> [W >: V]
+    (vertex: W)
+    : DirectedHypergraphBase.Join[W, E, Unit, M] = coneTo(vertex)
+
   /**
     * @return
-    *   The cone `vertex ~>: this`, with an edge labelled `()` from [[vertex]]
-    *   to every vertex of this hypergraph (see [[join]]). The new edges can be
-    *   relabelled, as in `vertex ~>: this % label`.
+    *   The cone over this hypergraph with apex [[vertex]], with an edge
+    *   labelled `()` from [[vertex]] to every vertex of this hypergraph (see
+    *   [[join]]).
     */
+  def coneFrom[W >: V](vertex: W): DirectedHypergraphBase.Join[W, E, Unit, M] =
+    DirectedHypergraphBase.Join(hypergraphs.vertex(vertex), this)
+
+  /** Alias of [[coneFrom]]. */
   infix def ~>: [W >: V]
     (vertex: W)
-    : DirectedHypergraphBase.Join[W, E, Unit, M] =
-    DirectedHypergraphBase.Join(hypergraphs.vertex(vertex), this)
+    : DirectedHypergraphBase.Join[W, E, Unit, M] = coneFrom(vertex)
 
   /**
     * The undirected hypergraph obtained by forgetting the direction of every
@@ -301,7 +310,7 @@ object DirectedHypergraphBase:
 
   /**
     * The join of two directed hypergraphs, which remembers its new edges so
-    * that they can be relabelled with `%`.
+    * that they can be relabelled with `labelled`.
     *
     * @tparam L
     *   The label of the new edges.
@@ -309,7 +318,10 @@ object DirectedHypergraphBase:
   trait Join[+V, +E, +L, M] extends DirectedHypergraphBase[V, E | L, M]:
 
     /** @return This join, with every new edge labelled [[label]] instead. */
-    infix def % [F : NotGraph](label: F): Join[V, E, F, M]
+    def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+
+    /** Alias of [[labelled]]. */
+    infix def % [F : NotGraph](label: F): Join[V, E, F, M] = labelled(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -349,7 +361,7 @@ object DirectedHypergraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
+      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of directed hypergraphs, in the representation of [[empty]]. */

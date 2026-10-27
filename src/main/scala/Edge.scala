@@ -61,10 +61,13 @@ final case class Edge[+V, +E]
     )
     : HypergraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
 
-  override infix def % [F : NotGraph](label: F): kneiphof.Edge[V, F] =
+  override def labelled[F : NotGraph](label: F): kneiphof.Edge[V, F] =
     Edge(first, second, label)
 
-  override def toString: String = labelled(s"$first ~ $second", label)
+  override infix def % [F : NotGraph](label: F): kneiphof.Edge[V, F] =
+    labelled(label)
+
+  override def toString: String = describe(s"$first ~ $second", label)
 
   override private[kneiphof] def steps: Seq[kneiphof.Edge[V, E]] = Seq(this)
 

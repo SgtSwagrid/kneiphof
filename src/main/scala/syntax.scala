@@ -35,9 +35,9 @@ type DirectedMultigraph[+V, +E] = DirectedGraphBase[V, E, Count]
 
 extension [V](first: V)
 
-  /** @return An unlabelled edge between [[first]] and [[second]]. */
+  /** Alias of [[Edge.apply]]. */
   infix def ~ [W >: V](second: W): Edge[W, Unit] = Edge(first, second)
 
-  /** @return An unlabelled directed edge from [[first]] to [[target]]. */
+  /** Alias of [[DirectedEdge.apply]]. */
   infix def ~> [T](target: T): DirectedEdge[V, T, Unit] =
     DirectedEdge(first, target)

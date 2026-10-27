@@ -170,7 +170,7 @@ trait GraphOps[
     *   have any multiplicities which embed in [[M]], so it may also be an edge
     *   or chain, as in `g - (1 ~ 2)`.
     */
-  infix def - [N]
+  def difference[N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
     : G[V, E] =
@@ -185,15 +185,20 @@ trait GraphOps[
         that,
       )
 
+  /** Alias of [[difference]]. */
+  infix def - [N](that: AnyGraph[Any, Any, N])(using Embedding[N, M]): G[V, E] =
+    difference(that)
+
   /**
     * @return
     *   The intersection of this graph and [[that]], which keeps their common
     *   vertices and the meet of each edge's multiplicities, so that it's the
     *   largest subgraph of both. For the subgraph of this graph with every edge
     *   between the vertices of [[that]], use `induced(that.vertexValues)`.
-    *   [[that]] may have any multiplicities which embed in [[M]], as for `-`.
+    *   [[that]] may have any multiplicities which embed in [[M]], as for
+    *   [[difference]].
     */
-  infix def & [N]
+  def intersection[N]
     (that: AnyGraph[Any, Any, N])
     (using embed: Embedding[N, M])
     : G[V, E] = refined(
@@ -204,6 +209,10 @@ trait GraphOps[
     Some(() => that.edgeValues.keys),
     that,
   )
+
+  /** Alias of [[intersection]]. */
+  infix def & [N](that: AnyGraph[Any, Any, N])(using Embedding[N, M]): G[V, E] =
+    intersection(that)
 
   /**
     * @return

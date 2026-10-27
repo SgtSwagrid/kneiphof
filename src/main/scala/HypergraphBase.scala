@@ -41,21 +41,33 @@ trait HypergraphBase[+V, +E, M]
     *   may have any multiplicities which embed in [[M]], so it may also be an
     *   edge or chain, such as `Hyperedge(1, 2, 3)`.
     */
-  infix def + [W >: V, F >: E, N]
+  def sum[W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : HypergraphBase[W, F, M] = combined(that, embed, algebra.additive)(_ + _)
+
+  /** Alias of [[sum]]. */
+  infix def + [W >: V, F >: E, N]
+    (that: HypergraphBase[W, F, N])
+    (using Embedding[N, M])
+    : HypergraphBase[W, F, M] = sum(that)
 
   /**
     * @return
     *   The union of this hypergraph and [[that]], which takes the join of their
     *   multiplicities. Vertices with equal values coincide. [[that]] may have
-    *   any multiplicities which embed in [[M]], as for `+`.
+    *   any multiplicities which embed in [[M]], as for [[sum]].
     */
-  infix def | [W >: V, F >: E, N]
+  def union[W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : HypergraphBase[W, F, M] = combined(that, embed, false)(_ | _)
+
+  /** Alias of [[union]]. */
+  infix def | [W >: V, F >: E, N]
+    (that: HypergraphBase[W, F, N])
+    (using Embedding[N, M])
+    : HypergraphBase[W, F, M] = union(that)
 
   /**
     * @return
@@ -66,7 +78,7 @@ trait HypergraphBase[+V, +E, M]
     (that: HypergraphBase[W, F, M])
     : HypergraphBase[Either[V, W], F, M] = hypergraphs.disjointUnion(this, that)
 
-  /** An alias for [[disjointUnion]]. */
+  /** Alias of [[disjointUnion]]. */
   infix def ⊔ [W, F >: E]
     (that: HypergraphBase[W, F, M])
     : HypergraphBase[Either[V, W], F, M] = disjointUnion(that)
@@ -116,43 +128,38 @@ trait HypergraphBase[+V, +E, M]
   /**
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
-    *   [[label]] between every vertex of this hypergraph and every vertex of
-    *   [[that]]. This is the flattening of the edge `this ~ that`, labelled
-    *   [[label]], so it pairs each vertex of this hypergraph with each vertex
-    *   of [[that]] even where the two share vertices: a vertex in both gains a
-    *   loop, and two vertices in both are joined once for each way of pairing
-    *   them (which is just once, for edge sets).
+    *   `()` between every vertex of this hypergraph and every vertex of
+    *   [[that]], which `labelled` can relabel. This is the flattening of the
+    *   edge `this ~ that`, so it pairs each vertex of this hypergraph with each
+    *   vertex of [[that]] even where the two share vertices: a vertex in both
+    *   gains a loop, and two vertices in both are joined once for each way of
+    *   pairing them (which is just once, for edge sets).
     */
   def join[W >: V, F >: E]
-    (that: HypergraphBase[W, F, M], label: F)
-    : HypergraphBase[W, F, M] = HypergraphBase.Join(this, that) % label
+    (that: HypergraphBase[W, F, M])
+    : HypergraphBase.Join[W, F, Unit, M] = HypergraphBase.Join(this, that)
 
-  /**
-    * @return
-    *   The join `that :~: this`, with an edge labelled `()` between every
-    *   vertex of [[that]] and every vertex of this hypergraph (see [[join]]).
-    *   The new edges can be relabelled, as in `(that :~: this) % label`.
-    */
+  /** Alias of [[join]]. */
   infix def :~: [W >: V, F >: E]
     (that: HypergraphBase[W, F, M])
-    : HypergraphBase.Join[W, F, Unit, M] = HypergraphBase.Join(that, this)
+    : HypergraphBase.Join[W, F, Unit, M] = that.join(this)
 
   /**
     * @return
-    *   The cone `this :~ vertex`, with an edge labelled `()` from every vertex
-    *   of this hypergraph to [[vertex]] (see [[join]]). The new edges can be
-    *   relabelled, as in `(this :~ vertex) % label`.
+    *   The cone over this hypergraph with apex [[vertex]], which joins every
+    *   vertex of this hypergraph to [[vertex]] by an edge labelled `()` (see
+    *   [[join]]).
     */
-  infix def :~ [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
+  def cone[W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
     HypergraphBase.Join(this, hypergraphs.vertex(vertex))
 
-  /**
-    * @return
-    *   The cone `vertex ~: this`, which is the same as `this :~ vertex`. The
-    *   new edges can be relabelled, as in `vertex ~: this % label`.
-    */
-  infix def ~: [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] = this :~
-    vertex
+  /** Alias of [[cone]]. */
+  infix def :~ [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
+    cone(vertex)
+
+  /** Alias of [[cone]]. */
+  infix def ~: [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
+    cone(vertex)
 
   override def map[W, F]
     (vertexMap: V => W, labelMap: E => F)
@@ -226,7 +233,7 @@ object HypergraphBase:
 
   /**
     * The join of two hypergraphs, which remembers its new edges so that they
-    * can be relabelled with `%`.
+    * can be relabelled with `labelled`.
     *
     * @tparam L
     *   The label of the new edges.
@@ -234,7 +241,10 @@ object HypergraphBase:
   trait Join[+V, +E, +L, M] extends HypergraphBase[V, E | L, M]:
 
     /** @return This join, with every new edge labelled [[label]] instead. */
-    infix def % [F : NotGraph](label: F): Join[V, E, F, M]
+    def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+
+    /** Alias of [[labelled]]. */
+    infix def % [F : NotGraph](label: F): Join[V, E, F, M] = labelled(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -273,7 +283,7 @@ object HypergraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
+      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of hypergraphs, in the representation of [[empty]]. */

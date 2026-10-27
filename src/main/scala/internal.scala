@@ -12,6 +12,6 @@ private[kneiphof] def cartesian[A](options: Seq[Iterable[A]]): Seq[Seq[A]] =
     yield head +: tail
 
 /** @return [[text]], followed by [[label]] unless the label is `()`. */
-private[kneiphof] def labelled(text: String, label: Any): String = label match
+private[kneiphof] def describe(text: String, label: Any): String = label match
   case () => text
   case _  => s"$text % $label"

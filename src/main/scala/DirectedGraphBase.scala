@@ -63,22 +63,34 @@ trait DirectedGraphBase[+V, +E, M]
     *   may have any multiplicities which embed in [[M]], so it may also be an
     *   edge or chain, such as `1 ~> 2 ~> 3`.
     */
-  infix def + [W >: V, F >: E, N]
+  def sum[W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedGraphBase[W, F, M] =
     combined(that, embed, algebra.additive)(_ + _)
 
+  /** Alias of [[sum]]. */
+  infix def + [W >: V, F >: E, N]
+    (that: DirectedGraphBase[W, F, N])
+    (using Embedding[N, M])
+    : DirectedGraphBase[W, F, M] = sum(that)
+
   /**
     * @return
     *   The union of this graph and [[that]], which takes the join of their
     *   multiplicities. Vertices with equal values coincide. [[that]] may have
-    *   any multiplicities which embed in [[M]], as for `+`.
+    *   any multiplicities which embed in [[M]], as for [[sum]].
     */
-  infix def | [W >: V, F >: E, N]
+  def union[W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
     (using embed: Embedding[N, M])
     : DirectedGraphBase[W, F, M] = combined(that, embed, false)(_ | _)
+
+  /** Alias of [[union]]. */
+  infix def | [W >: V, F >: E, N]
+    (that: DirectedGraphBase[W, F, N])
+    (using Embedding[N, M])
+    : DirectedGraphBase[W, F, M] = union(that)
 
   /**
     * @return
@@ -89,7 +101,7 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, M])
     : DirectedGraphBase[Either[V, W], F, M] = graphs.disjointUnion(this, that)
 
-  /** An alias for [[disjointUnion]]. */
+  /** Alias of [[disjointUnion]]. */
   infix def ⊔ [W, F >: E]
     (that: DirectedGraphBase[W, F, M])
     : DirectedGraphBase[Either[V, W], F, M] = disjointUnion(that)
@@ -139,36 +151,39 @@ trait DirectedGraphBase[+V, +E, M]
 
   /**
     * @return
-    *   The join of this graph and [[that]], with an extra edge labelled
-    *   [[label]] from every vertex of this graph to every vertex of [[that]].
-    *   This is the flattening of the edge `this ~> that`, labelled [[label]],
-    *   so it pairs each vertex of this graph with each vertex of [[that]] even
-    *   where the two share vertices: a vertex in both gains a loop, and two
-    *   vertices in both gain an edge each way.
+    *   The join of this graph and [[that]], with an extra edge labelled `()`
+    *   from every vertex of this graph to every vertex of [[that]], which
+    *   `labelled` can relabel. This is the flattening of the edge
+    *   `this ~> that`, so it pairs each vertex of this graph with each vertex
+    *   of [[that]] even where the two share vertices: a vertex in both gains a
+    *   loop, and two vertices in both gain an edge each way.
     */
   def join[W >: V, F >: E]
-    (that: DirectedGraphBase[W, F, M], label: F)
-    : DirectedGraphBase[W, F, M] = DirectedGraphBase.Join(this, that) % label
+    (that: DirectedGraphBase[W, F, M])
+    : DirectedGraphBase.Join[W, F, Unit, M] = DirectedGraphBase.Join(this, that)
 
-  /**
-    * @return
-    *   The join `that :~>: this`, with an edge labelled `()` from every vertex
-    *   of [[that]] to every vertex of this graph (see [[join]]). The new edges
-    *   can be relabelled, as in `(that :~>: this) % label`.
-    */
+  /** Alias of [[join]]. */
   infix def :~>: [W >: V, F >: E]
     (that: DirectedGraphBase[W, F, M])
-    : DirectedGraphBase.Join[W, F, Unit, M] = DirectedGraphBase.Join(that, this)
+    : DirectedGraphBase.Join[W, F, Unit, M] = that.join(this)
 
-  override infix def :~> [W >: V]
+  override def coneTo[W >: V]
     (vertex: W)
     : DirectedGraphBase.Join[W, E, Unit, M] =
     DirectedGraphBase.Join(this, graphs.vertex(vertex))
 
-  override infix def ~>: [W >: V]
+  override infix def :~> [W >: V]
+    (vertex: W)
+    : DirectedGraphBase.Join[W, E, Unit, M] = coneTo(vertex)
+
+  override def coneFrom[W >: V]
     (vertex: W)
     : DirectedGraphBase.Join[W, E, Unit, M] =
     DirectedGraphBase.Join(graphs.vertex(vertex), this)
+
+  override infix def ~>: [W >: V]
+    (vertex: W)
+    : DirectedGraphBase.Join[W, E, Unit, M] = coneFrom(vertex)
 
   /** This graph as a directed hypergraph, in the default representation. */
   def toDirectedHypergraph: DirectedHypergraphBase[V, E, M] =
@@ -250,7 +265,7 @@ object DirectedGraphBase:
 
   /**
     * The join of two directed graphs, which remembers its new edges so that
-    * they can be relabelled with `%`.
+    * they can be relabelled with `labelled`.
     *
     * @tparam L
     *   The label of the new edges.
@@ -259,7 +274,10 @@ object DirectedGraphBase:
     extends DirectedGraphBase[V, E | L, M],
             DirectedHypergraphBase.Join[V, E, L, M]:
 
-    override infix def % [F : NotGraph](label: F): Join[V, E, F, M]
+    override def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+
+    override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
+      labelled(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -299,7 +317,7 @@ object DirectedGraphBase:
       ),
               Join[V, E, L, M]:
 
-      override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
+      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** The kind of directed graphs, in the representation of [[empty]]. */

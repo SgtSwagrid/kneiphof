@@ -84,7 +84,7 @@ class DirectedGraphSuite extends FunSuite:
       labelled,
       DirectedGraph(1 ~> 3 % "x", 2 ~> 3 % "x"),
     )
-    assertEquals(
-      DirectedGraph(1 ~> 2 % "a").join(DirectedGraph.vertex(3), "b"),
+    assertEquals[Any, Any](
+      DirectedGraph(1 ~> 2 % "a").join(DirectedGraph.vertex(3)) % "b",
       DirectedGraph(1 ~> 2 % "a", 1 ~> 3 % "b", 2 ~> 3 % "b"),
     )

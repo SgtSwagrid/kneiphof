@@ -42,7 +42,7 @@ trait Multiplicity[M] extends Semiring[M], Lattice[M]:
       */
     def monus(y: M): M
 
-    /** An alias for [[monus]]. */
+    /** Alias of [[monus]]. */
     inline infix def - (y: M): M = x.monus(y)
 
     /** The number of copies of an edge that [[x]] stands for. */

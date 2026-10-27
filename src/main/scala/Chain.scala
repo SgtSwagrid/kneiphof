@@ -24,8 +24,11 @@ trait Chain[+V, +E, +L] extends GraphBase[V, E | L, Count]:
     * @return
     *   This chain, extended by an unlabelled edge from [[tip]] to [[next]].
     */
-  infix def ~ [W >: V](next: W): Chain[W, E | L, Unit] =
+  def to[W >: V](next: W): Chain[W, E | L, Unit] =
     Chain.Steps(steps, kneiphof.Edge(tip, next))
+
+  /** Alias of [[to]]. */
+  infix def ~ [W >: V](next: W): Chain[W, E | L, Unit] = to(next)
 
   /**
     * @return
@@ -33,7 +36,10 @@ trait Chain[+V, +E, +L] extends GraphBase[V, E | L, Count]:
     *   earlier edge, use brackets, as in `(1 ~ 2 % "a") ~ 3`, since `%` binds
     *   more loosely than `~` (see [[NotGraph]]).
     */
-  infix def % [F : NotGraph](label: F): Chain[V, E, F]
+  def labelled[F : NotGraph](label: F): Chain[V, E, F]
+
+  /** Alias of [[labelled]]. */
+  infix def % [F : NotGraph](label: F): Chain[V, E, F] = labelled(label)
 
   /** The edges of this chain, in the order they were written. */
   private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]]
@@ -62,8 +68,8 @@ object Chain:
       )
       : GraphBase[W, F, Count] = delegate.updated(edge, multiplicity)
 
-    override infix def % [F : NotGraph](label: F): Chain[V, E, F] =
-      Steps(earlier, last % label)
+    override def labelled[F : NotGraph](label: F): Chain[V, E, F] =
+      Steps(earlier, last.labelled(label))
 
     override private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]] =
       earlier :+ last

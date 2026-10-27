@@ -6,7 +6,7 @@ import scala.util.NotGiven
 
 /**
   * Evidence that [[F]] isn't a graph, or an edge (which is a graph), so that it
-  * can label an edge with `%`.
+  * can label an edge with `%` or `labelled`.
   *
   * This catches a mistake of precedence: `%` binds more loosely than `~`, so
   * `1 ~ 2 % "a" ~ 3` means `(1 ~ 2) % ("a" ~ 3)`, which would label `1 ~ 2`

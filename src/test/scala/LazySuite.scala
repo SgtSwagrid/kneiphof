@@ -103,7 +103,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     val results: Seq[AnyGraph[?, ?, ?]] = Seq(
       graph :~: Graph(3 ~ 4),
       graph :~ 3,
-      graph.join(Graph.vertex(3), ()),
+      graph.join(Graph.vertex(3)),
       graph.lexicographicProduct(graph),
       graph.flatMapVertices(v => Graph.vertex(v)),
       graph.view,

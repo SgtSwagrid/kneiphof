@@ -62,7 +62,7 @@ trait Hyperedge[+V, +E]
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
 
-  override def toString: String = labelled(
+  override def toString: String = describe(
     ends.mkString("Hyperedge(", ", ", ")"),
     label,
   )

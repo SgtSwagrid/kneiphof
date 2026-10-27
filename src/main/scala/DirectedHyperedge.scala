@@ -69,7 +69,7 @@ trait DirectedHyperedge[+S, +T, +E]
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
 
-  override def toString: String = labelled(
+  override def toString: String = describe(
     s"${ tail.mkString("{", ", ", "}") } ~> ${ head.mkString("{", ", ", "}") }",
     label,
   )

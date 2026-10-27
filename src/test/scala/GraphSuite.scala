@@ -69,6 +69,42 @@ class GraphSuite extends FunSuite:
       Graph.from(Seq(1), Seq(2 ~ 3)),
     )
 
+  test("operators are aliases of named methods"):
+    val left   = Graph(1 ~ 2, 2 ~ 3)
+    val right  = Graph(2 ~ 3, 3 ~ 4)
+    val arrows = DirectedGraph(1 ~> 2)
+    assertEquals(left + right, left.sum(right))
+    assertEquals(left | right, left.union(right))
+    assertEquals(left & right, left.intersection(right))
+    assertEquals(left - right, left.difference(right))
+    assertEquals(left ⊔ right, left.disjointUnion(right))
+    assertEquals(left :~: right, left.join(right))
+    assertEquals(
+      (left :~: right) % "a",
+      left.join(right).labelled("a"),
+    )
+    assertEquals(left :~ 0, left.cone(0))
+    assertEquals(0 ~: left, left.cone(0))
+    assertEquals(arrows :~>: arrows, arrows.join(arrows))
+    assertEquals(arrows :~> 0, arrows.coneTo(0))
+    assertEquals(0 ~>: arrows, arrows.coneFrom(0))
+    assertEquals(1 ~ 2, Edge(1, 2))
+    assertEquals(1 ~> 2, DirectedEdge(1, 2))
+    assertEquals(1 ~ 2 % "a", (1 ~ 2).labelled("a"))
+    assertEquals(1 ~ 2 ~ 3, (1 ~ 2).to(3))
+    assertEquals(1 ~ 2 ~ 3 % "a", (1 ~ 2).to(3).labelled("a"))
+    assertEquals(1 ~> 2 ~> 3, (1 ~> 2).to(3))
+    assertEquals(
+      1 ~> 2 ~> 3 % "a",
+      (1 ~> 2).to(3).labelled("a"),
+    )
+    assertEquals(ValueSet(1) + 2, ValueSet(1).incl(2))
+    assertEquals(ValueSet(1, 2) - 2, ValueSet(1, 2).excl(2))
+    assertEquals(
+      ValueSet(1) | ValueSet(2),
+      ValueSet(1).union(ValueSet(2)),
+    )
+
   test("difference and intersection subtract and meet edges, not vertices"):
     val square = Graph.cycle(4)
     assertEquals(
@@ -187,8 +223,8 @@ class GraphSuite extends FunSuite:
       joined,
       Graph(Graph(1 ~ 2) ~ Graph.vertex(3)).flatten,
     )
-    assertEquals(
-      Graph(1 ~ 2 % "a").join(Graph.vertex(3), "b"),
+    assertEquals[Any, Any](
+      Graph(1 ~ 2 % "a").join(Graph.vertex(3)) % "b",
       Graph(1 ~ 2 % "a", 1 ~ 3 % "b", 2 ~ 3 % "b"),
     )
 
