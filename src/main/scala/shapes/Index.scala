@@ -51,30 +51,6 @@ private[kneiphof] object Index:
       .toMap
 
   /**
-    * The pairs `(row, column)` for each row in `0 until rows` and column in
-    * `0 until columns`, numbered `row * columns + column`.
-    */
-  final class Pairs(rows: Int, columns: Int) extends Index[(Int, Int)]:
-
-    require(
-      rows >= 0 && columns >= 0,
-      s"A shape can't have $rows rows and $columns columns.",
-    )
-
-    override def order: Int = Math.multiplyExact(rows, columns)
-
-    override def vertex(index: Int): (Int, Int) =
-      (index / columns, index % columns)
-
-    override def index(vertex: Any): Option[Int] = vertex match
-      case (row, column) =>
-        for
-          row    <- Index.number(row, rows)
-          column <- Index.number(column, columns)
-        yield row * columns + column
-      case _ => None
-
-  /**
     * @return
     *   The number in `0 until order` equal to [[value]], if there is one. Like
     *   a hash map, this compares by `==`, so `1L` and `1.0` find `1`. Numbers

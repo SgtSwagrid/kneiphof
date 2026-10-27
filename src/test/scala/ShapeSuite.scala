@@ -362,6 +362,59 @@ class ShapeSuite extends FunSuite, LazyAssertions:
       DirectedMultigraph.prism(1),
     ).foreach(assertLazyDirected(_, arrows*))
 
+  test("Cartesian products copy the edges of each graph across the other"):
+    assertEquals(
+      Graph.path(2) □ Graph.path(3),
+      Graph.grid(2, 3),
+    )
+    assertEquals(
+      Graph(1 ~ 2 % "a") □ Graph.vertices("x", "y"),
+      Graph(
+        (1, "x") ~ (2, "x") % "a",
+        (1, "y") ~ (2, "y") % "a",
+      ),
+    )
+    assertEquals(
+      DirectedGraph(1 ~> 2) □ DirectedGraph(3 ~> 4),
+      DirectedGraph(
+        (1, 3) ~> (2, 3),
+        (1, 4) ~> (2, 4),
+        (1, 3) ~> (1, 4),
+        (2, 3) ~> (2, 4),
+      ),
+    )
+    val hyper = Hypergraph(Hyperedge(1, 2, 3)) □ Hypergraph.vertices("a", "b")
+    assertEquals(hyper.size, 2)
+    assert(hyper.hasEdge(Hyperedge((1, "a"), (2, "a"), (3, "a"))))
+    assertEquals(
+      Graph(1 ~ 1) □ Graph(2 ~ 2),
+      Graph((1, 2) ~ (1, 2)),
+    )
+    assertEquals(
+      (Multigraph(1 ~ 1) □ Multigraph(2 ~ 2)).multiplicity((1, 2) ~ (1, 2)),
+      Count(2),
+    )
+    assertEquals(
+      (Graph(1 ~ 1 % "a") □ Graph(2 ~ 2 % "b")).size,
+      2,
+    )
+    assertLazy(
+      Graph.cycle(3) □ Graph(0 ~ 0, 0 ~ 1),
+      (0, 0) ~ (1, 1),
+      (0, 0) ~ (0, 0),
+      (5, 0),
+    )
+    assertLazy(
+      Multigraph.cycle(2) □ Multigraph(0 ~ 0, 0 ~ 1),
+      (0, 0) ~ (0, 0),
+      (0, 0) ~ (1, 1),
+    )
+    assertLazyDirected(
+      DirectedGraph.cycle(3) □ DirectedGraph(0 ~> 0, 0 ~> 1),
+      (0, 0) ~> (0, 0),
+      (1, 0) ~> (0, 0),
+    )
+
   test("transitive tournaments point from each vertex to every later one"):
     val tournament = DirectedGraph.transitiveTournament(4)
     assertEquals(tournament.size, 6)
@@ -395,6 +448,12 @@ class ShapeSuite extends FunSuite, LazyAssertions:
       Graph.petersen(1_000_000, 3).degree(1_500_000),
       3,
     )
+    val product = Graph.complete(2_000) □ Graph.path(1_000)
+    assertEquals(product.size, 2_000_998_000)
+    assertEquals(product.degree((0, 0)), 2_000)
+    assertEquals(product.degree((0, 500)), 2_001)
+    assert(product.hasEdge((0, 5) ~ (1, 5)))
+    assert(!product.hasEdge((0, 5) ~ (1, 6)))
     val torus = Graph.torus(1_000, 1_000)
     assertEquals(torus.size, 2_000_000)
     assertEquals(torus.degree((999, 0)), 4)

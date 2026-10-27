@@ -78,6 +78,10 @@ class GraphSuite extends FunSuite:
     assertEquals(left & right, left.intersection(right))
     assertEquals(left - right, left.difference(right))
     assertEquals(left ⊔ right, left.disjointUnion(right))
+    assertEquals(
+      left □ right,
+      left.cartesianProduct(right),
+    )
     assertEquals(left :~: right, left.join(right))
     assertEquals(
       (left :~: right) % "a",

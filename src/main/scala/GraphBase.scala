@@ -139,6 +139,23 @@ trait GraphBase[+V, +E, M]
 
   /**
     * @return
+    *   The Cartesian product `G □ H` of this graph and [[that]], on the pairs
+    *   `(v, w)` of their vertices, with a copy of each edge of this graph for
+    *   each vertex `w` of [[that]], and a copy of each edge of [[that]] for
+    *   each vertex `v` of this graph. Copies keep their labels. The copies of
+    *   two loops which differ only in their end coincide, which is one edge,
+    *   for edge sets. So `path(m) □ path(n)` is a grid.
+    */
+  def cartesianProduct[W, F >: E]
+    (that: GraphBase[W, F, M])
+    : GraphBase[(V, W), F, M] = graphs.cartesianProduct[V, W, F](this, that)
+
+  /** Alias of [[cartesianProduct]]. */
+  infix def □ [W, F >: E](that: GraphBase[W, F, M]): GraphBase[(V, W), F, M] =
+    cartesianProduct(that)
+
+  /**
+    * @return
     *   The join of this graph and [[that]], with an extra edge labelled `()`
     *   between every vertex of this graph and every vertex of [[that]], which
     *   `labelled` can relabel. This is the flattening of the edge
@@ -326,6 +343,20 @@ object GraphBase:
     override private[kneiphof] def shaped[V]
       (index: Index[V], rule: Rule)
       : GraphBase[V, Unit, M] = wrap(Shape.undirected[V, M](index, rule))
+
+    override private[kneiphof] def coned[V]
+      (hub: V, index: Index[V], rule: Rule)
+      : GraphBase[V, Unit, M] = shaped(index, rule).cone(hub)
+
+    override private[kneiphof] def product[V, W]
+      (
+        left: Index[V],
+        first: Rule,
+        right: Index[W],
+        second: Rule,
+      )
+      : GraphBase[(V, W), Unit, M] =
+      shaped(left, first).cartesianProduct(shaped(right, second))
 
     override private[kneiphof] def directed: Boolean = false
 

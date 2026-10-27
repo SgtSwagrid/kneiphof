@@ -150,6 +150,25 @@ trait DirectedGraphBase[+V, +E, M]
 
   /**
     * @return
+    *   The Cartesian product `G □ H` of this graph and [[that]], on the pairs
+    *   `(v, w)` of their vertices, with a copy of each edge of this graph for
+    *   each vertex `w` of [[that]], and a copy of each edge of [[that]] for
+    *   each vertex `v` of this graph. Copies keep their labels. The copies of
+    *   two loops which differ only in their end coincide, which is one edge,
+    *   for edge sets. So `path(m) □ path(n)` is a grid.
+    */
+  def cartesianProduct[W, F >: E]
+    (that: DirectedGraphBase[W, F, M])
+    : DirectedGraphBase[(V, W), F, M] =
+    graphs.cartesianProduct[V, W, F](this, that)
+
+  /** Alias of [[cartesianProduct]]. */
+  infix def □ [W, F >: E]
+    (that: DirectedGraphBase[W, F, M])
+    : DirectedGraphBase[(V, W), F, M] = cartesianProduct(that)
+
+  /**
+    * @return
     *   The join of this graph and [[that]], with an extra edge labelled `()`
     *   from every vertex of this graph to every vertex of [[that]], which
     *   `labelled` can relabel. This is the flattening of the edge
@@ -342,6 +361,20 @@ object DirectedGraphBase:
     override private[kneiphof] def shaped[V]
       (index: Index[V], rule: Rule)
       : DirectedGraphBase[V, Unit, M] = wrap(Shape.directed[V, M](index, rule))
+
+    override private[kneiphof] def coned[V]
+      (hub: V, index: Index[V], rule: Rule)
+      : DirectedGraphBase[V, Unit, M] = shaped(index, rule).coneFrom(hub)
+
+    override private[kneiphof] def product[V, W]
+      (
+        left: Index[V],
+        first: Rule,
+        right: Index[W],
+        second: Rule,
+      )
+      : DirectedGraphBase[(V, W), Unit, M] = shaped(left, first)
+      .cartesianProduct(shaped(right, second))
 
   /** @return The kind of directed graphs with multiplicities in [[M]]. */
   def kind[M : Multiplicity]: Kind[M] = Kind[M]()

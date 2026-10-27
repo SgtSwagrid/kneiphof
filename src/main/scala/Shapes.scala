@@ -153,8 +153,11 @@ trait Shapes[+G[+v, +e]]:
     *   The wheel with the hub `0` adjacent to each of the vertices `1 to rim`,
     *   which form a cycle as for [[cycle]]. There must be at least `1` of them.
     */
-  def wheel(rim: Int): G[Int, Unit] =
-    counted(rim + 1)(order => Rule.Wheel(cyclic(order - 1) + 1))
+  def wheel(rim: Int): G[Int, Unit] = coned(
+    0,
+    Index.Vertices(1 to cyclic(rim)),
+    Rule.Cycle(rim),
+  )
 
   /**
     * @return
@@ -162,22 +165,33 @@ trait Shapes[+G[+v, +e]]:
     *   form a cycle in order as for [[cycle]]. There must be at least `1` of
     *   them.
     */
-  def wheel[V](hub: V, rim: V*): G[V, Unit] =
-    listed(hub +: rim)(order => Rule.Wheel(cyclic(order - 1) + 1))
+  def wheel[V](hub: V, rim: V*): G[V, Unit] = coned(
+    hub,
+    apart(hub, rim),
+    Rule.Cycle(cyclic(rim.size)),
+  )
 
   /**
     * @return
     *   The fan with the hub `0` adjacent to each of the vertices `1 to rim`,
     *   which form a path.
     */
-  def fan(rim: Int): G[Int, Unit] = counted(nonNegative(rim) + 1)(Rule.Fan(_))
+  def fan(rim: Int): G[Int, Unit] = coned(
+    0,
+    Index.Vertices(1 to nonNegative(rim)),
+    Rule.Path(rim),
+  )
 
   /**
     * @return
     *   The fan with [[hub]] adjacent to each of the [[rim]] vertices, which
     *   form a path in order.
     */
-  def fan[V](hub: V, rim: V*): G[V, Unit] = listed(hub +: rim)(Rule.Fan(_))
+  def fan[V](hub: V, rim: V*): G[V, Unit] = coned(
+    hub,
+    apart(hub, rim),
+    Rule.Path(rim.size),
+  )
 
   /**
     * @return
@@ -200,6 +214,28 @@ trait Shapes[+G[+v, +e]]:
 
   /** @return The shape whose vertices [[index]] names, linked by [[rule]]. */
   private[kneiphof] def shaped[V](index: Index[V], rule: Rule): G[V, Unit]
+
+  /**
+    * @return
+    *   The cone with apex [[hub]] over the shape [[rule]] makes on the vertices
+    *   [[index]] names (pointing away from [[hub]], for directed graphs).
+    */
+  private[kneiphof] def coned[V](hub: V, index: Index[V], rule: Rule)
+    : G[V, Unit]
+
+  /**
+    * @return
+    *   The Cartesian product of the shapes [[first]] makes on the vertices
+    *   [[left]] names and [[second]] makes on the vertices [[right]] names.
+    */
+  private[kneiphof] def product[V, W]
+    (
+      left: Index[V],
+      first: Rule,
+      right: Index[W],
+      second: Rule,
+    )
+    : G[(V, W), Unit]
 
   /** `true` if and only if this kind of graph is directed. */
   private[kneiphof] def directed: Boolean
@@ -224,9 +260,11 @@ trait Shapes[+G[+v, +e]]:
   private def paired
     (rows: Int, columns: Int)
     (first: Int => Rule, second: Int => Rule)
-    : G[(Int, Int), Unit] = shaped(
-    Index.Pairs(rows, columns),
-    Rule.Cartesian(first(rows), second(columns)),
+    : G[(Int, Int), Unit] = product(
+    Index.Numbers(rows),
+    first(rows),
+    Index.Numbers(columns),
+    second(columns),
   )
 
   /**
@@ -236,6 +274,18 @@ trait Shapes[+G[+v, +e]]:
     */
   private def allPairs(order: Int): Rule =
     if directed then Rule.CompleteDigraph(order) else Rule.Clique(order)
+
+  /**
+    * @return
+    *   The vertices [[rim]], checking that they're distinct, and that [[hub]]
+    *   isn't one of them.
+    */
+  private def apart[V](hub: V, rim: Seq[V]): Index[V] =
+    require(
+      !rim.contains(hub),
+      s"The vertices of a shape must be distinct, but were ${ hub +: rim }.",
+    )
+    Index.Vertices(rim.toIndexedSeq)
 
   /** @return [[count]], checking that it isn't negative. */
   private def nonNegative(count: Int): Int =
@@ -303,27 +353,3 @@ trait Shapes[+G[+v, +e]]:
       s"A tree can't have $branching children per vertex.",
     )
     branching
-
-/**
-  * Constructors for common shapes of unlabelled directed graph, of kind [[G]],
-  * including those which only make sense for directed graphs.
-  */
-trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
-
-  override private[kneiphof] def directed: Boolean = true
-
-  /**
-    * @return
-    *   The transitive tournament on the vertices `0 until order`, with an edge
-    *   from each vertex to every later one.
-    */
-  def transitiveTournament(order: Int): G[Int, Unit] =
-    counted(order)(Rule.Clique(_))
-
-  /**
-    * @return
-    *   The transitive tournament on the given [[vertices]], with an edge from
-    *   each vertex to every later one.
-    */
-  def transitiveTournament[V](vertices: V*): G[V, Unit] =
-    listed(vertices)(Rule.Clique(_))

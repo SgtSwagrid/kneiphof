@@ -2,8 +2,8 @@ package com.alecdorrington
 package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.{
-  Copy, Difference, Explicit, Image, IncidenceStructure, Intersection, Subgraph,
-  Substitution, Sum, Union,
+  CartesianProduct, Copy, Difference, Explicit, Image, IncidenceStructure,
+  Intersection, Subgraph, Substitution, Sum, Union,
 }
 import scala.compiletime.deferred
 
@@ -276,6 +276,16 @@ trait GraphKind[
         vertex => paired(vertex, transform(vertex).structure),
         Some(owner),
       )
+
+  /**
+    * @return
+    *   The Cartesian product of [[first]] and [[second]], on the pairs of their
+    *   vertices.
+    */
+  private[kneiphof] def cartesianProduct[V, W, E]
+    (first: G[V, E], second: G[W, E])
+    : G[(V, W), E] =
+    wrap(CartesianProduct[V, W, E, M, X](first.structure, second.structure))
 
   /**
     * @return

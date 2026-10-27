@@ -137,6 +137,25 @@ trait DirectedHypergraphBase[+V, +E, M]
 
   /**
     * @return
+    *   The Cartesian product `G □ H` of this hypergraph and [[that]], on the
+    *   pairs `(v, w)` of their vertices, with a copy of each edge of this
+    *   hypergraph for each vertex `w` of [[that]], and a copy of each edge of
+    *   [[that]] for each vertex `v` of this hypergraph. Copies keep their
+    *   labels. The copies of two loops which differ only in their end coincide,
+    *   which is one edge, for edge sets. So `path(m) □ path(n)` is a grid.
+    */
+  def cartesianProduct[W, F >: E]
+    (that: DirectedHypergraphBase[W, F, M])
+    : DirectedHypergraphBase[(V, W), F, M] =
+    hypergraphs.cartesianProduct[V, W, F](this, that)
+
+  /** Alias of [[cartesianProduct]]. */
+  infix def □ [W, F >: E]
+    (that: DirectedHypergraphBase[W, F, M])
+    : DirectedHypergraphBase[(V, W), F, M] = cartesianProduct(that)
+
+  /**
+    * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
     *   `()` from every vertex of this hypergraph to every vertex of [[that]],
     *   which `labelled` can relabel. This is the flattening of the edge
