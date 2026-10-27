@@ -49,6 +49,8 @@ private[kneiphof] final class Copy[
 
   override def size: Int = base.size
 
+  override def listable: Boolean = base.listable
+
   override def degree(vertex: Any): Int = untag(vertex).fold(0)(base.degree)
 
   /**

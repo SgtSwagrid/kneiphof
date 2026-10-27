@@ -57,7 +57,7 @@ trait DirectedGraphBase[+V, +E, M]
   private def handle(found: Arc[V, E]): Edge = new DirectedEdgeOps:
     override val value: Arc[V, E] = found
 
-  override def transpose: DirectedGraphBase[V, E, M] = graphs.imaged(structure)(
+  override def transpose: DirectedGraphBase[V, E, M] = graphs.image(structure)(
     identity,
     edge => List(edge.reverse),
     kept = true,
@@ -72,9 +72,9 @@ trait DirectedGraphBase[+V, +E, M]
     */
   def sum[W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedGraphBase[W, F, M] =
-    graphs.sum[W, F](this, embed.embedded(that.structure))
+    graphs.sum[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -90,9 +90,9 @@ trait DirectedGraphBase[+V, +E, M]
     */
   def union[W >: V, F >: E, N]
     (that: DirectedGraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedGraphBase[W, F, M] =
-    graphs.union[W, F](this, embed.embedded(that.structure))
+    graphs.union[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -102,9 +102,9 @@ trait DirectedGraphBase[+V, +E, M]
 
   override def difference[N]
     (that: DirectedHypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedGraphBase[V, E, M] =
-    graphs.difference(this, embed.embedded(that.structure))
+    graphs.difference(this, embedding.embed(that.structure))
 
   override infix def - [N]
     (that: DirectedHypergraphBase[Any, Any, N])
@@ -113,9 +113,9 @@ trait DirectedGraphBase[+V, +E, M]
 
   override def intersection[N]
     (that: DirectedHypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedGraphBase[V, E, M] =
-    graphs.intersection(this, embed.embedded(that.structure))
+    graphs.intersection(this, embedding.embed(that.structure))
 
   override infix def & [N]
     (that: DirectedHypergraphBase[Any, Any, N])
@@ -241,7 +241,7 @@ trait DirectedGraphBase[+V, +E, M]
   /** The undirected graph obtained by forgetting the direction of every edge. */
   override def underlying: GraphBase[V, E, M] = GraphBase
     .kind[M]
-    .imaged(structure)(
+    .image(structure)(
       identity,
       edge => List(kneiphof.Edge(edge.source, edge.target, edge.label)),
       kept = algebra.additive,
@@ -249,7 +249,7 @@ trait DirectedGraphBase[+V, +E, M]
 
   override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
-    : DirectedGraphBase[W, F, M] = graphs.imaged(structure)(
+    : DirectedGraphBase[W, F, M] = graphs.image(structure)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
@@ -261,10 +261,10 @@ trait DirectedGraphBase[+V, +E, M]
     *   present once.
     */
   override def support
-    (using embed: Embedding[M, Boolean])
+    (using embedding: Embedding[M, Boolean])
     : DirectedGraphBase[V, E, Boolean] = DirectedGraphBase
     .kind[Boolean]
-    .wrap(embed.embedded(structure))
+    .wrap(embedding.embed(structure))
 
   /**
     * @return
@@ -360,13 +360,7 @@ object DirectedGraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, Arc[V, E | L]] =
-        incidence.Join[V, E, L, M, Arc](
-          left.structure,
-          right.structure,
-          DirectedEdge(_, _, label),
-          label,
-          directed = true,
-        )
+        kind[M].joined(left.structure, right.structure, label)
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
@@ -395,6 +389,10 @@ object DirectedGraphBase:
     override private[kneiphof] def wrap[V, E]
       (structure: IncidenceStructure[V, M, Arc[V, E]])
       : DirectedGraphBase[V, E, M] = Wrapper(structure)
+
+    override private[kneiphof] def link[V, E]
+      (source: V, target: V, label: E)
+      : Arc[V, E] = DirectedEdge(source, target, label)
 
     override private[kneiphof] def shaped[V]
       (index: Index[V], rule: Rule)

@@ -1,7 +1,7 @@
 package com.alecdorrington.kneiphof
 
 import com.alecdorrington.kneiphof.incidence.{
-  Difference, EdgeInduced, Image, Intersection, Subgraph, Sum, Union,
+  Difference, EdgeInduced, Image, Intersection, Patch, Subgraph, Sum, Union,
 }
 import munit.{FunSuite, Location}
 
@@ -126,7 +126,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     val steps                   = 1 until 10_000
     val start: Graph[Int, Unit] = Graph.path(2)
     val unioned                 =
-      steps.foldLeft(start)((graph, i) => graph | Graph.path(i, i + 1))
+      steps.foldLeft(start)((graph, i) => graph | lazyPath(i, i + 1))
     assertEquals(unioned.size, 10_000)
     assertEquals(unioned.degree(5_000), 2)
     assertEquals(
@@ -137,8 +137,8 @@ class LazySuite extends FunSuite, LazyAssertions:
       case union: Union[?, ?, ?] => assertEquals(union.operands.size, 10_000)
       case structure             => fail(s"$structure isn't one union.")
     val counts: Multigraph[Int, Unit] = Multigraph.path(2)
-    val summed                        =
-      steps.foldLeft(counts)((graph, _) => graph + Multigraph.path(2))
+    val summed                        = steps.foldLeft(counts): (graph, _) =>
+      graph + Multigraph.path(2).mapVertices(identity)
     assertEquals(
       summed.multiplicity(0 ~ 1),
       Count(10_000),
@@ -154,12 +154,13 @@ class LazySuite extends FunSuite, LazyAssertions:
       case intersection: Intersection[?, ?, ?] =>
         assertEquals(intersection.others.size, 9_999)
       case structure => fail(s"$structure isn't one intersection.")
-    val thinned = steps.foldLeft(clique)((graph, _) => graph - Graph.path(3))
+    val thinned =
+      steps.foldLeft(clique)((graph, _) => graph - lazyPath(0, 1, 2))
     assertEquals(thinned.size, 8)
     assert(!thinned.hasEdge(0 ~ 1))
     thinned.structure match
       case difference: Difference[?, ?, ?] =>
-        assertEquals(difference.others.size, 9_999)
+        assertEquals(difference.others.all.size, 9_999)
       case structure => fail(s"$structure isn't one difference.")
     val mapped =
       steps.foldLeft(start)((graph, _) => graph.mapVertices(identity))
@@ -398,14 +399,15 @@ class LazySuite extends FunSuite, LazyAssertions:
     "sums and unions of lazy operands are lazy, and agree with their built graphs",
   ):
     val cycle = Graph.cycle(5)
-    val path  = Graph.path(2, 3, 4, 5)
+    val path  = lazyPath(2, 3, 4, 5)
     assertLazy(cycle + path, 0 ~ 5, 4 ~ 5, 5)
     assertLazy(cycle | path, 0 ~ 5, 1 ~ 3)
     (cycle | path).structure match
       case union: Union[?, ?, ?] => assertEquals(union.operands.size, 2)
       case structure             => fail(s"$structure isn't one union.")
     val counts = Multigraph.cycle(4)
-    val more   = Multigraph.path(0, 1, 2) + Multigraph.path(0, 1)
+    val more   = Multigraph.path(0, 1, 2).mapVertices(identity) +
+      Multigraph.path(0, 1).mapVertices(identity)
     assertLazy(counts | more, 0 ~ 1, 0 ~ 2, 1 ~ 2)
     assertLazy(counts + more, 0 ~ 1, 0 ~ 2, 1 ~ 2)
     assertEquals(
@@ -417,37 +419,117 @@ class LazySuite extends FunSuite, LazyAssertions:
       Count(3),
     )
 
-  test("alternating stored and lazy operands still merge into one structure"):
+  test("alternating few and lazy operands still merge into one structure"):
     val steps                   = 1 until 10_000
     val start: Graph[Int, Unit] = Graph.path(2)
     val unioned                 = steps.foldLeft(start): (graph, i) =>
-      val next = Graph.path(i, i + 1)
-      graph | (if i % 2 == 0 then next.materialise else next)
+      graph | (if i % 2 == 0 then Graph.path(i, i + 1) else lazyPath(i, i + 1))
     assertEquals(unioned.size, 10_000)
     assert(unioned.hasVertex(10_000))
     assertEquals(unioned.degree(5_000), 2)
+    assertEquals(
+      unioned.materialise,
+      Graph.path(10_001),
+    )
     unioned.structure match
-      case union: Union[?, ?, ?] => assertEquals(union.operands.size, 10_000)
-      case structure             => fail(s"$structure isn't one union.")
+      case union: Union[?, ?, ?] =>
+        assertEquals(union.parts.all.size, 5_001)
+        assertEquals(union.gathered.size, 4_999)
+      case structure => fail(s"$structure isn't one union.")
     val clique: Graph[Int, Unit] = Graph.complete(5)
     val thinned                  = steps.foldLeft(clique): (graph, i) =>
-      val next = Graph.path(3)
-      graph - (if i % 2 == 0 then next.materialise else next)
+      graph - (if i % 2 == 0 then Graph.path(3) else lazyPath(0, 1, 2))
     assertEquals(thinned.size, 8)
     assert(thinned.hasVertex(4))
     thinned.structure match
       case difference: Difference[?, ?, ?] =>
-        assertEquals(difference.others.size, 9_999)
+        assertEquals(difference.others.all.size, 5_000)
       case structure => fail(s"$structure isn't one difference.")
+    val counts: Multigraph[Int, Unit] = Multigraph.path(2)
+    val summed                        = steps.foldLeft(counts): (graph, i) =>
+      val next = Multigraph.path(0, 1)
+      graph + (if i % 2 == 0 then next else next.mapVertices(identity))
+    assertEquals(
+      summed.multiplicity(0 ~ 1),
+      Count(10_000),
+    )
+    summed.structure match
+      case sum: Sum[?, ?, ?] =>
+        assertEquals(sum.parts.all.size, 5_001)
+        assertEquals(sum.gathered.size, 4_999)
+      case structure => fail(s"$structure isn't one sum.")
+
+  test("few operands are copied, and others aren't"):
+    val start: Graph[Int, Unit] = Graph.path(2)
+    (start | Graph.path(5, 6)).structure match
+      case _: Patch[?, ?, ?] => ()
+      case structure         => fail(s"$structure didn't patch the few edges.")
     val stored = Graph.complete(100).materialise
     (Graph.vertex(0) + stored).structure match
       case _: Union[?, ?, ?] => ()
       case structure         => fail(s"$structure copied the stored operand.")
+    val vertices = Graph.vertices((0 until 1_000_000)*)
+    (start + vertices).structure match
+      case _: Union[?, ?, ?] => ()
+      case structure         => fail(s"$structure copied the vertices.")
+    val subtrahend = Graph.complete(200).materialise
+    val thinned    = Graph.complete(5) - subtrahend
+    assertEquals(thinned.size, 0)
+    thinned.structure match
+      case _: Difference[?, ?, ?] => ()
+      case structure              => fail(s"$structure copied the subtrahend.")
+
+  test("adding or removing edges one at a time stays cheap"):
+    val union: Graph[Int, Unit] = Graph.path(3) | Graph.complete(100)
+    val grown = (0 until 20_000).foldLeft(union): (graph, i) =>
+      val next = graph | ((i + 1_000) ~ (i + 1_001))
+      assert(next.hasEdge((i + 1_000) ~ (i + 1_001)))
+      next
+    assertEquals(grown.degree(1_000), 1)
+    grown.structure match
+      case union: Union[?, ?, ?] => assertEquals(union.parts.all.size, 2)
+      case structure             => fail(s"$structure isn't one union.")
+    val counts: Multigraph[Int, Unit] = Multigraph.complete(100) +
+      Multigraph.complete(100).mapVertices(identity)
+    val summed = (0 until 20_000).foldLeft(counts): (graph, _) =>
+      val next = graph + (0 ~ 1)
+      assert(next.hasEdge(0 ~ 1))
+      next
+    assertEquals(
+      summed.multiplicity(0 ~ 1),
+      Count(20_002),
+    )
+    val difference: Graph[Int, Unit] = Graph.complete(200) - lazyPath(0, 1, 2)
+    val thinned = (0 until 199).foldLeft(difference): (graph, i) =>
+      val next = graph - (i ~ (i + 1))
+      assert(!next.hasEdge(i ~ (i + 1)))
+      next
+    assertEquals(thinned.size, 199 * 100 - 199)
+    thinned.structure match
+      case difference: Difference[?, ?, ?] =>
+        assertEquals(difference.others.all.size, 1)
+      case structure => fail(s"$structure isn't one difference.")
+
+  test("alternating different operations on few operands stays shallow"):
+    val start: Graph[Int, Unit] = Graph.cycle(3)
+    val mixed = (0 until 10_000).foldLeft(start): (graph, i) =>
+      graph - (0 ~ 1) + Graph.path(i, i + 1)
+    assert(mixed.hasVertex(10_000))
+    assertEquals(mixed.size, 10_000)
+    val grown = (0 until 10_000).foldLeft(start): (graph, i) =>
+      graph.addVertex(-i - 1) | Graph.path(i, i + 1)
+    assert(grown.hasVertex(-10_000))
+    assertEquals(grown.order, 20_001)
 
   test("intersections and differences walk their smaller side"):
     val clique = Graph.complete(50_000)
     val small  = Graph(0 ~ 1)
     assertEquals((small & clique).size, 1)
+    assertEquals((clique & small).size, 1)
+    assertEquals(
+      (small - Graph.complete(20_000).edgeInduced(_ => true)).size,
+      0,
+    )
     assertEquals((small & clique).order, 2)
     assertEquals((clique & small).order, 2)
     assertEquals((small - clique).size, 0)
@@ -582,3 +664,56 @@ class LazySuite extends FunSuite, LazyAssertions:
       graph.edges.map(_.value),
       built.edges.map(_.value),
     )
+
+  /**
+    * @return
+    *   The path through the given [[vertices]], built lazily from a shape, so
+    *   that it's never few enough to copy.
+    */
+  private def lazyPath(vertices: Int*): Graph[Int, Unit] = Graph
+    .path(vertices*)
+    .mapVertices(identity)
+
+  test("of equal vertices, every structure keeps the last, lazily or not"):
+    val first  = Graph.path(1, 2)
+    val second = Graph.path(1L, 3L)
+    Seq[Graph[Any, Any]](
+      first | second,
+      first.mapVertices(identity) | second.mapVertices(identity),
+      first + second.mapVertices(identity),
+      first :~: second,
+      Graph(first ~ second).flatten,
+    ).foreach: graph =>
+      assertEquals(
+        graph.vertex(1).map(_.value.getClass),
+        Some(classOf[java.lang.Long]),
+      )
+      assertEquals(
+        graph.materialise.vertex(1).map(_.value.getClass),
+        Some(classOf[java.lang.Long]),
+      )
+
+  test("joins, substitutions and unions count vertices and degrees cheaply"):
+    val wheel = Graph.wheel(5_000_000)
+    assertEquals(wheel.order, 5_000_001)
+    assertEquals(wheel.degree(1), 3)
+    assertEquals(wheel.degree(0), 5_000_000)
+    assertEquals(
+      (Graph.grid(3_000, 3_000) ⊔ Graph.path(3)).order,
+      9_000_003,
+    )
+    assertEquals(
+      (Graph.grid(3_000, 3_000) | Graph.torus(3_000, 3_000)).degree((0, 0)),
+      4,
+    )
+    assertEquals(
+      (Graph.complete(5_000) | Graph.path((5_000 until 15_000)*)).order,
+      15_000,
+    )
+
+  test("equality compares orders first"):
+    val clique = Graph.complete(50_000)
+    assert(clique == clique)
+    assert(clique != Graph.complete(50_001))
+    assert(Graph.complete(300).materialise != Graph.complete(301))
+    assert(clique != clique.filterVertices(_ != 7))

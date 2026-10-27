@@ -86,7 +86,7 @@ private[kneiphof] final class Explicit[
     *   This structure with [[multiplicity]] added to that of [[edge]], adding
     *   its [[ends]] as vertices.
     */
-  def increased[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
+  def increase[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
     (
       edge: Y,
       ends: Iterable[W],

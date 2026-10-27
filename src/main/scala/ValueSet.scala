@@ -16,10 +16,10 @@ final class ValueSet[+A] private (elements: Map[Any, A]) extends Iterable[A]:
   override def knownSize: Int = elements.size
 
   /** @return `true` if and only if this set contains [[element]]. */
-  def contains(element: Any): Boolean = elements.contains(element)
+  def contains[B : NotHandle](element: B): Boolean = elements.contains(element)
 
   /** @return The element of this set equal to [[element]], if there is one. */
-  def get(element: Any): Option[A] = elements.get(element)
+  def get[B : NotHandle](element: B): Option[A] = elements.get(element)
 
   /** @return This set with [[element]] added. */
   def incl[B >: A](element: B): ValueSet[B] =

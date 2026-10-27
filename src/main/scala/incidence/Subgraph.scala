@@ -59,7 +59,7 @@ private[kneiphof] final class Subgraph[
     *   [[predicate]], and the edges which also satisfy [[edgePredicate]], if
     *   given.
     */
-  def restricted
+  def restrict
     (
       predicate: V => Boolean,
       edgePredicate: Option[X => Boolean],
@@ -131,5 +131,5 @@ private[kneiphof] object Subgraph:
       keepEdge: Option[X => Boolean],
     )
     : Subgraph[V, M, X] = base match
-    case base: Subgraph[V, M, X] => base.restricted(keep, keepEdge)
+    case base: Subgraph[V, M, X] => base.restrict(keep, keepEdge)
     case _                       => Subgraph(base, Seq(keep), keepEdge.toSeq)

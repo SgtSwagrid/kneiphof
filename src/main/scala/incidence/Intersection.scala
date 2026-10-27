@@ -20,7 +20,7 @@ private[kneiphof] final class Intersection[
   extends IncidenceStructure[V, M, X]:
 
   override lazy val vertexValues: ValueSet[V] =
-    val fewest = (base +: others).minBy(_.order)
+    val fewest = (base +: others).minBy(IncidenceStructure.orderHint)
     ValueSet.from:
       fewest
         .vertexValues

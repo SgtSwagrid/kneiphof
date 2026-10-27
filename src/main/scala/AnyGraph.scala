@@ -62,17 +62,20 @@ trait AnyGraph[+V, +E, M]:
   )
 
   /**
-    * Orders and sizes are compared first, since many graphs count them without
-    * listing their vertices and edges.
+    * Orders are compared first, since many graphs count their vertices without
+    * listing them. Sizes aren't, since many graphs count their edges only by
+    * listing them, and a size can be too large to count.
     *
     * @return
     *   `true` if and only if this graph and [[that]] belong to the same family,
     *   and have the same vertices and the same multiplicity for every edge.
     */
-  protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean = directed ==
-    that.directed && algebra == that.algebra && order == that.order &&
-    size == that.size && vertexValues == that.vertexValues &&
-    edgeValues == that.edgeValues
+  protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean =
+    (this eq that) ||
+    directed == that.directed && algebra == that.algebra &&
+    IncidenceStructure.orderHint(structure) ==
+      IncidenceStructure.orderHint(that.structure) &&
+      vertexValues == that.vertexValues && edgeValues == that.edgeValues
 
 /** The companion object for [[AnyGraph]]. */
 object AnyGraph:

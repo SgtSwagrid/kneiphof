@@ -38,6 +38,16 @@ private[kneiphof] final class Substitution[
   override def hasVertex(vertex: Any): Boolean =
     owners(vertex).exists(part(_).hasVertex(vertex))
 
+  override def vertexValue(vertex: Any): Option[W] = owners(vertex)
+    .toSeq
+    .reverseIterator
+    .flatMap(part(_).vertexValue(vertex))
+    .nextOption()
+
+  override def order: Int =
+    if disjoint then IncidenceStructure.total(parts.values.map(_.order))
+    else vertexValues.size
+
   override def multiplicity(edge: Any): M = edge match
     case edge: AnyEdge[?, ?, ?] => within(edge) + between(edge)
     case _                      => M.zero
@@ -59,7 +69,7 @@ private[kneiphof] final class Substitution[
     if !disjoint then
       incidentEdgeValues(vertex).toSeq.map(edge => edge -> multiplicity(edge))
     else
-      IncidenceStructure.combined(
+      IncidenceStructure.combine(
         owners(vertex)
           .iterator
           .flatMap: owner =>
@@ -116,11 +126,14 @@ private[kneiphof] final class Substitution[
     .map(vertex => vertex -> inner(vertex))
     .toMap
 
-  /** The owners of each vertex, if they aren't known from [[owner]]. */
-  private lazy val index: Map[Any, ValueSet[V]] = parts
+  /**
+    * The owners of each vertex, in the order of [[parts]], if they aren't known
+    * from [[owner]].
+    */
+  private lazy val index: Map[Any, Seq[V]] = parts
     .toSeq
     .flatMap((owner, part) => part.vertexValues.map((_: Any) -> owner))
-    .groupMapReduce((vertex, _) => vertex)((_, owner) => ValueSet(owner))(_ | _)
+    .groupMap((vertex, _) => vertex)((_, owner) => owner)
 
   /** `true` if and only if no two replacements share a vertex. */
   private lazy val disjoint: Boolean = owner.isDefined ||
@@ -135,7 +148,7 @@ private[kneiphof] final class Substitution[
     *   The vertices of [[outer]] whose replacements contain [[vertex]].
     */
   private def owners(vertex: Any): Iterable[V] =
-    owner.fold(index.getOrElse(vertex, ValueSet.empty[V]))(_(vertex).toList)
+    owner.fold(index.getOrElse(vertex, Nil))(_(vertex).toList)
 
   /** @return The multiplicity of [[edge]] within single replacements. */
   private def within(edge: AnyEdge[?, ?, ?]): M = commonOwners(edge)
@@ -196,7 +209,7 @@ private[kneiphof] final class Substitution[
           .vertexValues
           .iterator
           .filter(_ != owner)
-          .map(part(_).vertexValues.size.toLong) ++
+          .map(part(_).order.toLong) ++
           Iterator(outer.multiplicity(outerEdge).count.toLong)
 
   /**
@@ -207,7 +220,7 @@ private[kneiphof] final class Substitution[
   private def copies(entry: (X[V, E], M)): Long =
     val (edge, multiplicity) = entry
     IncidenceStructure.product:
-      edge.vertexValues.iterator.map(part(_).vertexValues.size.toLong) ++
+      edge.vertexValues.iterator.map(part(_).order.toLong) ++
         Iterator(multiplicity.count.toLong)
 
   /**

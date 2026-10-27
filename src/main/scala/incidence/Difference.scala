@@ -4,10 +4,11 @@ package incidence
 
 /**
   * The difference of the graph whose incidence structure is [[base]] and the
-  * graphs whose structures are [[others]], with the vertices of [[base]], and
-  * the multiplicity of each edge in each of [[others]] subtracted. Subtracting
-  * one graph after another is subtracting their sum, so a chain of differences
-  * is one difference.
+  * graphs whose structures are [[others]] and [[gathered]], with the vertices
+  * of [[base]], and the multiplicity of each edge in each of the others
+  * subtracted. Subtracting one graph after another is subtracting their sum, so
+  * a chain of differences is one difference, and a few stored edges at a time
+  * are gathered into [[gathered]], keeping [[others]] and their index.
   */
 private[kneiphof] final class Difference[
   +V,
@@ -16,7 +17,8 @@ private[kneiphof] final class Difference[
 ]
   (
     val base: IncidenceStructure[V, M, X],
-    val others: Seq[IncidenceStructure[Any, M, AnyEdge[?, ?, ?]]],
+    val others: Operands[Any, M, AnyEdge[?, ?, ?]],
+    val gathered: Patch[Any, M, AnyEdge[?, ?, ?]],
   )
   extends IncidenceStructure[V, M, X]:
 
@@ -29,11 +31,11 @@ private[kneiphof] final class Difference[
   override def order: Int = base.order
 
   override def multiplicity(edge: Any): M =
-    subtracted(edge, base.multiplicity(edge))
+    subtract(edge, base.multiplicity(edge))
 
   override def incidentEdges(vertex: Any): Iterable[(X, M)] = base
     .incidentEdges(vertex)
-    .map((edge, multiplicity) => edge -> subtracted(edge, multiplicity))
+    .map((edge, multiplicity) => edge -> subtract(edge, multiplicity))
     .filter((_, multiplicity) => multiplicity.nonZero)
 
   override def find(edge: Any): Option[X] = base
@@ -41,49 +43,53 @@ private[kneiphof] final class Difference[
     .filter(multiplicity(_).nonZero)
 
   /**
-    * The number of edges, counted from the edges of [[base]] if there are fewer
-    * of those, and otherwise from those of [[others]], which are the only ones
-    * that can be lost.
+    * The number of edges, counted from the edges of [[base]] if there are no
+    * more of those than of the others, and otherwise from those of the others,
+    * which are the only ones that can be lost.
     */
   override lazy val size: Int =
-    if base.size <= IncidenceStructure.total(others.map(_.size)) then super.size
+    if IncidenceStructure.noLonger(base.edges, subtrahendEdges) then super.size
     else
       Math.addExact(
         base.size,
         IncidenceStructure.changes(
           this,
           base,
-          ValueSet.from(others.iterator.flatMap(_.edges.map((edge, _) => edge))),
+          ValueSet.from(subtrahendEdges),
         ),
       )
 
   /**
     * @return
-    *   [[multiplicity]], less the multiplicities of [[edge]] in each of the
-    *   graphs of [[others]] containing its first end.
+    *   This difference, with its gathered edges replaced by [[gathered]], which
+    *   includes them.
     */
-  private def subtracted(edge: Any, multiplicity: M): M = IncidenceStructure
+  def withGathered
+    (gathered: Patch[Any, M, AnyEdge[?, ?, ?]])
+    : Difference[V, M, X] = Difference(base, others, gathered)
+
+  /** The edges of the graphs subtracted, with repeats. */
+  private def subtrahendEdges: Iterator[Any] = (others.all :+ gathered)
+    .iterator
+    .flatMap(_.edges.map((edge, _) => edge))
+
+  /**
+    * @return
+    *   [[multiplicity]], less the multiplicities of [[edge]] in each of the
+    *   graphs subtracted which contain its first end.
+    */
+  private def subtract(edge: Any, multiplicity: M): M = IncidenceStructure
     .ends(edge)
     .headOption
     .fold(multiplicity): end =>
       ownersOf(end).foldLeft(multiplicity)(_ - _.multiplicity(edge))
 
-  /** @return The graphs of [[others]] containing [[vertex]]. */
+  /** @return The graphs subtracted which contain [[vertex]]. */
   private def ownersOf
     (vertex: Any)
     : Seq[IncidenceStructure[Any, M, AnyEdge[?, ?, ?]]] =
-    indexed.getOrElse(vertex, Nil) ++ large.filter(_.hasVertex(vertex))
-
-  /** The graphs of [[others]] with few enough vertices to index, and the rest. */
-  private lazy val (small, large) =
-    others.partition(_.order <= IncidenceStructure.indexable)
-
-  /** The graphs of [[others]] with few vertices containing each vertex. */
-  private lazy val indexed
-    : Map[
-      Any,
-      Seq[IncidenceStructure[Any, M, AnyEdge[?, ?, ?]]],
-    ] = IncidenceStructure.owners(small)
+    val containing = others.containing(vertex)
+    if gathered.hasVertex(vertex) then containing :+ gathered else containing
 
 /** The companion object for [[Difference]]. */
 private[kneiphof] object Difference:
@@ -100,6 +106,13 @@ private[kneiphof] object Difference:
       other: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
     )
     : Difference[V, M, X] = base match
-    case base: Difference[V, M, X] =>
-      Difference(base.base, base.others :+ other)
-    case _ => Difference(base, Seq(other))
+    case base: Difference[V, M, X] => Difference(
+        base.base,
+        base.others.append(other),
+        base.gathered,
+      )
+    case _ => Difference(
+        base,
+        Operands.of(other),
+        Patch(Explicit.empty[M]),
+      )

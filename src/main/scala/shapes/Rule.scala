@@ -107,7 +107,7 @@ private[kneiphof] object Rule:
     override def arcsFrom(vertex: Int): Iterable[Int] = List(next(vertex))
 
     override def arcsInto(vertex: Int): Iterable[Int] =
-      List((vertex - 1 + order) % order)
+      List(if vertex == 0 then order - 1 else vertex - 1)
 
     override def linked(source: Int, target: Int): Boolean = target ==
       next(source)

@@ -33,7 +33,7 @@ sealed trait Embedding[N, M]:
     *   The incidence structure of [[structure]] with its multiplicities read in
     *   [[M]] by this embedding.
     */
-  private[kneiphof] def embedded[V, X <: AnyEdge[?, ?, ?]]
+  private[kneiphof] def embed[V, X <: AnyEdge[?, ?, ?]]
     (structure: IncidenceStructure[V, N, X])
     (using Multiplicity[M])
     : IncidenceStructure[V, M, X] = Support(structure, apply, exact)
@@ -47,7 +47,7 @@ object Embedding:
     override def apply(multiplicity: M): M = multiplicity
     override def exact: Boolean            = true
 
-    override private[kneiphof] def embedded[V, X <: AnyEdge[?, ?, ?]]
+    override private[kneiphof] def embed[V, X <: AnyEdge[?, ?, ?]]
       (structure: IncidenceStructure[V, M, X])
       (using Multiplicity[M])
       : IncidenceStructure[V, M, X] = structure

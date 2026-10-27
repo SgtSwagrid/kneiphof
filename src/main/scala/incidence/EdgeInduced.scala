@@ -46,7 +46,7 @@ private[kneiphof] final class EdgeInduced[
     * @return
     *   This subgraph, keeping only the edges which also satisfy [[predicate]].
     */
-  def restricted(predicate: X => Boolean): EdgeInduced[V, M, X] =
+  def restrict(predicate: X => Boolean): EdgeInduced[V, M, X] =
     EdgeInduced(base, keeps :+ predicate)
 
   /** @return `true` if and only if [[edge]] satisfies every predicate. */
@@ -67,5 +67,5 @@ private[kneiphof] object EdgeInduced:
       keep: X => Boolean,
     )
     : EdgeInduced[V, M, X] = base match
-    case base: EdgeInduced[V, M, X] => base.restricted(keep)
+    case base: EdgeInduced[V, M, X] => base.restrict(keep)
     case _                          => EdgeInduced(base, Seq(keep))

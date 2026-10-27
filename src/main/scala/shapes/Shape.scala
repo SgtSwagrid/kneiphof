@@ -3,6 +3,7 @@ package kneiphof
 package shapes
 
 import com.alecdorrington.kneiphof.incidence.IncidenceStructure
+import scala.collection.View
 
 /**
   * The incidence structure of a shape: the unlabelled graph whose edges are the
@@ -45,8 +46,20 @@ private[kneiphof] final class Shape[
   override def multiplicity(edge: Any): M = indices(edge).fold(M.zero):
     (first, second) => copies(first, second)
 
-  override def incidentEdges(vertex: Any): Iterable[(X, M)] =
-    incidentEdgeValues(vertex).toSeq.map(edge => edge -> multiplicity(edge))
+  /**
+    * The edges at [[vertex]], listed only as they're needed, so that a search
+    * among them can stop at the first it finds.
+    */
+  override def incidentEdges(vertex: Any): Iterable[(X, M)] = View
+    .fromIteratorProvider: () =>
+      index
+        .index(vertex)
+        .iterator
+        .flatMap: number =>
+          rule.arcsFrom(number).iterator.map(this.edge(number, _)) ++
+            rule.arcsInto(number).iterator.map(this.edge(_, number))
+        .distinct
+        .map(edge => edge -> multiplicity(edge))
 
   override def incidentEdgeValues(vertex: Any): ValueSet[X] = ValueSet.from:
     index
@@ -76,6 +89,8 @@ private[kneiphof] final class Shape[
         .map(target => edge(source, target) -> copies(source, target))
 
   override def size: Int = rule.size - merged
+
+  override def listable: Boolean = true
 
   override def degree(vertex: Any): Int =
     if merged > 0 then super.degree(vertex)

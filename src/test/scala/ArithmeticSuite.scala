@@ -39,3 +39,53 @@ class ArithmeticSuite extends FunSuite:
     intercept[IllegalArgumentException](Graph.petersen(5, 1_073_741_825))
     intercept[ArithmeticException](Graph.star(Int.MaxValue))
     intercept[ArithmeticException](Graph.petersen(1_100_000_000, 2))
+
+  test("equality never counts edges, so it doesn't fail on huge sizes"):
+    val graph = Multigraph.fromMultiplicities(
+      Nil,
+      Seq(
+        (1 ~ 2) -> Count(Int.MaxValue),
+        (2 ~ 3) -> Count(1),
+      ),
+    )
+    val copy = Multigraph.fromMultiplicities(
+      Nil,
+      Seq(
+        (2 ~ 3) -> Count(1),
+        (1 ~ 2) -> Count(Int.MaxValue),
+      ),
+    )
+    intercept[ArithmeticException](graph.size)
+    assertEquals(graph, graph)
+    assertEquals(graph, copy)
+    assert(Set(graph).contains(copy))
+
+  test("choosing how to count never fails"):
+    assertEquals(
+      (Multigraph(0 ~ 1) - Multigraph.path(3).mapVertices(identity) -
+        heavy.mapVertices(identity)).size,
+      0,
+    )
+    assertEquals(
+      (Graph(0 ~ 1) - Graph.complete(70_000)).size,
+      0,
+    )
+    val grid = Graph.grid(100_000, 100_000)
+    intercept[ArithmeticException](grid.order)
+    assertEquals((Graph((0, 0) ~ (0, 1)) & grid).order, 2)
+    assert((grid | Graph.path(3).mapVertices(identity)).hasVertex(0))
+    assert((grid | Graph.path(3)).hasVertex(0))
+
+  test("cycles of more than half an Int of vertices don't wrap"):
+    val cycle = Graph.cycle(2_000_000_000)
+    assertEquals(
+      cycle.incidentEdgeValues(1_500_000_000),
+      ValueSet(
+        1_499_999_999 ~ 1_500_000_000,
+        1_500_000_000 ~ 1_500_000_001,
+      ),
+    )
+    assertEquals(
+      cycle.incidentEdgeValues(0),
+      ValueSet(1_999_999_999 ~ 0, 0 ~ 1),
+    )

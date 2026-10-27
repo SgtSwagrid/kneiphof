@@ -40,7 +40,7 @@ private[kneiphof] final class Image[
       sum + base.multiplicity(original).scale(images(original).count(_ == edge))
 
   override def incidentEdges(vertex: Any): Iterable[(Y, M)] = IncidenceStructure
-    .combined(
+    .combine(
       ValueMap
         .from(preimagesOf(vertex).iterator.flatMap(base.incidentEdges))
         .iterator
@@ -62,7 +62,7 @@ private[kneiphof] final class Image[
     *   This image, with each vertex then mapped by [[nextVertexMap]], and each
     *   edge then replaced by its [[nextEdgeImages]].
     */
-  def composed[U, Z <: AnyEdge[?, ?, ?]]
+  def compose[U, Z <: AnyEdge[?, ?, ?]]
     (
       nextVertexMap: W => U,
       nextEdgeImages: Y => Iterable[Z],
@@ -124,9 +124,8 @@ private[kneiphof] object Image:
       kept: Boolean,
     )
     : IncidenceStructure[W, M, Y] = base match
-    case base: Image[?, V, M, ?, X] =>
-      base.composed(vertexMap, edgeImages, kept)
-    case _ => Image(
+    case base: Image[?, V, M, ?, X] => base.compose(vertexMap, edgeImages, kept)
+    case _                          => Image(
         base,
         vertex => done(vertexMap(vertex)),
         edge => done(edgeImages(edge)),

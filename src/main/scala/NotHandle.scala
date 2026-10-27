@@ -27,3 +27,10 @@ object NotHandle:
 
   /** Every type which isn't a handle can be looked up as a vertex or edge. */
   given [A] => NotGiven[A <:< Handle] => NotHandle[A] = NotHandle()
+
+  /**
+    * The empty type has no values, so it isn't a handle, though it's a subtype
+    * of every type. This lets empty collections and calls through, as in
+    * `Graph.vertices()`.
+    */
+  given nothing: NotHandle[Nothing] = NotHandle()

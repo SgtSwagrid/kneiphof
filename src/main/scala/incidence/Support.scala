@@ -54,6 +54,8 @@ private[kneiphof] final class Support[
 
   override def stored: Boolean = base.stored
 
+  override def listable: Boolean = base.listable
+
 /** The companion object for [[Support]]. */
 private[kneiphof] object Support:
 

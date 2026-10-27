@@ -60,9 +60,9 @@ trait GraphBase[+V, +E, M]
     */
   def sum[W >: V, F >: E, N]
     (that: GraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : GraphBase[W, F, M] =
-    graphs.sum[W, F](this, embed.embedded(that.structure))
+    graphs.sum[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -78,9 +78,9 @@ trait GraphBase[+V, +E, M]
     */
   def union[W >: V, F >: E, N]
     (that: GraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : GraphBase[W, F, M] =
-    graphs.union[W, F](this, embed.embedded(that.structure))
+    graphs.union[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -90,9 +90,9 @@ trait GraphBase[+V, +E, M]
 
   override def difference[N]
     (that: HypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : GraphBase[V, E, M] =
-    graphs.difference(this, embed.embedded(that.structure))
+    graphs.difference(this, embedding.embed(that.structure))
 
   override infix def - [N]
     (that: HypergraphBase[Any, Any, N])
@@ -101,9 +101,9 @@ trait GraphBase[+V, +E, M]
 
   override def intersection[N]
     (that: HypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : GraphBase[V, E, M] =
-    graphs.intersection(this, embed.embedded(that.structure))
+    graphs.intersection(this, embedding.embed(that.structure))
 
   override infix def & [N]
     (that: HypergraphBase[Any, Any, N])
@@ -219,7 +219,7 @@ trait GraphBase[+V, +E, M]
 
   override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
-    : GraphBase[W, F, M] = graphs.imaged(structure)(
+    : GraphBase[W, F, M] = graphs.image(structure)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
@@ -236,7 +236,7 @@ trait GraphBase[+V, +E, M]
     */
   def symmetric: DirectedGraphBase[V, E, M] = DirectedGraphBase
     .kind[M]
-    .imaged(structure)(
+    .image(structure)(
       identity,
       edge =>
         val forward = DirectedEdge(edge.first, edge.second, edge.label)
@@ -251,10 +251,10 @@ trait GraphBase[+V, +E, M]
     *   present once.
     */
   override def support
-    (using embed: Embedding[M, Boolean])
+    (using embedding: Embedding[M, Boolean])
     : GraphBase[V, E, Boolean] = GraphBase
     .kind[Boolean]
-    .wrap(embed.embedded(structure))
+    .wrap(embedding.embed(structure))
 
   /**
     * @return
@@ -345,13 +345,7 @@ object GraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, kneiphof.Edge[V, E | L]] =
-        incidence.Join[V, E, L, M, kneiphof.Edge](
-          left.structure,
-          right.structure,
-          kneiphof.Edge(_, _, label),
-          label,
-          directed = false,
-        )
+        kind[M].joined(left.structure, right.structure, label)
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
@@ -380,6 +374,10 @@ object GraphBase:
     override private[kneiphof] def wrap[V, E]
       (structure: IncidenceStructure[V, M, Edge[V, E]])
       : GraphBase[V, E, M] = Wrapper(structure)
+
+    override private[kneiphof] def link[V, E]
+      (source: V, target: V, label: E)
+      : Edge[V, E] = kneiphof.Edge(source, target, label)
 
     override private[kneiphof] def shaped[V]
       (index: Index[V], rule: Rule)

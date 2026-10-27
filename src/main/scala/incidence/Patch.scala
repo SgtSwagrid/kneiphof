@@ -68,7 +68,9 @@ private[kneiphof] final class Patch[
     IncidenceStructure.changes(this, base, affected),
   )
 
-  override def patched: Patch[V, M, X] = this
+  override def listable: Boolean = base.listable
+
+  override def patch: Patch[V, M, X] = this
 
   /** @return This structure with [[vertex]] added. */
   def withVertex[W >: V](vertex: W): Patch[W, M, X] = new Patch(
@@ -89,7 +91,7 @@ private[kneiphof] final class Patch[
       removed + vertex,
       detached + vertex,
       dropped.foldLeft(overrides)(_.removed(_)),
-      dropped.foldLeft(touching - vertex)(Patch.untouched),
+      dropped.foldLeft(touching - vertex)(Patch.untouch),
     )
 
   /**
@@ -109,7 +111,7 @@ private[kneiphof] final class Patch[
     ends.foldLeft(removed)(_ - _),
     detached,
     overrides.updated(edge, multiplicity),
-    Patch.touched(touching, edge),
+    Patch.touch(touching, edge),
   )
 
   /** @return The original edges at [[vertex]] which this patch left alone. */
@@ -152,7 +154,7 @@ private[kneiphof] object Patch:
   )
 
   /** @return The map [[touching]], with [[edge]] at each of its ends. */
-  private def touched[X]
+  private def touch[X]
     (touching: Map[Any, ValueSet[X]], edge: X)
     : Map[Any, ValueSet[X]] = IncidenceStructure
     .ends(edge)
@@ -163,7 +165,7 @@ private[kneiphof] object Patch:
       )
 
   /** @return The map [[touching]], without [[edge]] at any of its ends. */
-  private def untouched[X]
+  private def untouch[X]
     (
       touching: Map[Any, ValueSet[X]],
       edge: Any,

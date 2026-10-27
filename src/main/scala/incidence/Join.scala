@@ -36,9 +36,13 @@ private[kneiphof] final class Join[
   override def hasVertex(vertex: Any): Boolean = left.hasVertex(vertex) ||
     right.hasVertex(vertex)
 
-  override def vertexValue(vertex: Any): Option[V] = left
+  override def vertexValue(vertex: Any): Option[V] = right
     .vertexValue(vertex)
-    .orElse(right.vertexValue(vertex))
+    .orElse(left.vertexValue(vertex))
+
+  override def order: Int =
+    if disjoint then Math.addExact(left.order, right.order)
+    else vertexValues.size
 
   override def multiplicity(edge: Any): M = left.multiplicity(edge) +
     right.multiplicity(edge) + M.fromInt(links(edge))
@@ -55,29 +59,28 @@ private[kneiphof] final class Join[
     else
       Math.addExact(
         Math.addExact(left.size, right.size),
-        Math.multiplyExact(
-          left.vertexValues.size,
-          right.vertexValues.size,
-        ),
+        Math.multiplyExact(left.order, right.order),
       )
 
   override def degree(vertex: Any): Int =
     if !disjoint then super.degree(vertex)
     else if left.hasVertex(vertex) then
-      Math.addExact(
-        left.degree(vertex),
-        right.vertexValues.size,
-      )
+      Math.addExact(left.degree(vertex), right.order)
     else if right.hasVertex(vertex) then
-      Math.addExact(
-        right.degree(vertex),
-        left.vertexValues.size,
-      )
+      Math.addExact(right.degree(vertex), left.order)
     else 0
 
-  /** `true` if and only if [[left]] and [[right]] share no vertex. */
+  /**
+    * `true` if and only if [[left]] and [[right]] share no vertex, found by
+    * listing the vertices of whichever has fewer.
+    */
   private lazy val disjoint: Boolean =
-    !left.vertexValues.exists(right.hasVertex)
+    val (smaller, larger) =
+      if IncidenceStructure.orderHint(left) <=
+          IncidenceStructure.orderHint(right)
+      then (left, right)
+      else (right, left)
+    !smaller.vertexValues.exists(larger.hasVertex)
 
   /** @return The new edges incident to [[vertex]]. */
   private def linksAt(vertex: Any): Iterable[X[V, E | L]] = left

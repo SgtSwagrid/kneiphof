@@ -149,6 +149,12 @@ class GraphSuite extends FunSuite:
         "DirectedGraph(1 ~> 2).hasVertex(DirectedGraph(1 ~> 2)(1))",
       ),
       compileErrors("(1 ~ 2).occurrences(vertex)"),
+      compileErrors("graph.vertexValues.contains(vertex)"),
+      compileErrors("graph.vertexValues.get(vertex)"),
+      compileErrors("graph.edgeValues.contains(edge)"),
+      compileErrors("graph.edgeValues.get(edge)"),
+      compileErrors("graph.edgeValues.getOrElse(edge, false)"),
+      compileErrors("graph.edgeValues.getKey(edge)"),
     ).foreach(errors =>
       assert(
         errors.contains("is a handle on a vertex or edge"),
@@ -165,6 +171,24 @@ class GraphSuite extends FunSuite:
       graph.removeVertices(graph.vertices.map(_.value)),
       Graph.empty,
     )
+
+  test("empty calls make empty graphs"):
+    val graph = Graph(1 ~ 2)
+    assertEquals(Graph.empty, Graph.vertices())
+    assertEquals(Graph.path(), Graph.empty)
+    assertEquals(Graph.clique(), Graph.empty)
+    assertEquals(
+      DirectedGraph.transitiveTournament(),
+      DirectedGraph.empty,
+    )
+    assertEquals(
+      Graph.fromMultiplicities(Nil, Nil),
+      Graph.empty,
+    )
+    assertEquals(Graph.from(Nil, Nil), Graph.empty)
+    assertEquals(graph.addVertices(Nil), graph)
+    assertEquals(graph.induced(Nil), Graph.empty)
+    assertEquals(graph.removeVertices(Set()), graph)
 
   test("handles can't become vertices"):
     val graph  = Graph(1 ~ 2, 2 ~ 3)
@@ -184,6 +208,14 @@ class GraphSuite extends FunSuite:
       compileErrors("Graph.fromMultiplicities(Seq(vertex), Nil)"),
       compileErrors("Graph.path(vertex, vertex)"),
       compileErrors("DirectedGraph.transitiveTournament(vertex)"),
+      compileErrors("Graph.from(Seq(vertex), Nil)"),
+      compileErrors("Graph.clique(vertex)"),
+      compileErrors("Graph.cycle(vertex)"),
+      compileErrors("Graph.star(vertex)"),
+      compileErrors("Graph.wheel(vertex)"),
+      compileErrors("Graph.fan(vertex)"),
+      compileErrors("Graph.tree(2, vertex)"),
+      compileErrors("(1 ~ 2).substitute(_ => Seq(vertex))"),
       compileErrors("graph.mapVertices(graph(_))"),
       compileErrors("graph.map(graph(_), identity)"),
       compileErrors("(1 ~ 2).mapVertices(graph(_))"),

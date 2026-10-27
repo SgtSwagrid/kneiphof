@@ -34,12 +34,11 @@ trait DirectedHypergraphBase[+V, +E, M]
     hypergraphs.updated[W, F](this, edge, multiplicity)
 
   /** The hypergraph with every edge reversed. */
-  def transpose: DirectedHypergraphBase[V, E, M] =
-    hypergraphs.imaged(structure)(
-      identity,
-      edge => List(edge.reverse),
-      kept = true,
-    )
+  def transpose: DirectedHypergraphBase[V, E, M] = hypergraphs.image(structure)(
+    identity,
+    edge => List(edge.reverse),
+    kept = true,
+  )
 
   /**
     * @return
@@ -50,9 +49,9 @@ trait DirectedHypergraphBase[+V, +E, M]
     */
   def sum[W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedHypergraphBase[W, F, M] =
-    hypergraphs.sum[W, F](this, embed.embedded(that.structure))
+    hypergraphs.sum[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -68,9 +67,9 @@ trait DirectedHypergraphBase[+V, +E, M]
     */
   def union[W >: V, F >: E, N]
     (that: DirectedHypergraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedHypergraphBase[W, F, M] =
-    hypergraphs.union[W, F](this, embed.embedded(that.structure))
+    hypergraphs.union[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -91,9 +90,9 @@ trait DirectedHypergraphBase[+V, +E, M]
     */
   def difference[N]
     (that: DirectedHypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.difference(this, embed.embedded(that.structure))
+    hypergraphs.difference(this, embedding.embed(that.structure))
 
   /** Alias of [[difference]]. */
   infix def - [N]
@@ -113,9 +112,9 @@ trait DirectedHypergraphBase[+V, +E, M]
     */
   def intersection[N]
     (that: DirectedHypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.intersection(this, embed.embedded(that.structure))
+    hypergraphs.intersection(this, embedding.embed(that.structure))
 
   /** Alias of [[intersection]]. */
   infix def & [N]
@@ -258,7 +257,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     */
   def underlying: HypergraphBase[V, E, M] = HypergraphBase
     .kind[M]
-    .imaged(structure)(
+    .image(structure)(
       identity,
       edge => List(Hyperedge.from(edge.tail ++ edge.head, edge.label)),
       kept = algebra.additive,
@@ -266,7 +265,7 @@ trait DirectedHypergraphBase[+V, +E, M]
 
   override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
-    : DirectedHypergraphBase[W, F, M] = hypergraphs.imaged(structure)(
+    : DirectedHypergraphBase[W, F, M] = hypergraphs.image(structure)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
@@ -299,10 +298,10 @@ trait DirectedHypergraphBase[+V, +E, M]
     *   present once.
     */
   def support
-    (using embed: Embedding[M, Boolean])
+    (using embedding: Embedding[M, Boolean])
     : DirectedHypergraphBase[V, E, Boolean] = DirectedHypergraphBase
     .kind[Boolean]
-    .wrap(embed.embedded(structure))
+    .wrap(embedding.embed(structure))
 
   /**
     * @return
@@ -380,29 +379,29 @@ trait DirectedHypergraphBase[+V, +E, M]
       * The number of edges leaving this vertex, counting every copy of each
       * edge, and each time this vertex occurs in its tail.
       */
-    def outDegree: Int = IncidenceStructure.total:
-      incidentEdges(value)
-        .iterator
-        .map((edge, multiplicity) =>
-          Math.multiplyExact(
-            edge.tail.count(_ == value),
-            multiplicity.count,
-          ),
-        )
+    def outDegree: Int = degreeAt(_.tail)
 
     /**
       * The number of edges entering this vertex, counting every copy of each
       * edge, and each time this vertex occurs in its head.
       */
-    def inDegree: Int = IncidenceStructure.total:
-      incidentEdges(value)
-        .iterator
-        .map((edge, multiplicity) =>
-          Math.multiplyExact(
-            edge.head.count(_ == value),
-            multiplicity.count,
-          ),
-        )
+    def inDegree: Int = degreeAt(_.head)
+
+    /**
+      * @return
+      *   The number of edges at this vertex, counting every copy of each edge,
+      *   and each time this vertex occurs among the [[ends]] of the edge.
+      */
+    private def degreeAt(ends: Hyperarc[V, E] => Seq[V]): Int =
+      IncidenceStructure.total:
+        incidentEdges(value)
+          .iterator
+          .map((edge, multiplicity) =>
+            Math.multiplyExact(
+              ends(edge).count(_ == value),
+              multiplicity.count,
+            ),
+          )
 
     /** The values of the edges leaving this vertex. */
     private def outgoing: ValueSet[Hyperarc[V, E]] = incidentEdgeValues(value)
@@ -470,13 +469,7 @@ object DirectedHypergraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, Hyperarc[V, E | L]] =
-        incidence.Join[V, E, L, M, Hyperarc](
-          left.structure,
-          right.structure,
-          DirectedEdge(_, _, label),
-          label,
-          directed = true,
-        )
+        kind[M].joined(left.structure, right.structure, label)
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
@@ -504,6 +497,12 @@ object DirectedHypergraphBase:
     override private[kneiphof] def wrap[V, E]
       (structure: IncidenceStructure[V, M, Hyperarc[V, E]])
       : DirectedHypergraphBase[V, E, M] = Wrapper(structure)
+
+    override private[kneiphof] def link[V, E]
+      (source: V, target: V, label: E)
+      : Hyperarc[V, E] = DirectedEdge(source, target, label)
+
+    override private[kneiphof] def directed: Boolean = true
 
   /** @return The kind of directed hypergraphs with multiplicities in [[M]]. */
   def kind[M : Multiplicity]: Kind[M] = Kind[M]()

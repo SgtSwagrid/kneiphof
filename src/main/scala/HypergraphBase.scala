@@ -42,9 +42,9 @@ trait HypergraphBase[+V, +E, M]
     */
   def sum[W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : HypergraphBase[W, F, M] =
-    hypergraphs.sum[W, F](this, embed.embedded(that.structure))
+    hypergraphs.sum[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[sum]]. */
   infix def + [W >: V, F >: E, N]
@@ -60,9 +60,9 @@ trait HypergraphBase[+V, +E, M]
     */
   def union[W >: V, F >: E, N]
     (that: HypergraphBase[W, F, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : HypergraphBase[W, F, M] =
-    hypergraphs.union[W, F](this, embed.embedded(that.structure))
+    hypergraphs.union[W, F](this, embedding.embed(that.structure))
 
   /** Alias of [[union]]. */
   infix def | [W >: V, F >: E, N]
@@ -83,9 +83,9 @@ trait HypergraphBase[+V, +E, M]
     */
   def difference[N]
     (that: HypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : HypergraphBase[V, E, M] =
-    hypergraphs.difference(this, embed.embedded(that.structure))
+    hypergraphs.difference(this, embedding.embed(that.structure))
 
   /** Alias of [[difference]]. */
   infix def - [N]
@@ -104,9 +104,9 @@ trait HypergraphBase[+V, +E, M]
     */
   def intersection[N]
     (that: HypergraphBase[Any, Any, N])
-    (using embed: Embedding[N, M])
+    (using embedding: Embedding[N, M])
     : HypergraphBase[V, E, M] =
-    hypergraphs.intersection(this, embed.embedded(that.structure))
+    hypergraphs.intersection(this, embedding.embed(that.structure))
 
   /** Alias of [[intersection]]. */
   infix def & [N]
@@ -232,7 +232,7 @@ trait HypergraphBase[+V, +E, M]
 
   override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
-    : HypergraphBase[W, F, M] = hypergraphs.imaged(structure)(
+    : HypergraphBase[W, F, M] = hypergraphs.image(structure)(
     vertexMap,
     edge => List(edge.map(vertexMap, labelMap)),
     kept = algebra.additive,
@@ -265,10 +265,10 @@ trait HypergraphBase[+V, +E, M]
     *   present once.
     */
   def support
-    (using embed: Embedding[M, Boolean])
+    (using embedding: Embedding[M, Boolean])
     : HypergraphBase[V, E, Boolean] = HypergraphBase
     .kind[Boolean]
-    .wrap(embed.embedded(structure))
+    .wrap(embedding.embed(structure))
 
   /**
     * @return
@@ -366,13 +366,7 @@ object HypergraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, Hyperedge[V, E | L]] =
-        incidence.Join[V, E, L, M, Hyperedge](
-          left.structure,
-          right.structure,
-          kneiphof.Edge(_, _, label),
-          label,
-          directed = false,
-        )
+        kind[M].joined(left.structure, right.structure, label)
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
@@ -400,6 +394,12 @@ object HypergraphBase:
     override private[kneiphof] def wrap[V, E]
       (structure: IncidenceStructure[V, M, Hyperedge[V, E]])
       : HypergraphBase[V, E, M] = Wrapper(structure)
+
+    override private[kneiphof] def link[V, E]
+      (source: V, target: V, label: E)
+      : Hyperedge[V, E] = kneiphof.Edge(source, target, label)
+
+    override private[kneiphof] def directed: Boolean = false
 
   /** @return The kind of hypergraphs with multiplicities in [[M]]. */
   def kind[M : Multiplicity]: Kind[M] = Kind[M]()

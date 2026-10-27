@@ -3,7 +3,8 @@ package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.{
   CartesianProduct, Copy, Difference, EdgeInduced, Explicit, Image,
-  IncidenceStructure, Intersection, Subgraph, Substitution, Sum, Union,
+  IncidenceStructure, Intersection, Join, Patch, Subgraph, Substitution, Sum,
+  Union,
 }
 import scala.compiletime.deferred
 
@@ -27,6 +28,35 @@ trait GraphKind[
   /** The algebra of edge multiplicities. */
   protected given algebra: Multiplicity[M] = deferred
 
+  /** `true` if and only if the edges of this kind are directed. */
+  private[kneiphof] def directed: Boolean
+
+  /**
+    * @return
+    *   The edge of this kind from [[source]] to [[target]], labelled [[label]],
+    *   as a join adds.
+    */
+  private[kneiphof] def link[V, E](source: V, target: V, label: E): X[V, E]
+
+  /**
+    * @return
+    *   The join of the graphs whose incidence structures are [[left]] and
+    *   [[right]], whose new edges are labelled [[label]].
+    */
+  private[kneiphof] def joined[V, E, L]
+    (
+      left: IncidenceStructure[V, M, X[V, E]],
+      right: IncidenceStructure[V, M, X[V, E]],
+      label: L,
+    )
+    : IncidenceStructure[V, M, X[V, E | L]] = Join[V, E, L, M, X](
+    left,
+    right,
+    link(_, _, label),
+    label,
+    directed,
+  )
+
   /**
     * @return
     *   The graph of this kind whose incidence structure is [[structure]].
@@ -34,8 +64,8 @@ trait GraphKind[
   private[kneiphof] def wrap[V, E](structure: IncidenceStructure[V, M, X[V, E]])
     : G[V, E]
 
-  /** The empty graph of this kind. */
-  def empty: G[Nothing, Nothing] = wrap(Explicit.empty)
+  /** Alias of [[vertices]] with no vertices: the empty graph of this kind. */
+  def empty: G[Nothing, Nothing] = vertices()
 
   /**
     * @return
@@ -45,7 +75,7 @@ trait GraphKind[
     */
   def apply[V, E](parts: C[V, E]*): G[V, E] = wrap:
     parts.foldLeft(Explicit.empty[M]: Explicit[V, M, X[V, E]]): (sum, part) =>
-      increased(
+      increase(
         sum.withVertices(part.vertexValues),
         part
           .edgeValues
@@ -92,7 +122,7 @@ trait GraphKind[
       edges: Iterable[(X[V, E], M)],
     )
     : G[V, E] = wrap:
-    increased(
+    increase(
       Explicit.empty[M].withVertices(vertices),
       edges,
     )
@@ -111,7 +141,7 @@ trait GraphKind[
     : G[V, E] = wrap:
     graph
       .structure
-      .patched
+      .patch
       .withEdge(
         edge,
         if multiplicity.isZero then Nil else edge.vertexValues,
@@ -120,14 +150,14 @@ trait GraphKind[
 
   /** @return The graph [[graph]], with [[vertex]] added. */
   private[kneiphof] def withVertex[V, E](graph: G[V, E], vertex: V): G[V, E] =
-    wrap(graph.structure.patched.withVertex(vertex))
+    wrap(graph.structure.patch.withVertex(vertex))
 
   /** @return The graph [[graph]], without [[vertex]] and its incident edges. */
   private[kneiphof] def withoutVertex[V, E]
     (graph: G[V, E], vertex: Any)
     : G[V, E] =
     if !graph.hasVertex(vertex) then graph
-    else wrap(graph.structure.patched.withoutVertex(vertex))
+    else wrap(graph.structure.patch.withoutVertex(vertex))
 
   /**
     * @return
@@ -140,7 +170,7 @@ trait GraphKind[
     .structure
     .find(edge)
     .fold(graph)(found =>
-      wrap(graph.structure.patched.withEdge(found, Nil, multiplicity)),
+      wrap(graph.structure.patch.withEdge(found, Nil, multiplicity)),
     )
 
   /** @return The graph [[graph]], with every edge stored. */
@@ -159,13 +189,12 @@ trait GraphKind[
     )
     : G[V, E] =
     if !algebra.additive then union(first, second)
+    else if !GraphKind.few(second) then wrap(Sum.of(first.structure, second))
     else
-      overlaid(
-        first,
-        second,
-        _.isInstanceOf[Sum[?, ?, ?]],
-      )(_ + _):
-        Sum.of(first.structure, second)
+      first.structure match
+        case sum: Sum[V, M, X[V, E]] =>
+          wrap(sum.withGathered(add(sum.gathered, second)(_ + _)))
+        case structure => wrap(add(structure.patch, second)(_ + _))
 
   /**
     * @return
@@ -177,12 +206,13 @@ trait GraphKind[
       first: G[V, E],
       second: IncidenceStructure[V, M, X[V, E]],
     )
-    : G[V, E] = overlaid(
-    first,
-    second,
-    _.isInstanceOf[Union[?, ?, ?]],
-  )(_ | _):
-    Union.of(first.structure, second)
+    : G[V, E] =
+    if !GraphKind.few(second) then wrap(Union.of(first.structure, second))
+    else
+      first.structure match
+        case union: Union[V, M, X[V, E]] =>
+          wrap(union.withGathered(add(union.gathered, second)(_ | _)))
+        case structure => wrap(add(structure.patch, second)(_ | _))
 
   /**
     * @return
@@ -199,10 +229,10 @@ trait GraphKind[
   /**
     * @return
     *   The difference of [[graph]] and the graph whose incidence structure is
-    *   [[other]]. If [[other]] is a few stored edges, and [[graph]] isn't
-    *   already a difference, they're subtracted from a patch of [[graph]], so
-    *   that removing edges one at a time stays cheap. Otherwise, the result is
-    *   one difference, which a chain of differences extends.
+    *   [[other]]. A few listable edges are gathered into a difference [[graph]]
+    *   already is, or else subtracted from a patch of it, so that removing
+    *   edges one at a time stays cheap. Otherwise, the result is one
+    *   difference, which a chain of differences extends.
     */
   private[kneiphof] def difference[V, E]
     (
@@ -210,22 +240,12 @@ trait GraphKind[
       other: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
     )
     : G[V, E] =
-    if graph.structure.isInstanceOf[Difference[?, ?, ?]] || !few(other) then
-      wrap(Difference.of(graph.structure, other))
+    if !GraphKind.few(other) then wrap(Difference.of(graph.structure, other))
     else
-      wrap:
-        other
-          .edges
-          .foldLeft(graph.structure.patched):
-            case (patch, (edge, multiplicity)) => patch
-                .find(edge)
-                .fold(patch)(found =>
-                  patch.withEdge(
-                    found,
-                    Nil,
-                    patch.multiplicity(found) - multiplicity,
-                  ),
-                )
+      graph.structure match
+        case difference: Difference[V, M, X[V, E]] =>
+          wrap(difference.withGathered(add(difference.gathered, other)(_ + _)))
+        case structure => wrap(subtract(structure.patch, other))
 
   /**
     * @return
@@ -259,7 +279,7 @@ trait GraphKind[
     *   `true` if and only if every copy of each edge has exactly one image, and
     *   the multiplicities of equal images add their counts.
     */
-  private[kneiphof] def imaged[V, Y <: AnyEdge[?, ?, ?], W, F]
+  private[kneiphof] def image[V, Y <: AnyEdge[?, ?, ?], W, F]
     (structure: IncidenceStructure[V, M, Y])
     (
       vertexMap: V => W,
@@ -297,7 +317,7 @@ trait GraphKind[
     wrap:
       Substitution[V, (V, W), E, M, X](
         graph.structure,
-        vertex => paired(vertex, transform(vertex).structure),
+        vertex => pair(vertex, transform(vertex).structure),
         Some(owner),
       )
 
@@ -322,12 +342,12 @@ trait GraphKind[
     Substitution[Boolean, Either[V, W], E, M, X](
       Explicit.empty[M].withVertices(Seq(false, true)),
       Map(
-        false -> tagged[V, Either[V, W], E](
+        false -> tag[V, Either[V, W], E](
           first.structure,
           Left(_),
           { case Left(v) => v },
         ),
-        true -> tagged[W, Either[V, W], E](
+        true -> tag[W, Either[V, W], E](
           second.structure,
           Right(_),
           { case Right(w) => w },
@@ -338,55 +358,56 @@ trait GraphKind[
 
   /**
     * @return
-    *   The sum or union of [[first]] and the graph whose incidence structure is
-    *   [[second]], whose multiplicities are combined by [[combine]]. If
-    *   [[second]] is a few stored edges, and [[first]] isn't already such an
-    *   overlay, as [[merges]] tells, they're added to a patch of [[first]], so
-    *   that adding edges one at a time stays cheap. Otherwise, the result is
-    *   [[overlay]], which a chain of overlays extends.
+    *   [[patch]], with the vertices and edges of [[few]] added, combining the
+    *   multiplicities of each edge by [[combine]].
     */
-  private def overlaid[V, E]
+  private def add[V, Y <: AnyEdge[V, ?, ?]]
     (
-      first: G[V, E],
-      second: IncidenceStructure[V, M, X[V, E]],
-      merges: IncidenceStructure[V, M, X[V, E]] => Boolean,
+      patch: Patch[V, M, Y],
+      few: IncidenceStructure[V, M, Y],
     )
     (combine: (M, M) => M)
-    (overlay: => IncidenceStructure[V, M, X[V, E]])
-    : G[V, E] =
-    if merges(first.structure) || !few(second) then wrap(overlay)
-    else
-      val extended = second
-        .vertexValues
-        .foldLeft(first.structure.patched)(_.withVertex(_))
-      wrap:
-        second
-          .edges
-          .foldLeft(extended):
-            case (patch, (edge, multiplicity)) => patch.withEdge(
-                edge,
-                edge.vertexValues,
-                combine(patch.multiplicity(edge), multiplicity),
-              )
+    : Patch[V, M, Y] = few
+    .edges
+    .foldLeft(few.vertexValues.foldLeft(patch)(_.withVertex(_))):
+      case (patch, (edge, multiplicity)) => patch.withEdge(
+          edge,
+          edge.vertexValues,
+          combine(patch.multiplicity(edge), multiplicity),
+        )
 
   /**
     * @return
-    *   `true` if and only if [[structure]] is stored, with only a few edges,
-    *   found without counting all of them.
+    *   [[patch]], with the multiplicity of each edge of [[few]] subtracted.
     */
-  private def few(structure: IncidenceStructure[?, M, ?]): Boolean =
-    structure.stored && structure.edges.drop(GraphKind.patchable).isEmpty
+  private def subtract[V, Y <: AnyEdge[?, ?, ?]]
+    (
+      patch: Patch[V, M, Y],
+      few: IncidenceStructure[Any, M, AnyEdge[?, ?, ?]],
+    )
+    : Patch[V, M, Y] = few
+    .edges
+    .foldLeft(patch):
+      case (patch, (edge, multiplicity)) => patch
+          .find(edge)
+          .fold(patch)(found =>
+            patch.withEdge(
+              found,
+              Nil,
+              patch.multiplicity(found) - multiplicity,
+            ),
+          )
 
   /**
     * @return
     *   The structure of [[part]], with each vertex tagged by [[vertex]].
     */
-  private def paired[V, W, E]
+  private def pair[V, W, E]
     (
       vertex: V,
       part: IncidenceStructure[W, M, X[W, E]],
     )
-    : IncidenceStructure[(V, W), M, X[(V, W), E]] = tagged(
+    : IncidenceStructure[(V, W), M, X[(V, W), E]] = tag(
     part,
     (vertex, _),
     { case (`vertex`, value) => value },
@@ -395,18 +416,18 @@ trait GraphKind[
   /**
     * @return
     *   The copy of the graph whose incidence structure is [[structure]], with
-    *   each vertex tagged by [[tag]], where [[untag]] gives the value tagged as
-    *   a vertex.
+    *   each vertex tagged by [[tagOf]], where [[untag]] gives the value tagged
+    *   as a vertex.
     */
-  private def tagged[V, T, E]
+  private def tag[V, T, E]
     (
       structure: IncidenceStructure[V, M, X[V, E]],
-      tag: V => T,
+      tagOf: V => T,
       untag: PartialFunction[Any, Any],
     )
     : IncidenceStructure[T, M, X[T, E]] = Copy[V, T, E, M, X](
     structure,
-    tag,
+    tagOf,
     vertex => untag.lift(vertex).flatMap(structure.vertexValue),
   )
 
@@ -415,23 +436,37 @@ trait GraphKind[
     *   The structure [[explicit]], with each of [[edges]] added, summing
     *   multiplicities.
     */
-  private def increased[V, E]
+  private def increase[V, E]
     (
       explicit: Explicit[V, M, X[V, E]],
       edges: Iterable[(X[V, E], M)],
     )
     : Explicit[V, M, X[V, E]] = edges.foldLeft(explicit):
     case (explicit, (edge, multiplicity)) =>
-      explicit.increased(edge, edge.vertexValues, multiplicity)
+      explicit.increase(edge, edge.vertexValues, multiplicity)
 
 /** The companion object for [[GraphKind]]. */
 private[kneiphof] object GraphKind:
 
   /**
-    * The most edges a stored operand can have for its edges to be added to a
-    * patch, rather than kept as an operand.
+    * The most vertices and edges an operand can have for them to be copied into
+    * a patch or an overlay's gathered edges, rather than kept as an operand.
     */
   val patchable: Int = 64
+
+  /**
+    * A few listable vertices and edges are cheap to copy, so they're added to a
+    * patch or gathered into an overlay rather than kept as an operand.
+    *
+    * @return
+    *   `true` if and only if [[structure]] is listable, with at most
+    *   [[patchable]] vertices and edges, found without counting all of its
+    *   edges.
+    */
+  private def few(structure: IncidenceStructure[?, ?, ?]): Boolean =
+    structure.listable &&
+    IncidenceStructure.orderHint(structure) <= patchable &&
+    structure.edges.drop(patchable).isEmpty
 
   /**
     * @return

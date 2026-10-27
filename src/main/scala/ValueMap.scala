@@ -24,17 +24,21 @@ final class ValueMap[+K, +A] private (entries: Map[Any, (K, A)])
   def values: Iterable[A] = entries.values.map((_, value) => value)
 
   /** @return `true` if and only if this map contains [[key]]. */
-  def contains(key: Any): Boolean = entries.contains(key)
+  def contains[L : NotHandle](key: L): Boolean = entries.contains(key)
 
   /** @return The value for [[key]], if there is one. */
-  def get(key: Any): Option[A] = entries.get(key).map((_, value) => value)
+  def get[L : NotHandle](key: L): Option[A] = entries
+    .get(key)
+    .map((_, value) => value)
 
   /** @return The value for [[key]], or [[default]] if there isn't one. */
-  def getOrElse[B >: A](key: Any, default: => B): B =
-    get(key).getOrElse(default)
+  def getOrElse[L : NotHandle, B >: A](key: L, default: => B): B = get(key)
+    .getOrElse(default)
 
   /** @return The key of this map equal to [[key]], if there is one. */
-  def getKey(key: Any): Option[K] = entries.get(key).map((key, _) => key)
+  def getKey[L : NotHandle](key: L): Option[K] = entries
+    .get(key)
+    .map((key, _) => key)
 
   /** @return This map with [[key]] mapped to [[value]]. */
   def updated[L >: K, B >: A](key: L, value: B): ValueMap[L, B] =

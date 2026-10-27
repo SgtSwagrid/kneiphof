@@ -19,7 +19,7 @@ private[kneiphof] trait SingleEdge[
   override private[kneiphof] lazy val structure
     : IncidenceStructure[V, Count, X[V, E]] = Explicit
     .empty[Count]
-    .increased(this, vertexValues, Count(1))
+    .increase(this, vertexValues, Count(1))
 
   override lazy val edgeValues: ValueMap[X[V, E], Count] = ValueMap
     .empty

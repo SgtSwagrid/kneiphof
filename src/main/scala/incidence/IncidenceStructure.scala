@@ -95,8 +95,15 @@ private[kneiphof] trait IncidenceStructure[+V, M, +X <: AnyEdge[?, ?, ?]]:
   /** `true` if and only if every edge is stored, rather than computed. */
   def stored: Boolean = false
 
+  /**
+    * `true` if and only if the vertices and edges can be listed in time
+    * proportional to their number, as for stored graphs and shapes, so that a
+    * few of them can be copied cheaply.
+    */
+  def listable: Boolean = stored
+
   /** This structure as a patch, to which single changes can be made. */
-  def patched: Patch[V, M, X] = Patch(this)
+  def patch: Patch[V, M, X] = Patch(this)
 
   /** This structure with every edge stored. */
   def explicit: Explicit[V, M, X] = Explicit.from(this)
@@ -134,19 +141,30 @@ private[kneiphof] object IncidenceStructure:
     case _                      => ValueSet.empty
 
   /**
+    * An order too large to count is at least [[Int.MaxValue]], so this never
+    * fails, and can choose between ways of answering a query.
+    *
     * @return
-    *   The [[structures]] containing each vertex, so that a query about a
-    *   vertex only looks at those.
+    *   The number of vertices of [[structure]], or [[Int.MaxValue]] if there
+    *   are too many to count.
     */
-  def owners[S <: IncidenceStructure[?, ?, ?]]
-    (structures: Seq[S])
-    : Map[Any, Seq[S]] = structures
-    .iterator
-    .flatMap(structure =>
-      structure.vertexValues.iterator.map(vertex => (vertex: Any) -> structure),
+  def orderHint(structure: IncidenceStructure[?, ?, ?]): Int =
+    try structure.order
+    catch case _: ArithmeticException => Int.MaxValue
+
+  /**
+    * @return
+    *   `true` if and only if [[first]] has at most as many elements as
+    *   [[second]], found by taking from both until one runs out.
+    */
+  def noLonger
+    (
+      first: Iterator[Any],
+      second: Iterator[Any],
     )
-    .toSeq
-    .groupMap((vertex, _) => vertex)((_, structure) => structure)
+    : Boolean =
+    first.zip(second).foreach(_ => ())
+    !first.hasNext
 
   /**
     * The most vertices a structure can have for an operation to index its
@@ -159,7 +177,7 @@ private[kneiphof] object IncidenceStructure:
     *   The given [[edges]], each with its multiplicity, combining the
     *   multiplicities of equal edges by [[combine]].
     */
-  def combined[X, M]
+  def combine[X, M]
     (edges: IterableOnce[(X, M)])
     (combine: (M, M) => M)
     : ValueMap[X, M] = edges

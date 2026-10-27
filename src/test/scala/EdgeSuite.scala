@@ -66,10 +66,12 @@ class EdgeSuite extends FunSuite:
         errors,
       ),
     )
-    assertEquals(
-      Graph(1 ~ 2, 2 ~ 3) & Hypergraph(Hyperedge(1, 2)),
-      Graph(1 ~ 2),
-    )
+    val met: Graph[Int, Unit] = Graph(1 ~ 2, 2 ~ 3) &
+      Hypergraph(Hyperedge(1, 2))
+    assertEquals(met, Graph(1 ~ 2))
+    val thinned: DirectedGraph[Int, Unit] = DirectedGraph(1 ~> 2) -
+      DirectedHypergraph(DirectedHyperedge(Seq(1), Seq(2)))
+    assertEquals(thinned, DirectedGraph.vertices(1, 2))
     assertEquals(
       Graph(1 ~ 2, 2 ~ 3) - Hypergraph(Hyperedge(1, 2)),
       Graph(2 ~ 3).addVertex(1),
