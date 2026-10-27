@@ -84,7 +84,11 @@ trait GraphBase[+V, +E, M]
     * @return
     *   The graph in which each vertex `v` is replaced by the graph
     *   `transform(v)`, and each edge by its copies between the replacements of
-    *   its ends. Equal vertices of different replacements merge.
+    *   its ends. Equal vertices of different replacements merge. Each end is
+    *   replaced independently, even where a vertex repeats, so a loop at `v`
+    *   becomes a copy for every ordered pair of vertices of `transform(v)`: a
+    *   loop at each, and two copies of the edge between every two (one, for
+    *   edge sets).
     */
   @targetName("flatMapGraphVertices")
   def flatMapVertices[W, F >: E]
@@ -94,7 +98,7 @@ trait GraphBase[+V, +E, M]
   /**
     * @return
     *   The graph obtained by replacing each vertex with the graph it holds (see
-    *   [[flatMapVertices]]).
+    *   [[flatMapVertices]], including how loops are replaced).
     */
   @targetName("flattenGraph")
   def flatten[W, F >: E]
