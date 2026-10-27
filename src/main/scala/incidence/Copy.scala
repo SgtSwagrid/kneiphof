@@ -27,6 +27,12 @@ private[kneiphof] final class Copy[
   override def hasVertex(vertex: Any): Boolean =
     untag(vertex).exists(base.hasVertex)
 
+  override def vertexValue(vertex: Any): Option[T] = untag(vertex)
+    .filter(base.hasVertex)
+    .map(tag)
+
+  override def order: Int = base.order
+
   override def multiplicity(edge: Any): M = edge match
     case edge: AnyEdge[?, ?, ?] => base.multiplicity(edge.mapVertices(original))
     case _                      => M.zero

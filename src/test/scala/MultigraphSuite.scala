@@ -51,6 +51,13 @@ class MultigraphSuite extends FunSuite:
     )
     assert(compileErrors("Multigraph(1 ~ 2).counted").nonEmpty)
     assert(compileErrors("Multigraph(1 ~ 2) & Graph(1 ~ 2)").nonEmpty)
+    val ownEmbedding = compileErrors(
+      "new Embedding[Boolean, Count] { def apply(present: Boolean) = Count(1); def exact = true }",
+    )
+    assert(
+      ownEmbedding.contains("sealed"),
+      ownEmbedding,
+    )
 
   test("difference removes copies, stopping at zero"):
     val graph = Multigraph(1 ~ 2, 1 ~ 2)

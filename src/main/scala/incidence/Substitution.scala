@@ -6,7 +6,7 @@ package incidence
   * The graph in which each vertex `v` of the graph whose incidence structure is
   * [[outer]] is replaced by the graph whose structure is `inner(v)`, and each
   * edge by its copies between the replacements of its ends (see
-  * `flatMapVertices`), answered without building the copies.
+  * [[HypergraphBase.flatMapVertices]]), answered without building the copies.
   *
   * Each query only looks at the replacements containing the vertices it asks
   * about (their owners), and at the edges of [[outer]] incident to those
@@ -59,21 +59,18 @@ private[kneiphof] final class Substitution[
     if !disjoint then
       incidentEdgeValues(vertex).toSeq.map(edge => edge -> multiplicity(edge))
     else
-      owners(vertex)
-        .iterator
-        .flatMap: owner =>
-          part(owner).incidentEdges(vertex).iterator ++
-            outer
-              .incidentEdges(owner)
-              .iterator
-              .flatMap((edge, multiplicity) =>
-                copiesAt(edge, vertex).map(_ -> multiplicity),
-              )
-        .foldLeft(ValueMap.empty[X[W, E], M]):
-          case (sums, (edge, multiplicity)) => sums.updated(
-              edge,
-              sums.getOrElse(edge, M.zero) + multiplicity,
-            )
+      IncidenceStructure.combined(
+        owners(vertex)
+          .iterator
+          .flatMap: owner =>
+            part(owner).incidentEdges(vertex).iterator ++
+              outer
+                .incidentEdges(owner)
+                .iterator
+                .flatMap((edge, multiplicity) =>
+                  copiesAt(edge, vertex).map(_ -> multiplicity),
+                ),
+      )(_ + _)
 
   /**
     * The number of edges, which can be counted from [[outer]] when the
@@ -108,8 +105,9 @@ private[kneiphof] final class Substitution[
           val outerEdges = outer.incidentEdgeValues(owner)
           if !outerEdges.forall(simple) then super.degree(vertex)
           else
-            part(owner).degree(vertex) +
-              outerEdges.toSeq.map(copiesThrough(_, owner)).sum
+            IncidenceStructure.total:
+              Iterator(part(owner).degree(vertex)) ++
+                outerEdges.iterator.map(copiesThrough(_, owner))
         case _ => super.degree(vertex)
 
   /** The replacement of each vertex of [[outer]]. */
@@ -122,7 +120,7 @@ private[kneiphof] final class Substitution[
   private lazy val index: Map[Any, ValueSet[V]] = parts
     .toSeq
     .flatMap((owner, part) => part.vertexValues.map((_: Any) -> owner))
-    .groupMapReduce(_(0))(entry => ValueSet(entry(1)))(_ | _)
+    .groupMapReduce((vertex, _) => vertex)((_, owner) => ValueSet(owner))(_ | _)
 
   /** `true` if and only if no two replacements share a vertex. */
   private lazy val disjoint: Boolean = owner.isDefined ||
@@ -191,23 +189,26 @@ private[kneiphof] final class Substitution[
     *   The number of copies of the simple [[outerEdge]] at a vertex of the
     *   replacement of its end [[owner]], counting every copy of each.
     */
-  private def copiesThrough(outerEdge: X[V, E], owner: V): Int = outerEdge
-    .vertexValues
-    .filter(_ != owner)
-    .toSeq
-    .map(part(_).vertexValues.size)
-    .product * outer.multiplicity(outerEdge).count
+  private def copiesThrough(outerEdge: X[V, E], owner: V): Int = Math
+    .toIntExact:
+      IncidenceStructure.product:
+        outerEdge
+          .vertexValues
+          .iterator
+          .filter(_ != owner)
+          .map(part(_).vertexValues.size.toLong) ++
+          Iterator(outer.multiplicity(outerEdge).count.toLong)
 
   /**
     * @return
     *   The number of copies of the outer edge in [[entry]] with its
     *   multiplicity, counting every copy of each.
     */
-  private def copies(entry: (X[V, E], M)): Long = entry(0)
-    .vertexValues
-    .toSeq
-    .map(part(_).vertexValues.size.toLong)
-    .product * entry(1).count
+  private def copies(entry: (X[V, E], M)): Long =
+    val (edge, multiplicity) = entry
+    IncidenceStructure.product:
+      edge.vertexValues.iterator.map(part(_).vertexValues.size.toLong) ++
+        Iterator(multiplicity.count.toLong)
 
   /**
     * @return

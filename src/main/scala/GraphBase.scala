@@ -37,11 +37,19 @@ trait GraphBase[+V, +E, M]
     case edge: kneiphof.Edge[W, F] => updated(edge, multiplicity)
     case _                         => toHypergraph.updated(edge, multiplicity)
 
-  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map(
-    found =>
-      new EdgeOps:
-        override val value: kneiphof.Edge[V, E] = found,
-  )
+  override def edge[A : NotHandle](value: A): Option[Edge] =
+    found(value).map(handle)
+
+  override private[kneiphof] def edgesAt(vertex: Any): Iterable[Edge] =
+    incidentEdgeValues(vertex).map(handle)
+
+  override private[kneiphof] def allEdges: Iterable[Edge] = edgeValues
+    .keys
+    .map(handle)
+
+  /** @return The handle on [[found]], an edge of this graph. */
+  private def handle(found: kneiphof.Edge[V, E]): Edge = new EdgeOps:
+    override val value: kneiphof.Edge[V, E] = found
 
   /**
     * @return
@@ -79,6 +87,28 @@ trait GraphBase[+V, +E, M]
     (that: GraphBase[W, F, N])
     (using Embedding[N, M])
     : GraphBase[W, F, M] = union(that)
+
+  override def difference[N]
+    (that: HypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : GraphBase[V, E, M] =
+    graphs.difference(this, embed.embedded(that.structure))
+
+  override infix def - [N]
+    (that: HypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : GraphBase[V, E, M] = difference(that)
+
+  override def intersection[N]
+    (that: HypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : GraphBase[V, E, M] =
+    graphs.intersection(this, embed.embedded(that.structure))
+
+  override infix def & [N]
+    (that: HypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : GraphBase[V, E, M] = intersection(that)
 
   /**
     * @return
@@ -159,11 +189,11 @@ trait GraphBase[+V, +E, M]
     * @return
     *   The join of this graph and [[that]], with an extra edge labelled `()`
     *   between every vertex of this graph and every vertex of [[that]], which
-    *   `labelled` can relabel. This is the flattening of the edge
-    *   `this ~ that`, so it pairs each vertex of this graph with each vertex of
-    *   [[that]] even where the two share vertices: a vertex in both gains a
-    *   loop, and two vertices in both are joined once for each way of pairing
-    *   them (which is just once, for edge sets).
+    *   [[GraphBase.Join.labelled]] can relabel. This is the flattening of the
+    *   edge `this ~ that`, so it pairs each vertex of this graph with each
+    *   vertex of [[that]] even where the two share vertices: a vertex in both
+    *   gains a loop, and two vertices in both are joined once for each way of
+    *   pairing them (which is just once, for edge sets).
     */
   def join[W >: V, F >: E]
     (that: GraphBase[W, F, M])
@@ -174,16 +204,20 @@ trait GraphBase[+V, +E, M]
     (that: GraphBase[W, F, M])
     : GraphBase.Join[W, F, Unit, M] = that.join(this)
 
-  override def cone[W >: V](vertex: W): GraphBase.Join[W, E, Unit, M] =
+  override def cone[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : GraphBase.Join[W, E, Unit, M] =
     GraphBase.Join(this, graphs.vertex(vertex))
 
-  override infix def :~ [W >: V](vertex: W): GraphBase.Join[W, E, Unit, M] =
-    cone(vertex)
+  override infix def :~ [W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : GraphBase.Join[W, E, Unit, M] = cone(vertex)
 
-  override infix def ~: [W >: V](vertex: W): GraphBase.Join[W, E, Unit, M] =
-    cone(vertex)
+  override infix def ~: [W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : GraphBase.Join[W, E, Unit, M] = cone(vertex)
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
     : GraphBase[W, F, M] = graphs.imaged(structure)(
     vertexMap,
@@ -229,23 +263,17 @@ trait GraphBase[+V, +E, M]
     *   in `m & g.counted`, or `m - g.counted` to remove one copy of each edge
     *   of `g`.
     */
-  override def counted(using edges: M =:= Boolean): GraphBase[V, E, Count] =
-    GraphBase
-      .kind[Count]
-      .wrap(Support.counted(
-        edges.substituteCo[[m] =>> IncidenceStructure[
-          V,
-          m,
-          kneiphof.Edge[V, E],
-        ]](structure),
-      ))
+  override def counted(using M =:= Boolean): GraphBase[V, E, Count] = GraphBase
+    .kind[Count]
+    .wrap(Support.counted(structure))
 
   override protected def kindName: String = "Graph"
 
   override def empty: GraphBase[Nothing, Nothing, M] = graphs.empty
 
-  override def addVertex[W >: V](vertex: W): GraphBase[W, E, M] = graphs
-    .withVertex[W, E](this, vertex)
+  override def addVertex[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : GraphBase[W, E, M] = graphs.withVertex[W, E](this, vertex)
 
   override def removeVertex[A : NotHandle](vertex: A): GraphBase[V, E, M] =
     graphs.withoutVertex(this, vertex)
@@ -263,21 +291,9 @@ trait GraphBase[+V, +E, M]
     )
     : GraphBase[V, E, M] = graphs.subgraph(this, keep, keepEdge)
 
-  override protected def intersected[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : GraphBase[V, E, M] =
-    graphs.intersection(this, embed.embedded(that.structure))
-
-  override protected def subtracted[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : GraphBase[V, E, M] =
-    graphs.difference(this, embed.embedded(that.structure))
+  override protected def edgeSubgraph
+    (keep: kneiphof.Edge[V, E] => Boolean)
+    : GraphBase[V, E, M] = graphs.edgeInduced(this, keep)
 
   /** The kind of this graph, in its own representation. */
   private def graphs: GraphBase.Kind[M] = GraphBase.kind[M]
@@ -287,7 +303,7 @@ object GraphBase:
 
   /**
     * The join of two graphs, which remembers its new edges so that they can be
-    * relabelled with `labelled`. Equality compares only the graphs, so equal
+    * relabelled with [[labelled]]. Equality compares only the graphs, so equal
     * joins can relabel different edges (see [[HypergraphBase.Join]]).
     *
     * @tparam L
@@ -333,14 +349,8 @@ object GraphBase:
           left.structure,
           right.structure,
           kneiphof.Edge(_, _, label),
-          incidence
-            .Join
-            .undirectedLinks(
-              left.structure,
-              right.structure,
-              label,
-              _,
-            ),
+          label,
+          directed = false,
         )
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =

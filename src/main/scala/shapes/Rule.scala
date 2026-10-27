@@ -279,9 +279,9 @@ private[kneiphof] object Rule:
     */
   final case class Petersen(n: Int, k: Int) extends Rule:
 
-    override def order: Int = 2 * n
+    override def order: Int = Math.multiplyExact(2, n)
 
-    override def size: Int = 3 * n
+    override def size: Int = Math.multiplyExact(3, n)
 
     override def arcsFrom(vertex: Int): Iterable[Int] =
       if vertex < n then List(around(vertex, 1), n + vertex)

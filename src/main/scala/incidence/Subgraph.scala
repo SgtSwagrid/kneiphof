@@ -21,10 +21,11 @@ private[kneiphof] final class Subgraph[
 
   override lazy val vertexValues: ValueSet[V] = base.vertexValues.filter(keep)
 
-  override def hasVertex(vertex: Any): Boolean = base
-    .vertexValues
-    .get(vertex)
-    .exists(keep)
+  override def hasVertex(vertex: Any): Boolean = vertexValue(vertex).isDefined
+
+  override def vertexValue(vertex: Any): Option[V] = base
+    .vertexValue(vertex)
+    .filter(keep)
 
   override def multiplicity(edge: Any): M =
     if !IncidenceStructure.ends(edge).forall(hasVertex) then M.zero

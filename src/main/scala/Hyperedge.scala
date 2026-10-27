@@ -33,15 +33,17 @@ trait Hyperedge[+V, +E]
 
   override def vertexValues: ValueSet[V] = ValueSet.from(ends)
 
-  override def occurrences(vertex: Any): Int = ends.count(_ == vertex)
+  override def occurrences[A : NotHandle](vertex: A): Int =
+    ends.count(_ == vertex)
 
-  override def map[W, F](vertexMap: V => W, labelMap: E => F): Hyperedge[W, F] =
-    Hyperedge.from(ends.map(vertexMap), labelMap(label))
+  override def map[W : NotHandle, F]
+    (vertexMap: V => W, labelMap: E => F)
+    : Hyperedge[W, F] = Hyperedge.from(ends.map(vertexMap), labelMap(label))
 
-  override def mapVertices[W](transform: V => W): Hyperedge[W, E] =
+  override def mapVertices[W : NotHandle](transform: V => W): Hyperedge[W, E] =
     map(transform, identity)
 
-  override def substitute[W]
+  override def substitute[W : NotHandle]
     (choices: V => Iterable[W])
     : Iterable[Hyperedge[W, E]] =
     cartesian(ends.map(choices)).map(Hyperedge.from(_, label))
@@ -69,13 +71,13 @@ object Hyperedge:
 
   /**
     * @return
-    *   An unlabelled hyperedge with the given [[ends]], counting repeats.
+    *   The unlabelled hyperedge with the given [[ends]], counting repeats.
     */
   def apply[V](ends: V*): Hyperedge[V, Unit] = from(ends, ())
 
   /**
     * @return
-    *   A hyperedge with the given [[ends]] and [[label]], counting repeats. A
+    *   The hyperedge with the given [[ends]] and [[label]], counting repeats. A
     *   hyperedge with exactly two ends is always an [[Edge]].
     * @throws IllegalArgumentException
     *   If there are no [[ends]].

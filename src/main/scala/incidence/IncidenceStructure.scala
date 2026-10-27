@@ -26,6 +26,16 @@ private[kneiphof] trait IncidenceStructure[+V, M, +X <: AnyEdge[?, ?, ?]]:
   /** @return `true` if and only if [[vertex]] is a vertex. */
   def hasVertex(vertex: Any): Boolean
 
+  /**
+    * @return
+    *   The vertex equal to [[vertex]], if there is one, found without listing
+    *   every vertex where the structure can.
+    */
+  def vertexValue(vertex: Any): Option[V] = vertexValues.get(vertex)
+
+  /** The number of vertices. */
+  def order: Int = vertexValues.size
+
   /** @return The multiplicity of [[edge]], which is `zero` if it's absent. */
   def multiplicity(edge: Any): M
 
@@ -34,7 +44,7 @@ private[kneiphof] trait IncidenceStructure[+V, M, +X <: AnyEdge[?, ?, ?]]:
 
   /** @return The values of the edges incident to [[vertex]]. */
   def incidentEdgeValues(vertex: Any): ValueSet[X] =
-    ValueSet.from(incidentEdges(vertex).map(_(0)))
+    ValueSet.from(incidentEdges(vertex).map((edge, _) => edge))
 
   /**
     * @return
@@ -67,7 +77,8 @@ private[kneiphof] trait IncidenceStructure[+V, M, +X <: AnyEdge[?, ?, ?]]:
           )
 
   /** The number of edges, counting every copy of each. */
-  def size: Int = IncidenceStructure.total(edges.map(_(1).count))
+  def size: Int =
+    IncidenceStructure.total(edges.map((_, multiplicity) => multiplicity.count))
 
   /**
     * @return
@@ -135,7 +146,34 @@ private[kneiphof] object IncidenceStructure:
       structure.vertexValues.iterator.map(vertex => (vertex: Any) -> structure),
     )
     .toSeq
-    .groupMap(_(0))(_(1))
+    .groupMap((vertex, _) => vertex)((_, structure) => structure)
+
+  /**
+    * The most vertices a structure can have for an operation to index its
+    * vertices, rather than asking it about each.
+    */
+  val indexable: Int = 1024
+
+  /**
+    * @return
+    *   The given [[edges]], each with its multiplicity, combining the
+    *   multiplicities of equal edges by [[combine]].
+    */
+  def combined[X, M]
+    (edges: IterableOnce[(X, M)])
+    (combine: (M, M) => M)
+    : ValueMap[X, M] = edges
+    .iterator
+    .foldLeft(ValueMap.empty[X, M]):
+      case (sums, (edge, multiplicity)) => sums.updated(
+          edge,
+          sums.get(edge).fold(multiplicity)(combine(_, multiplicity)),
+        )
+
+  /** @return The product of [[factors]], failing rather than overflowing. */
+  def product(factors: IterableOnce[Long]): Long = factors
+    .iterator
+    .foldLeft(1L)(Math.multiplyExact)
 
   /** @return The sum of [[counts]], failing rather than overflowing. */
   def total(counts: IterableOnce[Int]): Int = counts

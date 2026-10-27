@@ -8,9 +8,11 @@ package incidence
   * between them.
   *
   * @param link
-  *   The new edge from a vertex of [[left]] to a vertex of [[right]].
-  * @param links
-  *   The number of new edges equal to an edge.
+  *   The new edge from a vertex of [[left]] to a vertex of [[right]], labelled
+  *   [[label]].
+  * @param directed
+  *   `true` if and only if the new edges are directed, from [[left]] to
+  *   [[right]].
   */
 private[kneiphof] final class Join[
   V,
@@ -23,7 +25,8 @@ private[kneiphof] final class Join[
     left: IncidenceStructure[V, M, X[V, E]],
     right: IncidenceStructure[V, M, X[V, E]],
     link: (V, V) => X[V, E | L],
-    links: Any => Int,
+    label: L,
+    directed: Boolean,
   )
   extends IncidenceStructure[V, M, X[V, E | L]]:
 
@@ -32,6 +35,10 @@ private[kneiphof] final class Join[
 
   override def hasVertex(vertex: Any): Boolean = left.hasVertex(vertex) ||
     right.hasVertex(vertex)
+
+  override def vertexValue(vertex: Any): Option[V] = left
+    .vertexValue(vertex)
+    .orElse(right.vertexValue(vertex))
 
   override def multiplicity(edge: Any): M = left.multiplicity(edge) +
     right.multiplicity(edge) + M.fromInt(links(edge))
@@ -57,9 +64,15 @@ private[kneiphof] final class Join[
   override def degree(vertex: Any): Int =
     if !disjoint then super.degree(vertex)
     else if left.hasVertex(vertex) then
-      left.degree(vertex) + right.vertexValues.size
+      Math.addExact(
+        left.degree(vertex),
+        right.vertexValues.size,
+      )
     else if right.hasVertex(vertex) then
-      right.degree(vertex) + left.vertexValues.size
+      Math.addExact(
+        right.degree(vertex),
+        left.vertexValues.size,
+      )
     else 0
 
   /** `true` if and only if [[left]] and [[right]] share no vertex. */
@@ -68,15 +81,18 @@ private[kneiphof] final class Join[
 
   /** @return The new edges incident to [[vertex]]. */
   private def linksAt(vertex: Any): Iterable[X[V, E | L]] = left
-    .vertexValues
-    .get(vertex)
+    .vertexValue(vertex)
     .toSeq
     .flatMap(source => right.vertexValues.map(link(source, _))) ++
     right
-      .vertexValues
-      .get(vertex)
+      .vertexValue(vertex)
       .toSeq
       .flatMap(target => left.vertexValues.map(link(_, target)))
+
+  /** @return The number of new edges equal to [[edge]]. */
+  private def links(edge: Any): Int =
+    if directed then Join.directedLinks(left, right, label, edge)
+    else Join.undirectedLinks(left, right, label, edge)
 
 /** The companion object for [[Join]]. */
 private[kneiphof] object Join:
@@ -86,7 +102,7 @@ private[kneiphof] object Join:
     *   The number of undirected edges labelled [[label]] between a vertex of
     *   [[left]] and a vertex of [[right]] which equal [[edge]].
     */
-  def undirectedLinks
+  private def undirectedLinks
     (
       left: IncidenceStructure[?, ?, ?],
       right: IncidenceStructure[?, ?, ?],
@@ -106,7 +122,7 @@ private[kneiphof] object Join:
     *   The number of directed edges labelled [[label]] from a vertex of
     *   [[left]] to a vertex of [[right]] which equal [[edge]].
     */
-  def directedLinks
+  private def directedLinks
     (
       left: IncidenceStructure[?, ?, ?],
       right: IncidenceStructure[?, ?, ?],

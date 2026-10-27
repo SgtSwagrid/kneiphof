@@ -36,6 +36,12 @@ private[kneiphof] final class Shape[
 
   override def hasVertex(vertex: Any): Boolean = index.index(vertex).isDefined
 
+  override def vertexValue(vertex: Any): Option[V] = index
+    .index(vertex)
+    .map(index.vertex)
+
+  override def order: Int = rule.order
+
   override def multiplicity(edge: Any): M = indices(edge).fold(M.zero):
     (first, second) => copies(first, second)
 
@@ -77,7 +83,10 @@ private[kneiphof] final class Shape[
       index
         .index(vertex)
         .fold(0)(number =>
-          rule.arcsFrom(number).size + rule.arcsInto(number).size,
+          Math.addExact(
+            rule.arcsFrom(number).size,
+            rule.arcsInto(number).size,
+          ),
         )
 
   override def loops: Iterator[X] =

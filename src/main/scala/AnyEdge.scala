@@ -21,24 +21,24 @@ trait AnyEdge[+V, +E, +X[+v, +e]]:
   def label: E
 
   /** @return The number of times [[vertex]] occurs as an end of this edge. */
-  def occurrences(vertex: Any): Int
+  def occurrences[A : NotHandle](vertex: A): Int
 
   /**
     * @return
     *   This edge, with each vertex transformed by [[vertexMap]] and the label
     *   transformed by [[labelMap]].
     */
-  def map[W, F](vertexMap: V => W, labelMap: E => F): X[W, F]
+  def map[W : NotHandle, F](vertexMap: V => W, labelMap: E => F): X[W, F]
 
   /** @return This edge, with each vertex transformed by [[transform]]. */
-  def mapVertices[W](transform: V => W): X[W, E]
+  def mapVertices[W : NotHandle](transform: V => W): X[W, E]
 
   /**
     * @return
     *   The edges obtained by replacing each end of this edge with one of its
     *   [[choices]].
     */
-  def substitute[W](choices: V => Iterable[W]): Iterable[X[W, E]]
+  def substitute[W : NotHandle](choices: V => Iterable[W]): Iterable[X[W, E]]
 
   /** @return This edge, with its label transformed by [[transform]]. */
   def mapLabel[F](transform: E => F): X[V, F] = map(identity, transform)

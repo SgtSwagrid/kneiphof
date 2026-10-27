@@ -145,7 +145,10 @@ class GraphSuite extends FunSuite:
       compileErrors("graph.induced(graph.vertices)"),
       compileErrors("graph.withMultiplicity(edge, false)"),
       compileErrors("graph.removeEdge(edge)"),
-      compileErrors("DirectedGraph(1 ~> 2).hasVertex(DirectedGraph(1 ~> 2)(1))"),
+      compileErrors(
+        "DirectedGraph(1 ~> 2).hasVertex(DirectedGraph(1 ~> 2)(1))",
+      ),
+      compileErrors("(1 ~ 2).occurrences(vertex)"),
     ).foreach(errors =>
       assert(
         errors.contains("is a handle on a vertex or edge"),
@@ -161,6 +164,47 @@ class GraphSuite extends FunSuite:
     assertEquals(
       graph.removeVertices(graph.vertices.map(_.value)),
       Graph.empty,
+    )
+
+  test("handles can't become vertices"):
+    val graph  = Graph(1 ~ 2, 2 ~ 3)
+    val vertex = graph(1)
+    Seq(
+      compileErrors("vertex ~ 2"),
+      compileErrors("1 ~ vertex"),
+      compileErrors("vertex ~> 2"),
+      compileErrors("1 ~> vertex"),
+      compileErrors("1 ~ 2 ~ vertex"),
+      compileErrors("(1 ~ 2).to(vertex)"),
+      compileErrors("1 ~> 2 ~> vertex"),
+      compileErrors("graph.addVertex(vertex)"),
+      compileErrors("graph.addVertices(graph.vertices)"),
+      compileErrors("Graph.vertex(vertex)"),
+      compileErrors("Graph.vertices(vertex)"),
+      compileErrors("Graph.fromMultiplicities(Seq(vertex), Nil)"),
+      compileErrors("Graph.path(vertex, vertex)"),
+      compileErrors("DirectedGraph.transitiveTournament(vertex)"),
+      compileErrors("graph.mapVertices(graph(_))"),
+      compileErrors("graph.map(graph(_), identity)"),
+      compileErrors("(1 ~ 2).mapVertices(graph(_))"),
+      compileErrors("graph.cone(vertex)"),
+      compileErrors("graph :~ vertex"),
+      compileErrors("vertex ~: graph"),
+      compileErrors("DirectedGraph(1 ~> 2).coneTo(vertex)"),
+      compileErrors("DirectedGraph(1 ~> 2) :~> vertex"),
+      compileErrors("DirectedGraph(1 ~> 2).coneFrom(vertex)"),
+      compileErrors("vertex ~>: DirectedGraph(1 ~> 2)"),
+    ).foreach(errors =>
+      assert(
+        errors.contains("is a handle on a vertex or edge"),
+        errors,
+      ),
+    )
+    assertEquals(graph.addVertex(vertex.value), graph)
+    assertEquals(vertex.value ~ 2, 1 ~ 2)
+    assertEquals(
+      graph.mapVertices(graph(_).value),
+      graph,
     )
 
   test("graphs are only equal within their family"):

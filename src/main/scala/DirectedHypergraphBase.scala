@@ -80,6 +80,51 @@ trait DirectedHypergraphBase[+V, +E, M]
 
   /**
     * @return
+    *   The difference of this hypergraph and [[that]], which keeps the vertices
+    *   of this hypergraph and subtracts the multiplicity of each edge in
+    *   [[that]]. So `DirectedGraph.complete(n) - g` is the complement of a
+    *   `DirectedGraph[Int, Unit]` `g` on the vertices `0 until n`. To remove
+    *   the vertices of [[that]] as well, with their edges, use
+    *   `removeVertices(that.vertexValues)`. [[that]] may be any directed
+    *   hypergraph or directed graph whose multiplicities embed in [[M]], so it
+    *   may also be an edge or chain, as in `g - (1 ~> 2)`.
+    */
+  def difference[N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : DirectedHypergraphBase[V, E, M] =
+    hypergraphs.difference(this, embed.embedded(that.structure))
+
+  /** Alias of [[difference]]. */
+  infix def - [N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : DirectedHypergraphBase[V, E, M] = difference(that)
+
+  /**
+    * @return
+    *   The intersection of this hypergraph and [[that]], which keeps their
+    *   common vertices and the meet of each edge's multiplicities, so that it's
+    *   the largest subgraph of both. For the subgraph of this hypergraph with
+    *   every edge between the vertices of [[that]], use
+    *   `induced(that.vertexValues)`. [[that]] may be any directed hypergraph or
+    *   directed graph whose multiplicities embed in [[M]], as for
+    *   [[difference]].
+    */
+  def intersection[N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : DirectedHypergraphBase[V, E, M] =
+    hypergraphs.intersection(this, embed.embedded(that.structure))
+
+  /** Alias of [[intersection]]. */
+  infix def & [N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : DirectedHypergraphBase[V, E, M] = intersection(that)
+
+  /**
+    * @return
     *   The disjoint union of this hypergraph and [[that]], whose vertices are
     *   tagged by which side they came from.
     */
@@ -158,10 +203,11 @@ trait DirectedHypergraphBase[+V, +E, M]
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
     *   `()` from every vertex of this hypergraph to every vertex of [[that]],
-    *   which `labelled` can relabel. This is the flattening of the edge
-    *   `this ~> that`, so it pairs each vertex of this hypergraph with each
-    *   vertex of [[that]] even where the two share vertices: a vertex in both
-    *   gains a loop, and two vertices in both gain an edge each way.
+    *   which [[DirectedHypergraphBase.Join.labelled]] can relabel. This is the
+    *   flattening of the edge `this ~> that`, so it pairs each vertex of this
+    *   hypergraph with each vertex of [[that]] even where the two share
+    *   vertices: a vertex in both gains a loop, and two vertices in both gain
+    *   an edge each way.
     */
   def join[W >: V, F >: E]
     (that: DirectedHypergraphBase[W, F, M])
@@ -179,12 +225,14 @@ trait DirectedHypergraphBase[+V, +E, M]
     *   labelled `()` from every vertex of this hypergraph to [[vertex]] (see
     *   [[join]]).
     */
-  def coneTo[W >: V](vertex: W): DirectedHypergraphBase.Join[W, E, Unit, M] =
+  def coneTo[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : DirectedHypergraphBase.Join[W, E, Unit, M] =
     DirectedHypergraphBase.Join(this, hypergraphs.vertex(vertex))
 
   /** Alias of [[coneTo]]. */
-  infix def :~> [W >: V]
-    (vertex: W)
+  infix def :~> [W >: V, A <: W : NotHandle]
+    (vertex: A)
     : DirectedHypergraphBase.Join[W, E, Unit, M] = coneTo(vertex)
 
   /**
@@ -193,12 +241,14 @@ trait DirectedHypergraphBase[+V, +E, M]
     *   labelled `()` from [[vertex]] to every vertex of this hypergraph (see
     *   [[join]]).
     */
-  def coneFrom[W >: V](vertex: W): DirectedHypergraphBase.Join[W, E, Unit, M] =
+  def coneFrom[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : DirectedHypergraphBase.Join[W, E, Unit, M] =
     DirectedHypergraphBase.Join(hypergraphs.vertex(vertex), this)
 
   /** Alias of [[coneFrom]]. */
-  infix def ~>: [W >: V]
-    (vertex: W)
+  infix def ~>: [W >: V, A <: W : NotHandle]
+    (vertex: A)
     : DirectedHypergraphBase.Join[W, E, Unit, M] = coneFrom(vertex)
 
   /**
@@ -214,7 +264,7 @@ trait DirectedHypergraphBase[+V, +E, M]
       kept = algebra.additive,
     )
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
     : DirectedHypergraphBase[W, F, M] = hypergraphs.imaged(structure)(
     vertexMap,
@@ -222,17 +272,26 @@ trait DirectedHypergraphBase[+V, +E, M]
     kept = algebra.additive,
   )
 
-  override def vertex[A : NotHandle](value: A): Option[Vertex] = vertexValues
-    .get(value)
+  override def vertex[A : NotHandle](value: A): Option[Vertex] = structure
+    .vertexValue(value)
     .map(found =>
       new DirectedVertexOps:
         override val value: V = found,
     )
 
-  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map:
-    found =>
-      new DirectedEdgeOps:
-        override val value: Hyperarc[V, E] = found
+  override def edge[A : NotHandle](value: A): Option[Edge] =
+    found(value).map(handle)
+
+  override private[kneiphof] def edgesAt(vertex: Any): Iterable[Edge] =
+    incidentEdgeValues(vertex).map(handle)
+
+  override private[kneiphof] def allEdges: Iterable[Edge] = edgeValues
+    .keys
+    .map(handle)
+
+  /** @return The handle on [[found]], an edge of this directed hypergraph. */
+  private def handle(found: Hyperarc[V, E]): Edge = new DirectedEdgeOps:
+    override val value: Hyperarc[V, E] = found
 
   /**
     * @return
@@ -252,14 +311,8 @@ trait DirectedHypergraphBase[+V, +E, M]
     *   through this, as in `m & g.counted`, or `m - g.counted` to remove one
     *   copy of each edge of `g`.
     */
-  def counted(using edges: M =:= Boolean): DirectedHypergraphBase[V, E, Count] =
-    DirectedHypergraphBase
-      .kind[Count]
-      .wrap(Support.counted(
-        edges.substituteCo[[m] =>> IncidenceStructure[V, m, Hyperarc[V, E]]](
-          structure,
-        ),
-      ))
+  def counted(using M =:= Boolean): DirectedHypergraphBase[V, E, Count] =
+    DirectedHypergraphBase.kind[Count].wrap(Support.counted(structure))
 
   override private[kneiphof] def directed: Boolean = true
 
@@ -268,7 +321,9 @@ trait DirectedHypergraphBase[+V, +E, M]
   override def empty: DirectedHypergraphBase[Nothing, Nothing, M] =
     hypergraphs.empty
 
-  override def addVertex[W >: V](vertex: W): DirectedHypergraphBase[W, E, M] =
+  override def addVertex[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : DirectedHypergraphBase[W, E, M] =
     hypergraphs.withVertex[W, E](this, vertex)
 
   override def removeVertex[A : NotHandle]
@@ -291,21 +346,9 @@ trait DirectedHypergraphBase[+V, +E, M]
     : DirectedHypergraphBase[V, E, M] =
     hypergraphs.subgraph(this, keep, keepEdge)
 
-  override protected def intersected[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.intersection(this, embed.embedded(that.structure))
-
-  override protected def subtracted[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : DirectedHypergraphBase[V, E, M] =
-    hypergraphs.difference(this, embed.embedded(that.structure))
+  override protected def edgeSubgraph
+    (keep: Hyperarc[V, E] => Boolean)
+    : DirectedHypergraphBase[V, E, M] = hypergraphs.edgeInduced(this, keep)
 
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: DirectedHypergraphBase.Kind[M] =
@@ -315,10 +358,14 @@ trait DirectedHypergraphBase[+V, +E, M]
   trait DirectedVertexOps extends VertexOps:
 
     /** The edges leaving this vertex. */
-    def outEdges: Set[Edge] = outgoing.flatMap(edge).toSet
+    def outEdges: Set[Edge] = edgesAt(value)
+      .filter(_.value.tail.contains(value))
+      .toSet
 
     /** The edges entering this vertex. */
-    def inEdges: Set[Edge] = incoming.flatMap(edge).toSet
+    def inEdges: Set[Edge] = edgesAt(value)
+      .filter(_.value.head.contains(value))
+      .toSet
 
     /** The vertices which an edge leads to from this vertex. */
     def successors: Set[Vertex] = outgoing.flatMap(_.head).flatMap(vertex).toSet
@@ -333,19 +380,29 @@ trait DirectedHypergraphBase[+V, +E, M]
       * The number of edges leaving this vertex, counting every copy of each
       * edge, and each time this vertex occurs in its tail.
       */
-    def outDegree: Int = outgoing
-      .toSeq
-      .map(edge => edge.tail.count(_ == value) * multiplicity(edge).count)
-      .sum
+    def outDegree: Int = IncidenceStructure.total:
+      incidentEdges(value)
+        .iterator
+        .map((edge, multiplicity) =>
+          Math.multiplyExact(
+            edge.tail.count(_ == value),
+            multiplicity.count,
+          ),
+        )
 
     /**
       * The number of edges entering this vertex, counting every copy of each
       * edge, and each time this vertex occurs in its head.
       */
-    def inDegree: Int = incoming
-      .toSeq
-      .map(edge => edge.head.count(_ == value) * multiplicity(edge).count)
-      .sum
+    def inDegree: Int = IncidenceStructure.total:
+      incidentEdges(value)
+        .iterator
+        .map((edge, multiplicity) =>
+          Math.multiplyExact(
+            edge.head.count(_ == value),
+            multiplicity.count,
+          ),
+        )
 
     /** The values of the edges leaving this vertex. */
     private def outgoing: ValueSet[Hyperarc[V, E]] = incidentEdgeValues(value)
@@ -369,7 +426,7 @@ object DirectedHypergraphBase:
 
   /**
     * The join of two directed hypergraphs, which remembers its new edges so
-    * that they can be relabelled with `labelled`. Equality compares only the
+    * that they can be relabelled with [[labelled]]. Equality compares only the
     * graphs, so equal joins can relabel different edges (see
     * [[HypergraphBase.Join]]).
     *
@@ -417,14 +474,8 @@ object DirectedHypergraphBase:
           left.structure,
           right.structure,
           DirectedEdge(_, _, label),
-          incidence
-            .Join
-            .directedLinks(
-              left.structure,
-              right.structure,
-              label,
-              _,
-            ),
+          label,
+          directed = true,
         )
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =

@@ -28,6 +28,10 @@ private[kneiphof] final class Support[
 
   override def hasVertex(vertex: Any): Boolean = base.hasVertex(vertex)
 
+  override def vertexValue(vertex: Any): Option[V] = base.vertexValue(vertex)
+
+  override def order: Int = base.order
+
   override def multiplicity(edge: Any): M = convert(base.multiplicity(edge))
 
   override def incidentEdges(vertex: Any): Iterable[(X, M)] = base
@@ -58,10 +62,11 @@ private[kneiphof] object Support:
     *   The edge set whose incidence structure is [[base]], read as a multigraph
     *   with one copy of each edge.
     */
-  def counted[V, X <: AnyEdge[?, ?, ?]]
-    (base: IncidenceStructure[V, Boolean, X])
+  def counted[V, M, X <: AnyEdge[?, ?, ?]]
+    (base: IncidenceStructure[V, M, X])
+    (using present: M =:= Boolean)
     : IncidenceStructure[V, Count, X] = Support(
     base,
-    present => Count(if present then 1 else 0),
+    multiplicity => Count(if present(multiplicity) then 1 else 0),
     exact = true,
   )

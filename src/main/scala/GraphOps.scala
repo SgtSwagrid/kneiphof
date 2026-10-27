@@ -40,11 +40,11 @@ trait GraphOps[
   def incidentEdgeValues[A : NotHandle](vertex: A): ValueSet[X[V, E]] =
     structure.incidentEdgeValues(vertex)
 
-  /** @return An empty graph of the same kind. */
+  /** @return The empty graph of the same kind. */
   def empty: G[Nothing, Nothing]
 
   /** @return This graph with [[vertex]] added, if it's not already present. */
-  def addVertex[W >: V](vertex: W): G[W, E]
+  def addVertex[W >: V, A <: W : NotHandle](vertex: A): G[W, E]
 
   /** @return This graph without [[vertex]] and its incident edges. */
   def removeVertex[A : NotHandle](vertex: A): G[V, E]
@@ -62,7 +62,7 @@ trait GraphOps[
     *   and each label by [[labelMap]]. Vertices with the same image merge, and
     *   the multiplicities of edges with the same image are summed.
     */
-  def map[W, F](vertexMap: V => W, labelMap: E => F): G[W, F]
+  def map[W : NotHandle, F](vertexMap: V => W, labelMap: E => F): G[W, F]
 
   /**
     * @return
@@ -83,6 +83,13 @@ trait GraphOps[
 
   /**
     * @return
+    *   The subgraph induced by the edges satisfying [[keep]], with only the
+    *   vertices incident to them.
+    */
+  protected def edgeSubgraph(keep: X[V, E] => Boolean): G[V, E]
+
+  /**
+    * @return
     *   The subgraph with only the vertices satisfying [[keep]], and the edges
     *   between them satisfying [[keepEdge]], if given.
     */
@@ -95,27 +102,13 @@ trait GraphOps[
 
   /**
     * @return
-    *   The intersection of this graph and [[that]], whose multiplicities are
-    *   read in [[M]] by [[embed]].
+    *   The handles on the edges incident to [[vertex]], made without looking
+    *   each up again.
     */
-  protected def intersected[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : G[V, E]
+  private[kneiphof] def edgesAt(vertex: Any): Iterable[Edge]
 
-  /**
-    * @return
-    *   The difference of this graph and [[that]], whose multiplicities are read
-    *   in [[M]] by [[embed]].
-    */
-  protected def subtracted[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : G[V, E]
+  /** The handles on every edge of this graph. */
+  private[kneiphof] def allEdges: Iterable[Edge]
 
   /** @return The edges incident to [[vertex]], each with its multiplicity. */
   private[kneiphof] def incidentEdges(vertex: Any): Iterable[(X[V, E], M)] =
@@ -125,7 +118,7 @@ trait GraphOps[
   def vertices: Set[Vertex] = vertexValues.flatMap(vertex).toSet
 
   /** The edges of this graph. */
-  def edges: Set[Edge] = edgeValues.keys.flatMap(edge).toSet
+  def edges: Set[Edge] = allEdges.toSet
 
   /**
     * @return
@@ -144,7 +137,7 @@ trait GraphOps[
   def degree[A : NotHandle](vertex: A): Int = structure.degree(vertex)
 
   /** @return This graph with all of [[vertices]] added. */
-  def addVertices[W >: V](vertices: Iterable[W]): G[W, E] =
+  def addVertices[W >: V, A <: W : NotHandle](vertices: Iterable[A]): G[W, E] =
     vertices.foldLeft(this: G[W, E])(_.addVertex(_))
 
   /** @return This graph without any of [[vertices]] or their incident edges. */
@@ -154,43 +147,6 @@ trait GraphOps[
   /** @return This graph without any copies of [[edge]]. */
   def removeEdge[A : NotHandle](edge: A): G[V, E] =
     withMultiplicity(edge, algebra.zero)
-
-  /**
-    * @return
-    *   The difference of this graph and [[that]], which keeps the vertices of
-    *   this graph and subtracts the multiplicity of each edge in [[that]]. So
-    *   `Graph.complete(n) - g` is the complement of a `Graph[Int, Unit]` `g` on
-    *   the vertices `0 until n`. To remove the vertices of [[that]] as well,
-    *   with their edges, use `removeVertices(that.vertexValues)`. [[that]] may
-    *   have any multiplicities which embed in [[M]], so it may also be an edge
-    *   or chain, as in `g - (1 ~ 2)`.
-    */
-  def difference[N]
-    (that: AnyGraph[Any, Any, N])
-    (using embed: Embedding[N, M])
-    : G[V, E] = subtracted(that, embed)
-
-  /** Alias of [[difference]]. */
-  infix def - [N](that: AnyGraph[Any, Any, N])(using Embedding[N, M]): G[V, E] =
-    difference(that)
-
-  /**
-    * @return
-    *   The intersection of this graph and [[that]], which keeps their common
-    *   vertices and the meet of each edge's multiplicities, so that it's the
-    *   largest subgraph of both. For the subgraph of this graph with every edge
-    *   between the vertices of [[that]], use `induced(that.vertexValues)`.
-    *   [[that]] may have any multiplicities which embed in [[M]], as for
-    *   [[difference]].
-    */
-  def intersection[N]
-    (that: AnyGraph[Any, Any, N])
-    (using embed: Embedding[N, M])
-    : G[V, E] = intersected(that, embed)
-
-  /** Alias of [[intersection]]. */
-  infix def & [N](that: AnyGraph[Any, Any, N])(using Embedding[N, M]): G[V, E] =
-    intersection(that)
 
   /**
     * @return
@@ -220,17 +176,16 @@ trait GraphOps[
     *   The subgraph induced by the edges satisfying [[predicate]], with only
     *   the vertices incident to them.
     */
-  def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] = subgraph(
-    incidentEdgeValues(_).exists(predicate),
-    Some(predicate),
-  )
+  def edgeInduced(predicate: X[V, E] => Boolean): G[V, E] =
+    edgeSubgraph(predicate)
 
   /**
     * @return
     *   The image of this graph, with each vertex transformed by [[transform]].
     *   Vertices with the same image merge, and so do their edges (see [[map]]).
     */
-  def mapVertices[W](transform: V => W): G[W, E] = map(transform, identity)
+  def mapVertices[W : NotHandle](transform: V => W): G[W, E] =
+    map(transform, identity)
 
   /** @return This graph, with each edge label transformed by [[transform]]. */
   def mapEdges[F](transform: E => F): G[V, F] = map(identity, transform)
@@ -238,7 +193,7 @@ trait GraphOps[
   /**
     * @return
     *   This graph, with its vertices renumbered from `0` in the order given by
-    *   [[ordering]].
+    *   their [[Ordering]].
     */
   def indexed[W >: V : Ordering]: G[Int, E] =
     mapVertices(vertexValues.toSeq.sorted[W].zipWithIndex.toMap)
@@ -273,10 +228,10 @@ trait GraphOps[
     def value: V
 
     /** The graph this vertex belongs to. */
-    def graph: GraphOps.this.type = GraphOps.this
+    override def graph: GraphOps.this.type = GraphOps.this
 
     /** The edges incident to this vertex. */
-    def edges: Set[Edge] = incidentEdgeValues(value).flatMap(edge).toSet
+    def edges: Set[Edge] = edgesAt(value).toSet
 
     /**
       * The number of edges incident to this vertex, counting every copy of each
@@ -291,13 +246,7 @@ trait GraphOps[
       .flatMap(vertex)
       .toSet
 
-    override def equals(that: Any): Boolean = that match
-      case that: VertexOps => (that.graph eq graph) && that.value == value
-      case _               => false
-
-    override def hashCode: Int = value.##
-
-    override def toString: String = value.toString
+    override private[kneiphof] def onEdge: Boolean = false
 
   /** The operations on an edge of this graph. */
   trait EdgeOps extends Handle:
@@ -306,7 +255,7 @@ trait GraphOps[
     def value: X[V, E]
 
     /** The graph this edge belongs to. */
-    def graph: GraphOps.this.type = GraphOps.this
+    override def graph: GraphOps.this.type = GraphOps.this
 
     /** The label of this edge. */
     def label: E = value.label
@@ -317,10 +266,4 @@ trait GraphOps[
     /** The number of copies of this edge in the graph. */
     def multiplicity: M = GraphOps.this.multiplicity(value)
 
-    override def equals(that: Any): Boolean = that match
-      case that: EdgeOps => (that.graph eq graph) && that.value == value
-      case _             => false
-
-    override def hashCode: Int = value.##
-
-    override def toString: String = value.toString
+    override private[kneiphof] def onEdge: Boolean = true

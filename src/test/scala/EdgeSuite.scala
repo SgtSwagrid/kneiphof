@@ -44,7 +44,36 @@ class EdgeSuite extends FunSuite:
     assertNotEquals[Any, Any](1 ~> 2, 1 ~ 2)
     assert(!Graph(1 ~ 2).hasEdge(1 ~> 2))
     assertNotEquals[Any, Any](Graph(1 ~ 2), DirectedGraph(1 ~> 2))
-    assertEquals(Graph(1 ~ 2) - (1 ~> 2), Graph(1 ~ 2))
+
+  test("& and - only take graphs of the same direction"):
+    Seq(
+      compileErrors("Graph(1 ~ 2) - (1 ~> 2)"),
+      compileErrors("Graph(1 ~ 2) & DirectedGraph(1 ~> 2)"),
+    ).foreach(errors =>
+      assert(
+        errors.contains("Required: com.alecdorrington.kneiphof.HypergraphBase"),
+        errors,
+      ),
+    )
+    Seq(
+      compileErrors("DirectedGraph(1 ~> 2) - (1 ~ 2)"),
+      compileErrors("DirectedGraph(1 ~> 2) & Hypergraph(Hyperedge(1, 2))"),
+    ).foreach(errors =>
+      assert(
+        errors.contains(
+          "Required: com.alecdorrington.kneiphof.DirectedHypergraphBase",
+        ),
+        errors,
+      ),
+    )
+    assertEquals(
+      Graph(1 ~ 2, 2 ~ 3) & Hypergraph(Hyperedge(1, 2)),
+      Graph(1 ~ 2),
+    )
+    assertEquals(
+      Graph(1 ~ 2, 2 ~ 3) - Hypergraph(Hyperedge(1, 2)),
+      Graph(2 ~ 3).addVertex(1),
+    )
 
   test("every edge has an end"):
     intercept[IllegalArgumentException](Hyperedge())

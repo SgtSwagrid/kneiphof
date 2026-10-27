@@ -36,7 +36,7 @@ final case class DirectedEdge[+S, +T, +E]
 
   override def transpose: DirectedEdge[T, S, E] = reverse
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: (S | T) => W, labelMap: E => F)
     : DirectedEdge[W, W, F] = DirectedEdge(
     vertexMap(source),
@@ -44,10 +44,11 @@ final case class DirectedEdge[+S, +T, +E]
     labelMap(label),
   )
 
-  override def mapVertices[W](transform: (S | T) => W): DirectedEdge[W, W, E] =
-    map(transform, identity)
+  override def mapVertices[W : NotHandle]
+    (transform: (S | T) => W)
+    : DirectedEdge[W, W, E] = map(transform, identity)
 
-  override def substitute[W]
+  override def substitute[W : NotHandle]
     (choices: (S | T) => Iterable[W])
     : Iterable[DirectedEdge[W, W, E]] =
     for
@@ -68,6 +69,6 @@ final case class DirectedEdge[+S, +T, +E]
 /** The companion object for [[DirectedEdge]]. */
 object DirectedEdge:
 
-  /** @return An unlabelled edge from [[source]] to [[target]]. */
+  /** @return The unlabelled edge from [[source]] to [[target]]. */
   def apply[S, T](source: S, target: T): DirectedEdge[S, T, Unit] =
     DirectedEdge(source, target, ())

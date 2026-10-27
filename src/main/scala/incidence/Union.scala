@@ -8,7 +8,7 @@ package incidence
   */
 private[kneiphof] final class Union[
   +V,
-  M : Multiplicity as M,
+  M : Multiplicity,
   +X <: AnyEdge[?, ?, ?],
 ]
   (override val operands: Seq[IncidenceStructure[V, M, X]])
@@ -31,7 +31,7 @@ private[kneiphof] final class Union[
         IncidenceStructure.changes(
           this,
           largest,
-          ValueSet.from(others.iterator.flatMap(_.edges.map(_(0)))),
+          ValueSet.from(others.iterator.flatMap(_.edges.map((edge, _) => edge))),
         ),
       )
 
@@ -52,11 +52,7 @@ private[kneiphof] object Union:
       first: IncidenceStructure[V, M, X],
       second: IncidenceStructure[V, M, X],
     )
-    : Union[V, M, X] = Union(operands(first) ++ operands(second))
-
-  /** @return The operands of [[structure]] as a union. */
-  private def operands[V, M, X <: AnyEdge[?, ?, ?]]
-    (structure: IncidenceStructure[V, M, X])
-    : Seq[IncidenceStructure[V, M, X]] = structure match
-    case union: Union[V, M, X] => union.operands
-    case _                     => Seq(structure)
+    : Union[V, M, X] = Union:
+    Overlay.merged(first, second):
+      case union: Union[V, M, X] => Some(union.operands)
+      case _                     => None

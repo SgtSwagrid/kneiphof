@@ -34,6 +34,10 @@ private[kneiphof] final class CartesianProduct[
 
   override def hasVertex(vertex: Any): Boolean = coordinates(vertex).isDefined
 
+  override def vertexValue(vertex: Any): Option[(V, W)] = coordinates(vertex)
+
+  override def order: Int = Math.multiplyExact(first.order, second.order)
+
   override def multiplicity(edge: Any): M = edge match
     case edge: AnyEdge[?, ?, ?] if edge.vertexValues.forall(isPair) =>
       val ends = edge
@@ -41,11 +45,11 @@ private[kneiphof] final class CartesianProduct[
         .toSeq
         .collect:
           case (v, w) => (v, w)
-      val alongFirst = ends.map(_(1)).distinct match
+      val alongFirst = ends.map((_, w) => w).distinct match
         case Seq(w) if second.hasVertex(w) =>
           first.multiplicity(edge.mapVertices(CartesianProduct.left))
         case _ => M.zero
-      val alongSecond = ends.map(_(0)).distinct match
+      val alongSecond = ends.map((v, _) => v).distinct match
         case Seq(v) if first.hasVertex(v) =>
           second.multiplicity(edge.mapVertices(CartesianProduct.right))
         case _ => M.zero
@@ -90,8 +94,7 @@ private[kneiphof] final class CartesianProduct[
     * edges form a set.
     */
   override lazy val size: Int = Math.toIntExact:
-    first.size.toLong * second.vertexValues.size +
-      first.vertexValues.size.toLong * second.size -
+    first.size.toLong * second.order + first.order.toLong * second.size -
       (if M.additive then 0L else coinciding)
 
   override def degree(vertex: Any): Int =
@@ -102,7 +105,7 @@ private[kneiphof] final class CartesianProduct[
 
   /** @return The vertices of [[first]] and [[second]] paired as [[vertex]]. */
   private def coordinates(vertex: Any): Option[(V, W)] = vertex match
-    case (v, w) => first.vertexValues.get(v).zip(second.vertexValues.get(w))
+    case (v, w) => first.vertexValue(v).zip(second.vertexValue(w))
     case _      => None
 
   /**
@@ -114,8 +117,13 @@ private[kneiphof] final class CartesianProduct[
     val seconds = CartesianProduct.shapes(second.loops)
     firsts
       .iterator
-      .map((shape, count) => count.toLong * seconds.getOrElse(shape, 0))
-      .sum
+      .map((shape, count) =>
+        Math.multiplyExact(
+          count.toLong,
+          seconds.getOrElse(shape, 0).toLong,
+        ),
+      )
+      .foldLeft(0L)(Math.addExact)
 
   /** @return `true` if and only if [[vertex]] is a pair. */
   private def isPair(vertex: Any): Boolean = vertex match

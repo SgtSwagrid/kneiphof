@@ -5,12 +5,12 @@ package incidence
 /**
   * The intersection of the graph whose incidence structure is [[base]] with the
   * graphs whose structures are [[others]], with their common vertices and the
-  * meet of each edge's multiplicities. Its edges are those of [[base]], found
-  * among the edges of the first of [[others]].
+  * meet of each edge's multiplicities. Its vertices are found among those of
+  * whichever graph has the fewest, and its edges are those of [[base]] at them.
   */
 private[kneiphof] final class Intersection[
   +V,
-  M : Multiplicity as M,
+  M : Multiplicity,
   +X <: AnyEdge[?, ?, ?],
 ]
   (
@@ -19,12 +19,21 @@ private[kneiphof] final class Intersection[
   )
   extends IncidenceStructure[V, M, X]:
 
-  override lazy val vertexValues: ValueSet[V] = base
-    .vertexValues
-    .filter(vertex => others.forall(_.hasVertex(vertex)))
+  override lazy val vertexValues: ValueSet[V] =
+    val fewest = (base +: others).minBy(_.order)
+    ValueSet.from:
+      fewest
+        .vertexValues
+        .iterator
+        .flatMap(base.vertexValue)
+        .filter(vertex => others.forall(_.hasVertex(vertex)))
 
   override def hasVertex(vertex: Any): Boolean = base.hasVertex(vertex) &&
     others.forall(_.hasVertex(vertex))
+
+  override def vertexValue(vertex: Any): Option[V] = base
+    .vertexValue(vertex)
+    .filter(vertex => others.forall(_.hasVertex(vertex)))
 
   override def multiplicity(edge: Any): M = meet(edge, base.multiplicity(edge))
 
@@ -34,20 +43,13 @@ private[kneiphof] final class Intersection[
       base
         .incidentEdges(vertex)
         .map((edge, multiplicity) => edge -> meet(edge, multiplicity))
-        .filter(_(1).nonZero)
+        .filter((_, multiplicity) => multiplicity.nonZero)
 
   override def find(edge: Any): Option[X] = base
     .find(edge)
     .filter(multiplicity(_).nonZero)
 
-  override def edges: Iterator[(X, M)] = others
-    .head
-    .edges
-    .flatMap((edge, _) => base.find(edge))
-    .map(edge => edge -> multiplicity(edge))
-    .filter(_(1).nonZero)
-
-  override lazy val size: Int = IncidenceStructure.total(edges.map(_(1).count))
+  override lazy val size: Int = super.size
 
   /**
     * @return

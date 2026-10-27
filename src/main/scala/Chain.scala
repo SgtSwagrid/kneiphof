@@ -28,11 +28,12 @@ trait Chain[+V, +E, +L] extends GraphBase[V, E | L, Count]:
     * @return
     *   This chain, extended by an unlabelled edge from [[tip]] to [[next]].
     */
-  def to[W >: V](next: W): Chain[W, E | L, Unit] =
-    Chain.Steps(steps, kneiphof.Edge(tip, next))
+  def to[W >: V, A <: W : NotHandle](next: A): Chain[W, E | L, Unit] = Chain
+    .Steps(steps, kneiphof.Edge(tip, next))
 
   /** Alias of [[to]]. */
-  infix def ~ [W >: V](next: W): Chain[W, E | L, Unit] = to(next)
+  infix def ~ [W >: V, A <: W : NotHandle](next: A): Chain[W, E | L, Unit] =
+    to(next)
 
   /**
     * @return

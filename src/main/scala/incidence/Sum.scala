@@ -7,11 +7,7 @@ package incidence
   * adds the multiplicities of their edges. It's only used for additive
   * multiplicities, so its sizes and degrees are those of the graphs added.
   */
-private[kneiphof] final class Sum[
-  +V,
-  M : Multiplicity as M,
-  +X <: AnyEdge[?, ?, ?],
-]
+private[kneiphof] final class Sum[+V, M : Multiplicity, +X <: AnyEdge[?, ?, ?]]
   (override val operands: Seq[IncidenceStructure[V, M, X]])
   extends Overlay[V, M, X]:
 
@@ -35,11 +31,7 @@ private[kneiphof] object Sum:
       first: IncidenceStructure[V, M, X],
       second: IncidenceStructure[V, M, X],
     )
-    : Sum[V, M, X] = Sum(operands(first) ++ operands(second))
-
-  /** @return The operands of [[structure]] as a sum. */
-  private def operands[V, M, X <: AnyEdge[?, ?, ?]]
-    (structure: IncidenceStructure[V, M, X])
-    : Seq[IncidenceStructure[V, M, X]] = structure match
-    case sum: Sum[V, M, X] => sum.operands
-    case _                 => Seq(structure)
+    : Sum[V, M, X] = Sum:
+    Overlay.merged(first, second):
+      case sum: Sum[V, M, X] => Some(sum.operands)
+      case _                 => None

@@ -9,8 +9,8 @@ import scala.util.control.TailCalls.{done, tailcall, TailRec}
   * vertex mapped by [[vertexMap]] and each edge replaced by its [[edgeImages]],
   * whose vertices are the images of its own, summing the multiplicities of
   * equal images. An image of an image is one image, of the composed maps, which
-  * are applied in a loop (with `TailCalls`) rather than nested, so that long
-  * chains of maps stay shallow.
+  * are applied in a loop (with [[scala.util.control.TailCalls]]) rather than
+  * nested, so that long chains of maps stay shallow.
   *
   * @param kept
   *   `true` if and only if every copy of each edge has exactly one image, and
@@ -39,19 +39,17 @@ private[kneiphof] final class Image[
     (sum, original) =>
       sum + base.multiplicity(original).scale(images(original).count(_ == edge))
 
-  override def incidentEdges(vertex: Any): Iterable[(Y, M)] = ValueMap
-    .from(preimagesOf(vertex).iterator.flatMap(base.incidentEdges))
-    .iterator
-    .flatMap: (original, multiplicity) =>
-      images(original)
+  override def incidentEdges(vertex: Any): Iterable[(Y, M)] = IncidenceStructure
+    .combined(
+      ValueMap
+        .from(preimagesOf(vertex).iterator.flatMap(base.incidentEdges))
         .iterator
-        .filter(_.vertexValues.contains(vertex))
-        .map(_ -> multiplicity)
-    .foldLeft(ValueMap.empty[Y, M]):
-      case (sums, (image, multiplicity)) => sums.updated(
-          image,
-          sums.getOrElse(image, M.zero) + multiplicity,
-        )
+        .flatMap: (original, multiplicity) =>
+          images(original)
+            .iterator
+            .filter(_.vertexValues.contains(vertex))
+            .map(_ -> multiplicity),
+    )(_ + _)
 
   override lazy val size: Int = if kept then base.size else super.size
 

@@ -72,6 +72,50 @@ trait HypergraphBase[+V, +E, M]
 
   /**
     * @return
+    *   The difference of this hypergraph and [[that]], which keeps the vertices
+    *   of this hypergraph and subtracts the multiplicity of each edge in
+    *   [[that]]. So `Graph.complete(n) - g` is the complement of a
+    *   `Graph[Int, Unit]` `g` on the vertices `0 until n`. To remove the
+    *   vertices of [[that]] as well, with their edges, use
+    *   `removeVertices(that.vertexValues)`. [[that]] may be any hypergraph or
+    *   graph whose multiplicities embed in [[M]], so it may also be an edge or
+    *   chain, as in `g - (1 ~ 2)`.
+    */
+  def difference[N]
+    (that: HypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : HypergraphBase[V, E, M] =
+    hypergraphs.difference(this, embed.embedded(that.structure))
+
+  /** Alias of [[difference]]. */
+  infix def - [N]
+    (that: HypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : HypergraphBase[V, E, M] = difference(that)
+
+  /**
+    * @return
+    *   The intersection of this hypergraph and [[that]], which keeps their
+    *   common vertices and the meet of each edge's multiplicities, so that it's
+    *   the largest subgraph of both. For the subgraph of this hypergraph with
+    *   every edge between the vertices of [[that]], use
+    *   `induced(that.vertexValues)`. [[that]] may be any hypergraph or graph
+    *   whose multiplicities embed in [[M]], as for [[difference]].
+    */
+  def intersection[N]
+    (that: HypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : HypergraphBase[V, E, M] =
+    hypergraphs.intersection(this, embed.embedded(that.structure))
+
+  /** Alias of [[intersection]]. */
+  infix def & [N]
+    (that: HypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : HypergraphBase[V, E, M] = intersection(that)
+
+  /**
+    * @return
     *   The disjoint union of this hypergraph and [[that]], whose vertices are
     *   tagged by which side they came from.
     */
@@ -149,11 +193,12 @@ trait HypergraphBase[+V, +E, M]
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
     *   `()` between every vertex of this hypergraph and every vertex of
-    *   [[that]], which `labelled` can relabel. This is the flattening of the
-    *   edge `this ~ that`, so it pairs each vertex of this hypergraph with each
-    *   vertex of [[that]] even where the two share vertices: a vertex in both
-    *   gains a loop, and two vertices in both are joined once for each way of
-    *   pairing them (which is just once, for edge sets).
+    *   [[that]], which [[HypergraphBase.Join.labelled]] can relabel. This is
+    *   the flattening of the edge `this ~ that`, so it pairs each vertex of
+    *   this hypergraph with each vertex of [[that]] even where the two share
+    *   vertices: a vertex in both gains a loop, and two vertices in both are
+    *   joined once for each way of pairing them (which is just once, for edge
+    *   sets).
     */
   def join[W >: V, F >: E]
     (that: HypergraphBase[W, F, M])
@@ -170,18 +215,22 @@ trait HypergraphBase[+V, +E, M]
     *   vertex of this hypergraph to [[vertex]] by an edge labelled `()` (see
     *   [[join]]).
     */
-  def cone[W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
+  def cone[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : HypergraphBase.Join[W, E, Unit, M] =
     HypergraphBase.Join(this, hypergraphs.vertex(vertex))
 
   /** Alias of [[cone]]. */
-  infix def :~ [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
-    cone(vertex)
+  infix def :~ [W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : HypergraphBase.Join[W, E, Unit, M] = cone(vertex)
 
   /** Alias of [[cone]]. */
-  infix def ~: [W >: V](vertex: W): HypergraphBase.Join[W, E, Unit, M] =
-    cone(vertex)
+  infix def ~: [W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : HypergraphBase.Join[W, E, Unit, M] = cone(vertex)
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
     : HypergraphBase[W, F, M] = hypergraphs.imaged(structure)(
     vertexMap,
@@ -189,18 +238,26 @@ trait HypergraphBase[+V, +E, M]
     kept = algebra.additive,
   )
 
-  override def vertex[A : NotHandle](value: A): Option[Vertex] = vertexValues
-    .get(value)
+  override def vertex[A : NotHandle](value: A): Option[Vertex] = structure
+    .vertexValue(value)
     .map(found =>
       new VertexOps:
         override val value: V = found,
     )
 
-  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map(
-    found =>
-      new EdgeOps:
-        override val value: Hyperedge[V, E] = found,
-  )
+  override def edge[A : NotHandle](value: A): Option[Edge] =
+    found(value).map(handle)
+
+  override private[kneiphof] def edgesAt(vertex: Any): Iterable[Edge] =
+    incidentEdgeValues(vertex).map(handle)
+
+  override private[kneiphof] def allEdges: Iterable[Edge] = edgeValues
+    .keys
+    .map(handle)
+
+  /** @return The handle on [[found]], an edge of this hypergraph. */
+  private def handle(found: Hyperedge[V, E]): Edge = new EdgeOps:
+    override val value: Hyperedge[V, E] = found
 
   /**
     * @return
@@ -220,14 +277,9 @@ trait HypergraphBase[+V, +E, M]
     *   through this, as in `m & g.counted`, or `m - g.counted` to remove one
     *   copy of each edge of `g`.
     */
-  def counted(using edges: M =:= Boolean): HypergraphBase[V, E, Count] =
-    HypergraphBase
-      .kind[Count]
-      .wrap(Support.counted(
-        edges.substituteCo[[m] =>> IncidenceStructure[V, m, Hyperedge[V, E]]](
-          structure,
-        ),
-      ))
+  def counted(using M =:= Boolean): HypergraphBase[V, E, Count] = HypergraphBase
+    .kind[Count]
+    .wrap(Support.counted(structure))
 
   override private[kneiphof] def directed: Boolean = false
 
@@ -235,8 +287,9 @@ trait HypergraphBase[+V, +E, M]
 
   override def empty: HypergraphBase[Nothing, Nothing, M] = hypergraphs.empty
 
-  override def addVertex[W >: V](vertex: W): HypergraphBase[W, E, M] =
-    hypergraphs.withVertex[W, E](this, vertex)
+  override def addVertex[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : HypergraphBase[W, E, M] = hypergraphs.withVertex[W, E](this, vertex)
 
   override def removeVertex[A : NotHandle](vertex: A): HypergraphBase[V, E, M] =
     hypergraphs.withoutVertex(this, vertex)
@@ -256,21 +309,9 @@ trait HypergraphBase[+V, +E, M]
     )
     : HypergraphBase[V, E, M] = hypergraphs.subgraph(this, keep, keepEdge)
 
-  override protected def intersected[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : HypergraphBase[V, E, M] =
-    hypergraphs.intersection(this, embed.embedded(that.structure))
-
-  override protected def subtracted[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : HypergraphBase[V, E, M] =
-    hypergraphs.difference(this, embed.embedded(that.structure))
+  override protected def edgeSubgraph
+    (keep: Hyperedge[V, E] => Boolean)
+    : HypergraphBase[V, E, M] = hypergraphs.edgeInduced(this, keep)
 
   /** The kind of this hypergraph, in its own representation. */
   private def hypergraphs: HypergraphBase.Kind[M] = HypergraphBase.kind[M]
@@ -280,10 +321,10 @@ object HypergraphBase:
 
   /**
     * The join of two hypergraphs, which remembers its new edges so that they
-    * can be relabelled with `labelled`. Equality compares only the graphs, so
+    * can be relabelled with [[labelled]]. Equality compares only the graphs, so
     * equal joins can relabel different edges:
     * `Graph(1 ~ 2) :~: Graph.vertex(3)` and `Graph.vertex(1) :~: Graph(2 ~ 3)`
-    * are the same triangle, but `labelled` relabels the edges at `3` in the
+    * are the same triangle, but [[labelled]] relabels the edges at `3` in the
     * first, and at `1` in the second.
     *
     * @tparam L
@@ -329,14 +370,8 @@ object HypergraphBase:
           left.structure,
           right.structure,
           kneiphof.Edge(_, _, label),
-          incidence
-            .Join
-            .undirectedLinks(
-              left.structure,
-              right.structure,
-              label,
-              _,
-            ),
+          label,
+          directed = false,
         )
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =

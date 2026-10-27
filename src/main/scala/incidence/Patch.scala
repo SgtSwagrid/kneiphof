@@ -38,6 +38,19 @@ private[kneiphof] final class Patch[
   override def hasVertex(vertex: Any): Boolean = added.contains(vertex) ||
     base.hasVertex(vertex) && !removed.contains(vertex)
 
+  override def vertexValue(vertex: Any): Option[V] = added
+    .get(vertex)
+    .orElse(
+      Option.unless(removed.contains(vertex))(base.vertexValue(vertex)).flatten,
+    )
+
+  override def order: Int = IncidenceStructure.total:
+    Iterator(
+      base.order,
+      added.count(!base.hasVertex(_)),
+      -removed.count(base.hasVertex),
+    )
+
   override def multiplicity(edge: Any): M = overrides.getOrElse(
     edge,
     if isDetached(edge) then M.zero else base.multiplicity(edge),
@@ -112,7 +125,7 @@ private[kneiphof] final class Patch[
     .getOrElse(vertex, ValueSet.empty)
     .toSeq
     .map(edge => edge -> overrides.getOrElse(edge, M.zero))
-    .filter(_(1).nonZero)
+    .filter((_, multiplicity) => multiplicity.nonZero)
 
   /** The edges whose multiplicities this patch might have changed. */
   private def affected: ValueSet[Any] = ValueSet.from(overrides.keys) |

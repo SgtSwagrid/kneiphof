@@ -6,9 +6,10 @@ import com.alecdorrington.kneiphof.shapes.{Index, Rule}
 /**
   * Constructors for common shapes of unlabelled graph, of kind [[G]].
   *
-  * A shape's edges are never stored: queries such as `hasEdge`, `size` and
-  * vertex degrees are answered from the shape, and the edges are only computed
-  * if something needs all of them, such as iterating over them.
+  * A shape's edges are never stored: queries such as [[AnyGraph.hasEdge]],
+  * [[AnyGraph.size]] and vertex degrees are answered from the shape, and the
+  * edges are only computed if something needs all of them, such as iterating
+  * over them.
   *
   * Each shape can be built on the vertices `0, 1, ...`, given how many there
   * are, as in `path(3)`. Shapes whose vertices come in a single sequence can
@@ -25,7 +26,8 @@ trait Shapes[+G[+v, +e]]:
     *   (in both directions, for directed graphs). The complete graph on the
     *   vertices `0 until n` is `complete(n)`.
     */
-  def clique[V](vertices: V*): G[V, Unit] = listed(vertices)(allPairs)
+  def clique[V : NotHandle](vertices: V*): G[V, Unit] =
+    listed(vertices)(allPairs)
 
   /**
     * @return
@@ -78,7 +80,7 @@ trait Shapes[+G[+v, +e]]:
     *   is the dodecahedron.
     */
   def petersen(n: Int, k: Int): G[Int, Unit] =
-    counted(2 * n)(_ => Rule.Petersen(n, skips(n, k)))
+    counted(Math.multiplyExact(2, n))(_ => Rule.Petersen(n, skips(n, k)))
 
   /**
     * @return
@@ -96,10 +98,7 @@ trait Shapes[+G[+v, +e]]:
     *   for [[cycle]]. There must be at least `1` row and `1` column.
     */
   def torus(rows: Int, columns: Int): G[(Int, Int), Unit] =
-    paired(rows, columns)(
-      order => Rule.Cycle(cyclic(order)),
-      order => Rule.Cycle(cyclic(order)),
-    )
+    paired(rows, columns)(cycleRule, cycleRule)
 
   /**
     * @return
@@ -107,16 +106,15 @@ trait Shapes[+G[+v, +e]]:
     *   each `i` in `0 until order`, with a rung from each `(i, 0)` to `(i, 1)`.
     *   The cycles are as for [[cycle]], and need at least `1` vertex each.
     */
-  def prism(order: Int): G[(Int, Int), Unit] = paired(order, 2)(
-    order => Rule.Cycle(cyclic(order)),
-    Rule.Path(_),
-  )
+  def prism(order: Int): G[(Int, Int), Unit] =
+    paired(order, 2)(cycleRule, Rule.Path(_))
 
   /** @return The path through the vertices `0 until order`, in order. */
   def path(order: Int): G[Int, Unit] = counted(order)(Rule.Path(_))
 
   /** @return The path through the given [[vertices]], in order. */
-  def path[V](vertices: V*): G[V, Unit] = listed(vertices)(Rule.Path(_))
+  def path[V : NotHandle](vertices: V*): G[V, Unit] =
+    listed(vertices)(Rule.Path(_))
 
   /**
     * @return
@@ -125,16 +123,15 @@ trait Shapes[+G[+v, +e]]:
     *   of `2` vertices joins them twice, which is just once in undirected
     *   graphs whose edges form a set.
     */
-  def cycle(order: Int): G[Int, Unit] =
-    counted(order)(order => Rule.Cycle(cyclic(order)))
+  def cycle(order: Int): G[Int, Unit] = counted(order)(cycleRule)
 
   /**
     * @return
     *   The cycle through the given [[vertices]], in order, of which there must
     *   be at least `1`, as for `cycle(order)`.
     */
-  def cycle[V](vertices: V*): G[V, Unit] =
-    listed(vertices)(order => Rule.Cycle(cyclic(order)))
+  def cycle[V : NotHandle](vertices: V*): G[V, Unit] =
+    listed(vertices)(cycleRule)
 
   /**
     * @return
@@ -142,10 +139,10 @@ trait Shapes[+G[+v, +e]]:
     *   `1 to leaves` (pointing outwards, for directed graphs).
     */
   def star(leaves: Int): G[Int, Unit] =
-    counted(nonNegative(leaves) + 1)(Rule.Star(_))
+    counted(Math.addExact(nonNegative(leaves), 1))(Rule.Star(_))
 
   /** @return The star with [[centre]] adjacent to each of the [[leaves]]. */
-  def star[V](centre: V, leaves: V*): G[V, Unit] =
+  def star[V : NotHandle](centre: V, leaves: V*): G[V, Unit] =
     listed(centre +: leaves)(Rule.Star(_))
 
   /**
@@ -165,10 +162,10 @@ trait Shapes[+G[+v, +e]]:
     *   form a cycle in order as for [[cycle]]. There must be at least `1` of
     *   them.
     */
-  def wheel[V](hub: V, rim: V*): G[V, Unit] = coned(
+  def wheel[V : NotHandle](hub: V, rim: V*): G[V, Unit] = coned(
     hub,
     apart(hub, rim),
-    Rule.Cycle(cyclic(rim.size)),
+    cycleRule(rim.size),
   )
 
   /**
@@ -187,7 +184,7 @@ trait Shapes[+G[+v, +e]]:
     *   The fan with [[hub]] adjacent to each of the [[rim]] vertices, which
     *   form a path in order.
     */
-  def fan[V](hub: V, rim: V*): G[V, Unit] = coned(
+  def fan[V : NotHandle](hub: V, rim: V*): G[V, Unit] = coned(
     hub,
     apart(hub, rim),
     Rule.Path(rim.size),
@@ -209,7 +206,7 @@ trait Shapes[+G[+v, +e]]:
     *   The complete tree on the given [[vertices]] in breadth-first order, in
     *   which each vertex has up to [[branching]] children.
     */
-  def tree[V](branching: Int, vertices: V*): G[V, Unit] =
+  def tree[V : NotHandle](branching: Int, vertices: V*): G[V, Unit] =
     listed(vertices)(Rule.Tree(_, branches(branching)))
 
   /** @return The shape whose vertices [[index]] names, linked by [[rule]]. */
@@ -334,10 +331,17 @@ trait Shapes[+G[+v, +e]]:
     */
   private def skips(n: Int, k: Int): Int =
     require(
-      0 < k && 2 * k < n,
+      0 < k && k < n - k,
       s"The generalised Petersen graph needs 0 < k < n / 2, but had n = $n and k = $k.",
     )
     k
+
+  /**
+    * @return
+    *   The rule of the cycle on [[order]] vertices, after checking that a cycle
+    *   can have that many.
+    */
+  private def cycleRule(order: Int): Rule = Rule.Cycle(cyclic(order))
 
   /**
     * @return

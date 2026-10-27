@@ -37,8 +37,9 @@ trait Multiplicity[M] extends Semiring[M], Lattice[M]:
   extension (x: M)
 
     /**
-      * Computes the truncated difference of [[x]] and [[y]], i.e. `x - y`,
-      * stopping at [[zero]].
+      * @return
+      *   The truncated difference of [[x]] and [[y]], which is `x - y` stopping
+      *   at [[zero]].
       */
     def monus(y: M): M
 

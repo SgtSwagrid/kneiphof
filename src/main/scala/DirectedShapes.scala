@@ -24,5 +24,5 @@ trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
     *   The transitive tournament on the given [[vertices]], with an edge from
     *   each vertex to every later one.
     */
-  def transitiveTournament[V](vertices: V*): G[V, Unit] =
+  def transitiveTournament[V : NotHandle](vertices: V*): G[V, Unit] =
     listed(vertices)(Rule.Clique(_))

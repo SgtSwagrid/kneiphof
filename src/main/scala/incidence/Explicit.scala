@@ -127,7 +127,7 @@ private[kneiphof] object Explicit:
       .vertexValues
       .iterator
       .map(vertex => (vertex: Any) -> structure.incidentEdgeValues(vertex))
-      .filter(_(1).nonEmpty)
+      .filter((_, edges) => edges.nonEmpty)
       .toMap,
     ValueMap.from(structure.edges),
   )

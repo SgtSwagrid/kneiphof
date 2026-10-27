@@ -33,11 +33,12 @@ type DirectedGraph[+V, +E] = DirectedGraphBase[V, E, Boolean]
 /** A directed graph which may contain several copies of the same edge. */
 type DirectedMultigraph[+V, +E] = DirectedGraphBase[V, E, Count]
 
-extension [V](first: V)
+extension [V : NotHandle](first: V)
 
   /** Alias of [[Edge.apply]]. */
-  infix def ~ [W >: V](second: W): Edge[W, Unit] = Edge(first, second)
+  infix def ~ [W >: V, A <: W : NotHandle](second: A): Edge[W, Unit] =
+    Edge(first, second)
 
   /** Alias of [[DirectedEdge.apply]]. */
-  infix def ~> [T](target: T): DirectedEdge[V, T, Unit] =
+  infix def ~> [T : NotHandle](target: T): DirectedEdge[V, T, Unit] =
     DirectedEdge(first, target)

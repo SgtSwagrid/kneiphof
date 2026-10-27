@@ -43,10 +43,10 @@ trait DirectedHyperedge[+S, +T, +E]
 
   override def vertexValues: ValueSet[S | T] = ValueSet.from(tail ++ head)
 
-  override def occurrences(vertex: Any): Int = tail.count(_ == vertex) +
-    head.count(_ == vertex)
+  override def occurrences[A : NotHandle](vertex: A): Int =
+    tail.count(_ == vertex) + head.count(_ == vertex)
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: (S | T) => W, labelMap: E => F)
     : DirectedHyperedge[W, W, F] = DirectedHyperedge.from(
     tail.map(vertexMap),
@@ -54,11 +54,11 @@ trait DirectedHyperedge[+S, +T, +E]
     labelMap(label),
   )
 
-  override def mapVertices[W]
+  override def mapVertices[W : NotHandle]
     (transform: (S | T) => W)
     : DirectedHyperedge[W, W, E] = map(transform, identity)
 
-  override def substitute[W]
+  override def substitute[W : NotHandle]
     (choices: (S | T) => Iterable[W])
     : Iterable[DirectedHyperedge[W, W, E]] =
     for
@@ -87,7 +87,7 @@ object DirectedHyperedge:
 
   /**
     * @return
-    *   An unlabelled hyperedge from [[tail]] to [[head]], counting repeats.
+    *   The unlabelled hyperedge from [[tail]] to [[head]], counting repeats.
     */
   def apply[S, T]
     (tail: Iterable[S], head: Iterable[T])
@@ -95,7 +95,7 @@ object DirectedHyperedge:
 
   /**
     * @return
-    *   A hyperedge from [[tail]] to [[head]] carrying [[label]], counting
+    *   The hyperedge from [[tail]] to [[head]] carrying [[label]], counting
     *   repeats. A hyperedge with exactly one source and one target is always a
     *   [[DirectedEdge]].
     * @throws IllegalArgumentException

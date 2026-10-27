@@ -47,7 +47,7 @@ trait AnyGraph[+V, +E, M]:
   def multiplicity[A : NotHandle](edge: A): M = structure.multiplicity(edge)
 
   /** The number of vertices in this graph. */
-  def order: Int = vertexValues.size
+  def order: Int = structure.order
 
   /** The number of edges in this graph, counting every copy of each edge. */
   def size: Int = structure.size
@@ -62,13 +62,17 @@ trait AnyGraph[+V, +E, M]:
   )
 
   /**
+    * Orders and sizes are compared first, since many graphs count them without
+    * listing their vertices and edges.
+    *
     * @return
     *   `true` if and only if this graph and [[that]] belong to the same family,
     *   and have the same vertices and the same multiplicity for every edge.
     */
-  protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean =
-    directed == that.directed && algebra == that.algebra &&
-    vertexValues == that.vertexValues && edgeValues == that.edgeValues
+  protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean = directed ==
+    that.directed && algebra == that.algebra && order == that.order &&
+    size == that.size && vertexValues == that.vertexValues &&
+    edgeValues == that.edgeValues
 
 /** The companion object for [[AnyGraph]]. */
 object AnyGraph:

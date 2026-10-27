@@ -28,11 +28,13 @@ trait DirectedChain[+V, +E, +L] extends DirectedGraphBase[V, E | L, Count]:
     * @return
     *   This chain, extended by an unlabelled edge from [[tip]] to [[next]].
     */
-  def to[W >: V](next: W): DirectedChain[W, E | L, Unit] =
+  def to[W >: V, A <: W : NotHandle](next: A): DirectedChain[W, E | L, Unit] =
     DirectedChain.Steps(steps, DirectedEdge(tip, next))
 
   /** Alias of [[to]]. */
-  infix def ~> [W >: V](next: W): DirectedChain[W, E | L, Unit] = to(next)
+  infix def ~> [W >: V, A <: W : NotHandle]
+    (next: A)
+    : DirectedChain[W, E | L, Unit] = to(next)
 
   /** @return This chain, with its last edge labelled [[label]] instead. */
   def labelled[F : NotGraph](label: F): DirectedChain[V, E, F]

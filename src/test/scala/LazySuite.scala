@@ -1,9 +1,9 @@
 package com.alecdorrington.kneiphof
 
 import com.alecdorrington.kneiphof.incidence.{
-  Difference, Image, Intersection, Subgraph, Sum, Union,
+  Difference, EdgeInduced, Image, Intersection, Subgraph, Sum, Union,
 }
-import munit.FunSuite
+import munit.{FunSuite, Location}
 
 /**
   * Tests that lazily built graphs answer queries as the graphs they build
@@ -392,4 +392,193 @@ class LazySuite extends FunSuite, LazyAssertions:
       (1, 0) ~ (1, 1),
       (1, 0) ~ (3, 0),
       (1, 1) ~ (1, 1),
+    )
+
+  test(
+    "sums and unions of lazy operands are lazy, and agree with their built graphs",
+  ):
+    val cycle = Graph.cycle(5)
+    val path  = Graph.path(2, 3, 4, 5)
+    assertLazy(cycle + path, 0 ~ 5, 4 ~ 5, 5)
+    assertLazy(cycle | path, 0 ~ 5, 1 ~ 3)
+    (cycle | path).structure match
+      case union: Union[?, ?, ?] => assertEquals(union.operands.size, 2)
+      case structure             => fail(s"$structure isn't one union.")
+    val counts = Multigraph.cycle(4)
+    val more   = Multigraph.path(0, 1, 2) + Multigraph.path(0, 1)
+    assertLazy(counts | more, 0 ~ 1, 0 ~ 2, 1 ~ 2)
+    assertLazy(counts + more, 0 ~ 1, 0 ~ 2, 1 ~ 2)
+    assertEquals(
+      (counts | more).multiplicity(0 ~ 1),
+      Count(2),
+    )
+    assertEquals(
+      (counts + more).multiplicity(0 ~ 1),
+      Count(3),
+    )
+
+  test("alternating stored and lazy operands still merge into one structure"):
+    val steps                   = 1 until 10_000
+    val start: Graph[Int, Unit] = Graph.path(2)
+    val unioned                 = steps.foldLeft(start): (graph, i) =>
+      val next = Graph.path(i, i + 1)
+      graph | (if i % 2 == 0 then next.materialise else next)
+    assertEquals(unioned.size, 10_000)
+    assert(unioned.hasVertex(10_000))
+    assertEquals(unioned.degree(5_000), 2)
+    unioned.structure match
+      case union: Union[?, ?, ?] => assertEquals(union.operands.size, 10_000)
+      case structure             => fail(s"$structure isn't one union.")
+    val clique: Graph[Int, Unit] = Graph.complete(5)
+    val thinned                  = steps.foldLeft(clique): (graph, i) =>
+      val next = Graph.path(3)
+      graph - (if i % 2 == 0 then next.materialise else next)
+    assertEquals(thinned.size, 8)
+    assert(thinned.hasVertex(4))
+    thinned.structure match
+      case difference: Difference[?, ?, ?] =>
+        assertEquals(difference.others.size, 9_999)
+      case structure => fail(s"$structure isn't one difference.")
+    val stored = Graph.complete(100).materialise
+    (Graph.vertex(0) + stored).structure match
+      case _: Union[?, ?, ?] => ()
+      case structure         => fail(s"$structure copied the stored operand.")
+
+  test("intersections and differences walk their smaller side"):
+    val clique = Graph.complete(50_000)
+    val small  = Graph(0 ~ 1)
+    assertEquals((small & clique).size, 1)
+    assertEquals((small & clique).order, 2)
+    assertEquals((clique & small).order, 2)
+    assertEquals((small - clique).size, 0)
+    assertEquals((clique - small).size, 1_249_974_999)
+
+  test(
+    "chained edge-induced subgraphs merge, and only look at their own edges",
+  ):
+    assertEquals(
+      Graph.complete(1_000).edgeInduced(_ => true).size,
+      499_500,
+    )
+    val clique: Graph[Int, Unit] = Graph.complete(200)
+    val chained                  = (0 until 20).foldLeft(clique): (graph, i) =>
+      graph.edgeInduced(_.occurrences(i) == 0)
+    assertEquals(chained.order, 180)
+    assertEquals(chained.size, 180 * 179 / 2)
+    chained.structure match
+      case _: EdgeInduced[?, ?, ?] => ()
+      case structure               => fail(s"$structure isn't one subgraph.")
+    assertLazy(
+      Graph
+        .cycle(6)
+        .edgeInduced(_.occurrences(0) == 0)
+        .edgeInduced(_.occurrences(1) == 0),
+      0 ~ 5,
+      1 ~ 2,
+      0,
+      1,
+    )
+
+  test(
+    "handles on lazy images, joins and products agree with their built graphs",
+  ):
+    assertHandles(Graph.cycle(4).mapVertices(_ % 2))
+    assertHandles(Multigraph.cycle(4).mapVertices(_ % 2))
+    assertHandles(Graph.path(3) :~: Graph.vertices(1, 5))
+    assertHandles(Graph.cycle(3) □ Graph.path(3))
+    assertDirectedHandles(DirectedGraph.cycle(4).mapVertices(_ % 2))
+    assertDirectedHandles(DirectedMultigraph.cycle(4).mapVertices(_ % 2))
+    assertDirectedHandles(
+      DirectedGraph.path(3) :~>: DirectedGraph.vertices(1, 5),
+    )
+    assertDirectedHandles(DirectedGraph.cycle(3).coneTo(9))
+    assertDirectedHandles(DirectedGraph.cycle(3) □ DirectedGraph.path(2))
+    val transposed = DirectedGraph.star(50_000).transpose
+    assertEquals(transposed(0).inDegree, 50_000)
+    assertEquals(transposed(0).inEdges.size, 50_000)
+    assertEquals(transposed(0).outDegree, 0)
+    assertEquals(transposed(0).edges.size, 50_000)
+
+  test("large shapes count and find their vertices without listing them"):
+    val grid = Graph.grid(10_000, 10_000)
+    assertEquals(grid.order, 100_000_000)
+    assert(grid.hasVertex((9_999, 9_999)))
+    assert(!grid.hasVertex((10_000, 0)))
+    assert(grid.filterVertices(_ != (0, 0)).hasVertex((1, 1)))
+    val union = grid | Graph.path(3)
+    assert(union.hasEdge((0, 0) ~ (0, 1)))
+    assert(union.hasEdge(0 ~ 1))
+    assert(union.hasVertex(2))
+    assertEquals(union.degree((5, 5)), 4)
+    assertEquals(union.degree(1), 2)
+
+  /**
+    * Checks that the handles on the vertices of [[graph]] agree with those of
+    * its materialisation.
+    */
+  private def assertHandles[M]
+    (graph: GraphBase[Any, Any, M])
+    (using Location)
+    : Unit =
+    assert(
+      !graph.structure.stored,
+      "The graph is stored.",
+    )
+    val built = graph.materialise
+    graph
+      .vertexValues
+      .foreach: vertex =>
+        assertEquals(
+          graph(vertex).degree,
+          built(vertex).degree,
+        )
+        assertEquals(
+          graph(vertex).edges.map(_.value),
+          built(vertex).edges.map(_.value),
+        )
+        assertEquals(
+          graph(vertex).neighbours.map(_.value),
+          built(vertex).neighbours.map(_.value),
+        )
+    assertEquals(
+      graph.edges.map(_.value),
+      built.edges.map(_.value),
+    )
+
+  /** Checks a directed graph's handles in the same way as [[assertHandles]]. */
+  private def assertDirectedHandles[M]
+    (graph: DirectedGraphBase[Any, Any, M])
+    (using Location)
+    : Unit =
+    assert(
+      !graph.structure.stored,
+      "The graph is stored.",
+    )
+    val built = graph.materialise
+    graph
+      .vertexValues
+      .foreach: vertex =>
+        assertEquals(
+          graph(vertex).outDegree,
+          built(vertex).outDegree,
+        )
+        assertEquals(
+          graph(vertex).inDegree,
+          built(vertex).inDegree,
+        )
+        assertEquals(
+          graph(vertex).outEdges.map(_.value),
+          built(vertex).outEdges.map(_.value),
+        )
+        assertEquals(
+          graph(vertex).inEdges.map(_.value),
+          built(vertex).inEdges.map(_.value),
+        )
+        assertEquals(
+          graph(vertex).edges.map(_.value),
+          built(vertex).edges.map(_.value),
+        )
+    assertEquals(
+      graph.edges.map(_.value),
+      built.edges.map(_.value),
     )

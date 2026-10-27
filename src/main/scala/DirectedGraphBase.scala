@@ -43,11 +43,19 @@ trait DirectedGraphBase[+V, +E, M]
     case edge: Arc[W, F] => updated(edge, multiplicity)
     case _               => toDirectedHypergraph.updated(edge, multiplicity)
 
-  override def edge[A : NotHandle](value: A): Option[Edge] = found(value).map(
-    found =>
-      new DirectedEdgeOps:
-        override val value: Arc[V, E] = found,
-  )
+  override def edge[A : NotHandle](value: A): Option[Edge] =
+    found(value).map(handle)
+
+  override private[kneiphof] def edgesAt(vertex: Any): Iterable[Edge] =
+    incidentEdgeValues(vertex).map(handle)
+
+  override private[kneiphof] def allEdges: Iterable[Edge] = edgeValues
+    .keys
+    .map(handle)
+
+  /** @return The handle on [[found]], an edge of this directed graph. */
+  private def handle(found: Arc[V, E]): Edge = new DirectedEdgeOps:
+    override val value: Arc[V, E] = found
 
   override def transpose: DirectedGraphBase[V, E, M] = graphs.imaged(structure)(
     identity,
@@ -91,6 +99,28 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, N])
     (using Embedding[N, M])
     : DirectedGraphBase[W, F, M] = union(that)
+
+  override def difference[N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : DirectedGraphBase[V, E, M] =
+    graphs.difference(this, embed.embedded(that.structure))
+
+  override infix def - [N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : DirectedGraphBase[V, E, M] = difference(that)
+
+  override def intersection[N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using embed: Embedding[N, M])
+    : DirectedGraphBase[V, E, M] =
+    graphs.intersection(this, embed.embedded(that.structure))
+
+  override infix def & [N]
+    (that: DirectedHypergraphBase[Any, Any, N])
+    (using Embedding[N, M])
+    : DirectedGraphBase[V, E, M] = intersection(that)
 
   /**
     * @return
@@ -172,10 +202,10 @@ trait DirectedGraphBase[+V, +E, M]
     * @return
     *   The join of this graph and [[that]], with an extra edge labelled `()`
     *   from every vertex of this graph to every vertex of [[that]], which
-    *   `labelled` can relabel. This is the flattening of the edge
-    *   `this ~> that`, so it pairs each vertex of this graph with each vertex
-    *   of [[that]] even where the two share vertices: a vertex in both gains a
-    *   loop, and two vertices in both gain an edge each way.
+    *   [[DirectedGraphBase.Join.labelled]] can relabel. This is the flattening
+    *   of the edge `this ~> that`, so it pairs each vertex of this graph with
+    *   each vertex of [[that]] even where the two share vertices: a vertex in
+    *   both gains a loop, and two vertices in both gain an edge each way.
     */
   def join[W >: V, F >: E]
     (that: DirectedGraphBase[W, F, M])
@@ -186,22 +216,22 @@ trait DirectedGraphBase[+V, +E, M]
     (that: DirectedGraphBase[W, F, M])
     : DirectedGraphBase.Join[W, F, Unit, M] = that.join(this)
 
-  override def coneTo[W >: V]
-    (vertex: W)
+  override def coneTo[W >: V, A <: W : NotHandle]
+    (vertex: A)
     : DirectedGraphBase.Join[W, E, Unit, M] =
     DirectedGraphBase.Join(this, graphs.vertex(vertex))
 
-  override infix def :~> [W >: V]
-    (vertex: W)
+  override infix def :~> [W >: V, A <: W : NotHandle]
+    (vertex: A)
     : DirectedGraphBase.Join[W, E, Unit, M] = coneTo(vertex)
 
-  override def coneFrom[W >: V]
-    (vertex: W)
+  override def coneFrom[W >: V, A <: W : NotHandle]
+    (vertex: A)
     : DirectedGraphBase.Join[W, E, Unit, M] =
     DirectedGraphBase.Join(graphs.vertex(vertex), this)
 
-  override infix def ~>: [W >: V]
-    (vertex: W)
+  override infix def ~>: [W >: V, A <: W : NotHandle]
+    (vertex: A)
     : DirectedGraphBase.Join[W, E, Unit, M] = coneFrom(vertex)
 
   /** This graph as a directed hypergraph. */
@@ -217,7 +247,7 @@ trait DirectedGraphBase[+V, +E, M]
       kept = algebra.additive,
     )
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
     : DirectedGraphBase[W, F, M] = graphs.imaged(structure)(
     vertexMap,
@@ -243,20 +273,16 @@ trait DirectedGraphBase[+V, +E, M]
     *   in `m & g.counted`, or `m - g.counted` to remove one copy of each edge
     *   of `g`.
     */
-  override def counted
-    (using edges: M =:= Boolean)
-    : DirectedGraphBase[V, E, Count] = DirectedGraphBase
-    .kind[Count]
-    .wrap(Support.counted(
-      edges.substituteCo[[m] =>> IncidenceStructure[V, m, Arc[V, E]]](structure),
-    ))
+  override def counted(using M =:= Boolean): DirectedGraphBase[V, E, Count] =
+    DirectedGraphBase.kind[Count].wrap(Support.counted(structure))
 
   override protected def kindName: String = "DirectedGraph"
 
   override def empty: DirectedGraphBase[Nothing, Nothing, M] = graphs.empty
 
-  override def addVertex[W >: V](vertex: W): DirectedGraphBase[W, E, M] = graphs
-    .withVertex[W, E](this, vertex)
+  override def addVertex[W >: V, A <: W : NotHandle]
+    (vertex: A)
+    : DirectedGraphBase[W, E, M] = graphs.withVertex[W, E](this, vertex)
 
   override def removeVertex[A : NotHandle]
     (vertex: A)
@@ -277,21 +303,9 @@ trait DirectedGraphBase[+V, +E, M]
     )
     : DirectedGraphBase[V, E, M] = graphs.subgraph(this, keep, keepEdge)
 
-  override protected def intersected[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : DirectedGraphBase[V, E, M] =
-    graphs.intersection(this, embed.embedded(that.structure))
-
-  override protected def subtracted[N]
-    (
-      that: AnyGraph[Any, Any, N],
-      embed: Embedding[N, M],
-    )
-    : DirectedGraphBase[V, E, M] =
-    graphs.difference(this, embed.embedded(that.structure))
+  override protected def edgeSubgraph
+    (keep: Arc[V, E] => Boolean)
+    : DirectedGraphBase[V, E, M] = graphs.edgeInduced(this, keep)
 
   /** The kind of this graph, in its own representation. */
   private def graphs: DirectedGraphBase.Kind[M] = DirectedGraphBase.kind[M]
@@ -301,8 +315,9 @@ object DirectedGraphBase:
 
   /**
     * The join of two directed graphs, which remembers its new edges so that
-    * they can be relabelled with `labelled`. Equality compares only the graphs,
-    * so equal joins can relabel different edges (see [[HypergraphBase.Join]]).
+    * they can be relabelled with [[labelled]]. Equality compares only the
+    * graphs, so equal joins can relabel different edges (see
+    * [[HypergraphBase.Join]]).
     *
     * @tparam L
     *   The label of the new edges.
@@ -349,14 +364,8 @@ object DirectedGraphBase:
           left.structure,
           right.structure,
           DirectedEdge(_, _, label),
-          incidence
-            .Join
-            .directedLinks(
-              left.structure,
-              right.structure,
-              label,
-              _,
-            ),
+          label,
+          directed = true,
         )
 
       override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =

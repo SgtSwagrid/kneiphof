@@ -28,7 +28,7 @@ final case class Edge[+V, +E]
 
   override def tip: V = second
 
-  override def map[W, F]
+  override def map[W : NotHandle, F]
     (vertexMap: V => W, labelMap: E => F)
     : kneiphof.Edge[W, F] = Edge(
     vertexMap(first),
@@ -36,10 +36,11 @@ final case class Edge[+V, +E]
     labelMap(label),
   )
 
-  override def mapVertices[W](transform: V => W): kneiphof.Edge[W, E] =
-    map(transform, identity)
+  override def mapVertices[W : NotHandle]
+    (transform: V => W)
+    : kneiphof.Edge[W, E] = map(transform, identity)
 
-  override def substitute[W]
+  override def substitute[W : NotHandle]
     (choices: V => Iterable[W])
     : Iterable[kneiphof.Edge[W, E]] =
     for
@@ -60,5 +61,5 @@ final case class Edge[+V, +E]
 /** The companion object for [[Edge]]. */
 object Edge:
 
-  /** @return An unlabelled edge between [[first]] and [[second]]. */
+  /** @return The unlabelled edge between [[first]] and [[second]]. */
   def apply[V](first: V, second: V): Edge[V, Unit] = Edge(first, second, ())
