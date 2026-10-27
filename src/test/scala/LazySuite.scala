@@ -242,7 +242,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     val hypergraph = Graph.cycle(3).toHypergraph
     assert(!hypergraph.structure.stored)
     assert(hypergraph.hasEdge(0 ~ 1))
-    val grown = hypergraph.updated(Hyperedge(0, 1, 2), true)
+    val grown = hypergraph.withEdge(Hyperedge(0, 1, 2), true)
     assert(!grown.structure.stored)
     assert(grown.hasEdge(Hyperedge(0, 1, 2)))
     assertEquals(grown.size, 4)
@@ -252,7 +252,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     val patched = cycle
       .removeVertex(0)
       .addVertex(9)
-      .updated(9 ~ 1, true)
+      .withEdge(9 ~ 1, true)
       .removeEdge(2 ~ 3)
     assertEquals(patched, Graph(1 ~ 2, 3 ~ 4, 9 ~ 1))
     assertLazy(patched, 0 ~ 1, 2 ~ 3, 9 ~ 2, 0)
@@ -263,7 +263,7 @@ class LazySuite extends FunSuite, LazyAssertions:
     )
     assertLazy(restored, 0 ~ 1, 3 ~ 0)
     assertLazy(
-      cycle.withMultiplicity(0 ~ 1, false).updated(0 ~ 1, true),
+      cycle.withMultiplicity(0 ~ 1, false).withEdge(0 ~ 1, true),
       0 ~ 1,
     )
 
@@ -272,7 +272,7 @@ class LazySuite extends FunSuite, LazyAssertions:
       .complete(50_000)
       .removeVertex(0)
       .addVertex(-1)
-      .updated(-1 ~ 1, true)
+      .withEdge(-1 ~ 1, true)
       .removeEdge(1 ~ 2)
     assertEquals(patched.order, 50_000)
     assertEquals(patched.size, 1_249_975_000 - 49_999)
@@ -301,8 +301,8 @@ class LazySuite extends FunSuite, LazyAssertions:
     assertEquals(transposed(0).degree, 50_000)
 
   test("zero updates add no vertices, lazily or eagerly"):
-    val lazily  = Graph.cycle(3).updated(7 ~ 8, false)
-    val eagerly = Graph(0 ~ 1 ~ 2 ~ 0).updated(7 ~ 8, false)
+    val lazily  = Graph.cycle(3).withEdge(7 ~ 8, false)
+    val eagerly = Graph(0 ~ 1 ~ 2 ~ 0).withEdge(7 ~ 8, false)
     assertEquals(lazily.order, 3)
     assertEquals(eagerly.order, 3)
     assertEquals(lazily, eagerly)
@@ -311,7 +311,7 @@ class LazySuite extends FunSuite, LazyAssertions:
   test("long chains of updates and sums stay shallow"):
     val start: GraphBase[Int, Unit, Boolean] = Graph.complete(3)
     val updated = (0 until 20_000).foldLeft(start): (graph, vertex) =>
-      graph.updated(vertex ~ (vertex + 1), true)
+      graph.withEdge(vertex ~ (vertex + 1), true)
     assertEquals(updated.size, 20_001)
     assertEquals(updated.edgeValues.size, 20_001)
     val summed = (0 until 20_000).foldLeft(start): (graph, vertex) =>

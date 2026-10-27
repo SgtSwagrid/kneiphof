@@ -23,7 +23,7 @@ private[kneiphof] trait SingleEdge[
 
   override lazy val edgeValues: ValueMap[X[V, E], Count] = ValueMap
     .empty
-    .updated(this, Count(1))
+    .withEntry(this, Count(1))
 
   override def incidentEdgeValues[A : NotHandle](vertex: A): ValueSet[X[V, E]] =
     if vertexValues.contains(vertex) then ValueSet(this) else ValueSet.empty

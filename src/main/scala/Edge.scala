@@ -48,11 +48,11 @@ final case class Edge[+V, +E]
       end   <- choices(second)
     yield Edge(start, end, label)
 
-  override def labelled[F : NotGraph](label: F): kneiphof.Edge[V, F] =
+  override def withLabel[F : NotGraph](label: F): kneiphof.Edge[V, F] =
     Edge(first, second, label)
 
   override infix def % [F : NotGraph](label: F): kneiphof.Edge[V, F] =
-    labelled(label)
+    withLabel(label)
 
   override def toString: String = describe(s"$first ~ $second", label)
 

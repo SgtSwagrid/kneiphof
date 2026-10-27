@@ -41,11 +41,11 @@ final class ValueMap[+K, +A] private (entries: Map[Any, (K, A)])
     .map((key, _) => key)
 
   /** @return This map with [[key]] mapped to [[value]]. */
-  def updated[L >: K, B >: A](key: L, value: B): ValueMap[L, B] =
+  def withEntry[L >: K, B >: A](key: L, value: B): ValueMap[L, B] =
     new ValueMap(entries.updated(key, (key, value)))
 
   /** @return This map without [[key]]. */
-  def removed(key: Any): ValueMap[K, A] = new ValueMap(entries - key)
+  def without(key: Any): ValueMap[K, A] = new ValueMap(entries - key)
 
   override def equals(that: Any): Boolean = that match
     case that: ValueMap[?, ?] => size == that.size &&
@@ -75,4 +75,4 @@ object ValueMap:
   def from[K, A](entries: IterableOnce[(K, A)]): ValueMap[K, A] = entries
     .iterator
     .foldLeft(empty[K, A]):
-      case (map, (key, value)) => map.updated(key, value)
+      case (map, (key, value)) => map.withEntry(key, value)

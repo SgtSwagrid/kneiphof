@@ -48,10 +48,10 @@ trait AnyEdge[+V, +E, +X[+v, +e]]:
     *   This edge, with its label replaced by [[label]], which can't be an edge
     *   or graph (see [[NotGraph]]).
     */
-  def labelled[F : NotGraph](label: F): X[V, F] = mapLabel(_ => label)
+  def withLabel[F : NotGraph](label: F): X[V, F] = mapLabel(_ => label)
 
-  /** Alias of [[labelled]]. */
-  infix def % [F : NotGraph](label: F): X[V, F] = labelled(label)
+  /** Alias of [[withLabel]]. */
+  infix def % [F : NotGraph](label: F): X[V, F] = withLabel(label)
 
   /**
     * A hash of the ends and label of this edge, consistent with equality

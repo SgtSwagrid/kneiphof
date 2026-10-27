@@ -41,10 +41,10 @@ trait Chain[+V, +E, +L] extends GraphBase[V, E | L, Count]:
     *   earlier edge, use brackets, as in `(1 ~ 2 % "a") ~ 3`, since `%` binds
     *   more loosely than `~` (see [[NotGraph]]).
     */
-  def labelled[F : NotGraph](label: F): Chain[V, E, F]
+  def withLabel[F : NotGraph](label: F): Chain[V, E, F]
 
-  /** Alias of [[labelled]]. */
-  infix def % [F : NotGraph](label: F): Chain[V, E, F] = labelled(label)
+  /** Alias of [[withLabel]]. */
+  infix def % [F : NotGraph](label: F): Chain[V, E, F] = withLabel(label)
 
   /** The edges of this chain, in the order they were written. */
   private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]]
@@ -59,8 +59,8 @@ object Chain:
 
     override def tip: V = last.second
 
-    override def labelled[F : NotGraph](label: F): Chain[V, E, F] =
-      Steps(earlier, last.labelled(label))
+    override def withLabel[F : NotGraph](label: F): Chain[V, E, F] =
+      Steps(earlier, last.withLabel(label))
 
     override private[kneiphof] def steps: Seq[kneiphof.Edge[V, E | L]] =
       earlier :+ last

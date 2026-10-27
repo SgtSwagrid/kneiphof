@@ -132,7 +132,7 @@ trait GraphKind[
     *   The graph [[graph]], with the multiplicity of [[edge]] set to
     *   [[multiplicity]], adding its vertices unless the edge is now absent.
     */
-  private[kneiphof] def updated[V, E]
+  private[kneiphof] def withEdge[V, E]
     (
       graph: G[V, E],
       edge: X[V, E],

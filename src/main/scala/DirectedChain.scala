@@ -37,10 +37,11 @@ trait DirectedChain[+V, +E, +L] extends DirectedGraphBase[V, E | L, Count]:
     : DirectedChain[W, E | L, Unit] = to(next)
 
   /** @return This chain, with its last edge labelled [[label]] instead. */
-  def labelled[F : NotGraph](label: F): DirectedChain[V, E, F]
+  def withLabel[F : NotGraph](label: F): DirectedChain[V, E, F]
 
-  /** Alias of [[labelled]]. */
-  infix def % [F : NotGraph](label: F): DirectedChain[V, E, F] = labelled(label)
+  /** Alias of [[withLabel]]. */
+  infix def % [F : NotGraph](label: F): DirectedChain[V, E, F] =
+    withLabel(label)
 
   /** The edges of this chain, in the order they were written. */
   private[kneiphof] def steps: Seq[Arc[V, E | L]]
@@ -55,8 +56,8 @@ object DirectedChain:
 
     override def tip: V = last.target
 
-    override def labelled[F : NotGraph](label: F): DirectedChain[V, E, F] =
-      Steps(earlier, last.labelled(label))
+    override def withLabel[F : NotGraph](label: F): DirectedChain[V, E, F] =
+      Steps(earlier, last.withLabel(label))
 
     override private[kneiphof] def steps: Seq[Arc[V, E | L]] = earlier :+ last
 

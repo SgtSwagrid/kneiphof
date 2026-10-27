@@ -90,7 +90,7 @@ private[kneiphof] final class Patch[
       added - vertex,
       removed + vertex,
       detached + vertex,
-      dropped.foldLeft(overrides)(_.removed(_)),
+      dropped.foldLeft(overrides)(_.without(_)),
       dropped.foldLeft(touching - vertex)(Patch.untouch),
     )
 
@@ -110,7 +110,7 @@ private[kneiphof] final class Patch[
     added | ValueSet.from(ends),
     ends.foldLeft(removed)(_ - _),
     detached,
-    overrides.updated(edge, multiplicity),
+    overrides.withEntry(edge, multiplicity),
     Patch.touch(touching, edge),
   )
 

@@ -24,18 +24,18 @@ trait GraphBase[+V, +E, M]
     *   This graph with the multiplicity of [[edge]] set to [[multiplicity]],
     *   adding its vertices if necessary.
     */
-  def updated[W >: V, F >: E]
+  def withEdge[W >: V, F >: E]
     (
       edge: kneiphof.Edge[W, F],
       multiplicity: M,
     )
-    : GraphBase[W, F, M] = graphs.updated[W, F](this, edge, multiplicity)
+    : GraphBase[W, F, M] = graphs.withEdge[W, F](this, edge, multiplicity)
 
-  override def updated[W >: V, F >: E]
+  override def withEdge[W >: V, F >: E]
     (edge: Hyperedge[W, F], multiplicity: M)
     : HypergraphBase[W, F, M] = edge match
-    case edge: kneiphof.Edge[W, F] => updated(edge, multiplicity)
-    case _                         => toHypergraph.updated(edge, multiplicity)
+    case edge: kneiphof.Edge[W, F] => withEdge(edge, multiplicity)
+    case _                         => toHypergraph.withEdge(edge, multiplicity)
 
   override def edge[A : NotHandle](value: A): Option[Edge] =
     found(value).map(handle)
@@ -189,7 +189,7 @@ trait GraphBase[+V, +E, M]
     * @return
     *   The join of this graph and [[that]], with an extra edge labelled `()`
     *   between every vertex of this graph and every vertex of [[that]], which
-    *   [[GraphBase.Join.labelled]] can relabel. This is the flattening of the
+    *   [[GraphBase.Join.withLabel]] can relabel. This is the flattening of the
     *   edge `this ~ that`, so it pairs each vertex of this graph with each
     *   vertex of [[that]] even where the two share vertices: a vertex in both
     *   gains a loop, and two vertices in both are joined once for each way of
@@ -303,7 +303,7 @@ object GraphBase:
 
   /**
     * The join of two graphs, which remembers its new edges so that they can be
-    * relabelled with [[labelled]]. Equality compares only the graphs, so equal
+    * relabelled with [[withLabel]]. Equality compares only the graphs, so equal
     * joins can relabel different edges (see [[HypergraphBase.Join]]).
     *
     * @tparam L
@@ -312,10 +312,10 @@ object GraphBase:
   trait Join[+V, +E, +L, M]
     extends GraphBase[V, E | L, M], HypergraphBase.Join[V, E, L, M]:
 
-    override def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+    override def withLabel[F : NotGraph](label: F): Join[V, E, F, M]
 
     override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
-      labelled(label)
+      withLabel(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -347,7 +347,7 @@ object GraphBase:
         : IncidenceStructure[V, M, kneiphof.Edge[V, E | L]] =
         kind[M].joined(left.structure, right.structure, label)
 
-      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
+      override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** A graph with the given incidence [[structure]]. */

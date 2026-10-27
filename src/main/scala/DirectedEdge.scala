@@ -56,11 +56,11 @@ final case class DirectedEdge[+S, +T, +E]
       end   <- choices(target)
     yield DirectedEdge(start, end, label)
 
-  override def labelled[F : NotGraph](label: F): DirectedEdge[S, T, F] =
+  override def withLabel[F : NotGraph](label: F): DirectedEdge[S, T, F] =
     DirectedEdge(source, target, label)
 
   override infix def % [F : NotGraph](label: F): DirectedEdge[S, T, F] =
-    labelled(label)
+    withLabel(label)
 
   override def toString: String = describe(s"$source ~> $target", label)
 

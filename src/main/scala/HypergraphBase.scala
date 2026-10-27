@@ -28,10 +28,10 @@ trait HypergraphBase[+V, +E, M]
     *   This hypergraph with the multiplicity of [[edge]] set to
     *   [[multiplicity]], adding its vertices if necessary.
     */
-  def updated[W >: V, F >: E]
+  def withEdge[W >: V, F >: E]
     (edge: Hyperedge[W, F], multiplicity: M)
     : HypergraphBase[W, F, M] =
-    hypergraphs.updated[W, F](this, edge, multiplicity)
+    hypergraphs.withEdge[W, F](this, edge, multiplicity)
 
   /**
     * @return
@@ -193,7 +193,7 @@ trait HypergraphBase[+V, +E, M]
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
     *   `()` between every vertex of this hypergraph and every vertex of
-    *   [[that]], which [[HypergraphBase.Join.labelled]] can relabel. This is
+    *   [[that]], which [[HypergraphBase.Join.withLabel]] can relabel. This is
     *   the flattening of the edge `this ~ that`, so it pairs each vertex of
     *   this hypergraph with each vertex of [[that]] even where the two share
     *   vertices: a vertex in both gains a loop, and two vertices in both are
@@ -321,10 +321,10 @@ object HypergraphBase:
 
   /**
     * The join of two hypergraphs, which remembers its new edges so that they
-    * can be relabelled with [[labelled]]. Equality compares only the graphs, so
-    * equal joins can relabel different edges:
+    * can be relabelled with [[withLabel]]. Equality compares only the graphs,
+    * so equal joins can relabel different edges:
     * `Graph(1 ~ 2) :~: Graph.vertex(3)` and `Graph.vertex(1) :~: Graph(2 ~ 3)`
-    * are the same triangle, but [[labelled]] relabels the edges at `3` in the
+    * are the same triangle, but [[withLabel]] relabels the edges at `3` in the
     * first, and at `1` in the second.
     *
     * @tparam L
@@ -333,10 +333,10 @@ object HypergraphBase:
   trait Join[+V, +E, +L, M] extends HypergraphBase[V, E | L, M]:
 
     /** @return This join, with every new edge labelled [[label]] instead. */
-    def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+    def withLabel[F : NotGraph](label: F): Join[V, E, F, M]
 
-    /** Alias of [[labelled]]. */
-    infix def % [F : NotGraph](label: F): Join[V, E, F, M] = labelled(label)
+    /** Alias of [[withLabel]]. */
+    infix def % [F : NotGraph](label: F): Join[V, E, F, M] = withLabel(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -368,7 +368,7 @@ object HypergraphBase:
         : IncidenceStructure[V, M, Hyperedge[V, E | L]] =
         kind[M].joined(left.structure, right.structure, label)
 
-      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
+      override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** A hypergraph with the given incidence [[structure]]. */

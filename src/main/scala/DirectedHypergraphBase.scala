@@ -28,10 +28,10 @@ trait DirectedHypergraphBase[+V, +E, M]
     *   This hypergraph with the multiplicity of [[edge]] set to
     *   [[multiplicity]], adding its vertices if necessary.
     */
-  def updated[W >: V, F >: E]
+  def withEdge[W >: V, F >: E]
     (edge: Hyperarc[W, F], multiplicity: M)
     : DirectedHypergraphBase[W, F, M] =
-    hypergraphs.updated[W, F](this, edge, multiplicity)
+    hypergraphs.withEdge[W, F](this, edge, multiplicity)
 
   /** The hypergraph with every edge reversed. */
   def transpose: DirectedHypergraphBase[V, E, M] = hypergraphs.image(structure)(
@@ -202,7 +202,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     * @return
     *   The join of this hypergraph and [[that]], with an extra edge labelled
     *   `()` from every vertex of this hypergraph to every vertex of [[that]],
-    *   which [[DirectedHypergraphBase.Join.labelled]] can relabel. This is the
+    *   which [[DirectedHypergraphBase.Join.withLabel]] can relabel. This is the
     *   flattening of the edge `this ~> that`, so it pairs each vertex of this
     *   hypergraph with each vertex of [[that]] even where the two share
     *   vertices: a vertex in both gains a loop, and two vertices in both gain
@@ -425,7 +425,7 @@ object DirectedHypergraphBase:
 
   /**
     * The join of two directed hypergraphs, which remembers its new edges so
-    * that they can be relabelled with [[labelled]]. Equality compares only the
+    * that they can be relabelled with [[withLabel]]. Equality compares only the
     * graphs, so equal joins can relabel different edges (see
     * [[HypergraphBase.Join]]).
     *
@@ -435,10 +435,10 @@ object DirectedHypergraphBase:
   trait Join[+V, +E, +L, M] extends DirectedHypergraphBase[V, E | L, M]:
 
     /** @return This join, with every new edge labelled [[label]] instead. */
-    def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+    def withLabel[F : NotGraph](label: F): Join[V, E, F, M]
 
-    /** Alias of [[labelled]]. */
-    infix def % [F : NotGraph](label: F): Join[V, E, F, M] = labelled(label)
+    /** Alias of [[withLabel]]. */
+    infix def % [F : NotGraph](label: F): Join[V, E, F, M] = withLabel(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -471,7 +471,7 @@ object DirectedHypergraphBase:
         : IncidenceStructure[V, M, Hyperarc[V, E | L]] =
         kind[M].joined(left.structure, right.structure, label)
 
-      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
+      override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** A directed hypergraph with the given incidence [[structure]]. */

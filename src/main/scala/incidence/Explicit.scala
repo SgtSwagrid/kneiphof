@@ -78,7 +78,7 @@ private[kneiphof] final class Explicit[
             vertex,
             incident.getOrElse(vertex, ValueSet.empty) + edge,
           ),
-        multiplicities.updated(edge, multiplicity),
+        multiplicities.withEntry(edge, multiplicity),
       )
 
   /**
@@ -105,7 +105,7 @@ private[kneiphof] final class Explicit[
       .ends(edge)
       .foldLeft(incident): (incident, vertex) =>
         incident.updatedWith(vertex)(_.map(_ - edge).filter(_.nonEmpty)),
-    multiplicities.removed(edge),
+    multiplicities.without(edge),
   )
 
 /** The companion object for [[Explicit]]. */

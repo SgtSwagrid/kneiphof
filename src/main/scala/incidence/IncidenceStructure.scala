@@ -183,7 +183,7 @@ private[kneiphof] object IncidenceStructure:
     : ValueMap[X, M] = edges
     .iterator
     .foldLeft(ValueMap.empty[X, M]):
-      case (sums, (edge, multiplicity)) => sums.updated(
+      case (sums, (edge, multiplicity)) => sums.withEntry(
           edge,
           sums.get(edge).fold(multiplicity)(combine(_, multiplicity)),
         )

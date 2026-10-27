@@ -32,16 +32,16 @@ trait DirectedGraphBase[+V, +E, M]
     *   This graph with the multiplicity of [[edge]] set to [[multiplicity]],
     *   adding its vertices if necessary.
     */
-  def updated[W >: V, F >: E]
+  def withEdge[W >: V, F >: E]
     (edge: Arc[W, F], multiplicity: M)
     : DirectedGraphBase[W, F, M] =
-    graphs.updated[W, F](this, edge, multiplicity)
+    graphs.withEdge[W, F](this, edge, multiplicity)
 
-  override def updated[W >: V, F >: E]
+  override def withEdge[W >: V, F >: E]
     (edge: Hyperarc[W, F], multiplicity: M)
     : DirectedHypergraphBase[W, F, M] = edge match
-    case edge: Arc[W, F] => updated(edge, multiplicity)
-    case _               => toDirectedHypergraph.updated(edge, multiplicity)
+    case edge: Arc[W, F] => withEdge(edge, multiplicity)
+    case _               => toDirectedHypergraph.withEdge(edge, multiplicity)
 
   override def edge[A : NotHandle](value: A): Option[Edge] =
     found(value).map(handle)
@@ -202,7 +202,7 @@ trait DirectedGraphBase[+V, +E, M]
     * @return
     *   The join of this graph and [[that]], with an extra edge labelled `()`
     *   from every vertex of this graph to every vertex of [[that]], which
-    *   [[DirectedGraphBase.Join.labelled]] can relabel. This is the flattening
+    *   [[DirectedGraphBase.Join.withLabel]] can relabel. This is the flattening
     *   of the edge `this ~> that`, so it pairs each vertex of this graph with
     *   each vertex of [[that]] even where the two share vertices: a vertex in
     *   both gains a loop, and two vertices in both gain an edge each way.
@@ -315,7 +315,7 @@ object DirectedGraphBase:
 
   /**
     * The join of two directed graphs, which remembers its new edges so that
-    * they can be relabelled with [[labelled]]. Equality compares only the
+    * they can be relabelled with [[withLabel]]. Equality compares only the
     * graphs, so equal joins can relabel different edges (see
     * [[HypergraphBase.Join]]).
     *
@@ -326,10 +326,10 @@ object DirectedGraphBase:
     extends DirectedGraphBase[V, E | L, M],
             DirectedHypergraphBase.Join[V, E, L, M]:
 
-    override def labelled[F : NotGraph](label: F): Join[V, E, F, M]
+    override def withLabel[F : NotGraph](label: F): Join[V, E, F, M]
 
     override infix def % [F : NotGraph](label: F): Join[V, E, F, M] =
-      labelled(label)
+      withLabel(label)
 
   /** The companion object for [[Join]]. */
   object Join:
@@ -362,7 +362,7 @@ object DirectedGraphBase:
         : IncidenceStructure[V, M, Arc[V, E | L]] =
         kind[M].joined(left.structure, right.structure, label)
 
-      override def labelled[F : NotGraph](label: F): Join[V, E, F, M] =
+      override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
 
   /** A directed graph with the given incidence [[structure]]. */

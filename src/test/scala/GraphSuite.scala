@@ -85,7 +85,7 @@ class GraphSuite extends FunSuite:
     assertEquals(left :~: right, left.join(right))
     assertEquals(
       (left :~: right) % "a",
-      left.join(right).labelled("a"),
+      left.join(right).withLabel("a"),
     )
     assertEquals(left :~ 0, left.cone(0))
     assertEquals(0 ~: left, left.cone(0))
@@ -94,13 +94,13 @@ class GraphSuite extends FunSuite:
     assertEquals(0 ~>: arrows, arrows.coneFrom(0))
     assertEquals(1 ~ 2, Edge(1, 2))
     assertEquals(1 ~> 2, DirectedEdge(1, 2))
-    assertEquals(1 ~ 2 % "a", (1 ~ 2).labelled("a"))
+    assertEquals(1 ~ 2 % "a", (1 ~ 2).withLabel("a"))
     assertEquals(1 ~ 2 ~ 3, (1 ~ 2).to(3))
-    assertEquals(1 ~ 2 ~ 3 % "a", (1 ~ 2).to(3).labelled("a"))
+    assertEquals(1 ~ 2 ~ 3 % "a", (1 ~ 2).to(3).withLabel("a"))
     assertEquals(1 ~> 2 ~> 3, (1 ~> 2).to(3))
     assertEquals(
       1 ~> 2 ~> 3 % "a",
-      (1 ~> 2).to(3).labelled("a"),
+      (1 ~> 2).to(3).withLabel("a"),
     )
     assertEquals(ValueSet(1) + 2, ValueSet(1).incl(2))
     assertEquals(ValueSet(1, 2) - 2, ValueSet(1, 2).excl(2))
