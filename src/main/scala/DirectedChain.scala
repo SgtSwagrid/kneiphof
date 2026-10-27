@@ -8,8 +8,11 @@ import com.alecdorrington.kneiphof.incidence.IncidenceStructure
   * holds the edges `1 ~> 2` and `2 ~> 3`.
   *
   * As a multigraph, a chain only records its edges and how many times each
-  * occurs. It also remembers where it was last extended, so that it can be
-  * extended again. Every [[DirectedEdge]] is a chain of one edge.
+  * occurs. It also remembers where it was last extended, its [[tip]], so that
+  * it can be extended again. Equality compares only the graphs, so equal chains
+  * can continue from different tips: `1 ~> 2 ~> 1 == 2 ~> 1 ~> 2`, but the
+  * first continues from `1`, and the second from `2`. Every [[DirectedEdge]] is
+  * a chain of one edge.
   *
   * @tparam E
   *   The labels of every edge but the last.

@@ -260,6 +260,8 @@ trait DirectedHypergraphBase[+V, +E, M]
         ),
       ))
 
+  override private[kneiphof] def directed: Boolean = true
+
   override protected def kindName: String = "DirectedHypergraph"
 
   override def empty: DirectedHypergraphBase[Nothing, Nothing, M] =
@@ -365,7 +367,9 @@ object DirectedHypergraphBase:
 
   /**
     * The join of two directed hypergraphs, which remembers its new edges so
-    * that they can be relabelled with `labelled`.
+    * that they can be relabelled with `labelled`. Equality compares only the
+    * graphs, so equal joins can relabel different edges (see
+    * [[HypergraphBase.Join]]).
     *
     * @tparam L
     *   The label of the new edges.

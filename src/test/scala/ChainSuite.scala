@@ -86,3 +86,10 @@ class ChainSuite extends FunSuite:
     )
     assertEquals[Any, Any]((1 ~ 2 % "a") ~ 3, Multigraph(1 ~ 2 % "a", 2 ~ 3))
     assertEquals(Edge(1, 2, Graph(3 ~ 4)).label, Graph(3 ~ 4))
+
+  test("equal chains can continue from different tips"):
+    assertEquals(1 ~ 2, 2 ~ 1)
+    assertNotEquals[Any, Any]((1 ~ 2) ~ 3, (2 ~ 1) ~ 3)
+    assertEquals[Any, Any]((2 ~ 1) ~ 3, Multigraph(1 ~ 2, 1 ~ 3))
+    assertEquals[Any, Any](1 ~> 2 ~> 1, 2 ~> 1 ~> 2)
+    assertNotEquals[Any, Any](1 ~> 2 ~> 1 ~> 3, 2 ~> 1 ~> 2 ~> 3)

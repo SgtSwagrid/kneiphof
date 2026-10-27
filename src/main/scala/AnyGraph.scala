@@ -10,8 +10,15 @@ import scala.util.hashing.MurmurHash3
   * and edge multiplicities in [[M]].
   *
   * Each edge value has a multiplicity, and is present exactly when its
-  * multiplicity isn't `zero` (see [[Multiplicity]]). Two graphs are equal when
-  * they have the same vertices and the same multiplicity for every edge.
+  * multiplicity isn't `zero` (see [[Multiplicity]]).
+  *
+  * Two graphs are equal when they belong to the same family, being both
+  * directed or both undirected, with the same multiplicities, and have the same
+  * vertices and the same multiplicity for every edge. This is how Scala's
+  * collections compare within a family, so that `List() == Vector()` but
+  * `Set() != List()`. So a graph equals the hypergraph with its edges, and a
+  * lazy graph equals its materialisation, but an edgeless graph doesn't equal
+  * an edgeless directed graph or multigraph.
   */
 trait AnyGraph[+V, +E, M]:
 
@@ -20,6 +27,9 @@ trait AnyGraph[+V, +E, M]:
 
   /** The incidence structure of this graph, which answers every query about it. */
   private[kneiphof] def structure: IncidenceStructure[V, M, AnyEdge[?, ?, ?]]
+
+  /** `true` if and only if this graph's edges are directed. */
+  private[kneiphof] def directed: Boolean
 
   /** The values of the vertices of this graph. */
   def vertexValues: ValueSet[V] = structure.vertexValues
@@ -53,10 +63,11 @@ trait AnyGraph[+V, +E, M]:
 
   /**
     * @return
-    *   `true` if and only if this graph and [[that]] have the same vertices and
-    *   the same multiplicity for every edge.
+    *   `true` if and only if this graph and [[that]] belong to the same family,
+    *   and have the same vertices and the same multiplicity for every edge.
     */
   protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean =
+    directed == that.directed && algebra == that.algebra &&
     vertexValues == that.vertexValues && edgeValues == that.edgeValues
 
 /** The companion object for [[AnyGraph]]. */

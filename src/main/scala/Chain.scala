@@ -9,8 +9,10 @@ import com.alecdorrington.kneiphof.incidence.IncidenceStructure
   *
   * As a multigraph, a chain only records its edges and how many times each
   * occurs, so `1 ~ 2 ~ 3 == 3 ~ 2 ~ 1`. It also remembers where it was last
-  * extended, so that it can be extended again. Every [[Edge]] is a chain of one
-  * edge.
+  * extended, its [[tip]], so that it can be extended again. Equality compares
+  * only the graphs, so equal chains can continue from different tips:
+  * `1 ~ 2 == 2 ~ 1`, but `(1 ~ 2) ~ 3` adds `2 ~ 3`, while `(2 ~ 1) ~ 3` adds
+  * `1 ~ 3`. Every [[Edge]] is a chain of one edge.
   *
   * @tparam E
   *   The labels of every edge but the last.

@@ -127,6 +127,37 @@ class GraphSuite extends FunSuite:
       Graph(0 ~ 1),
     )
 
+  test("graphs are only equal within their family"):
+    assertNotEquals[Any, Any](
+      Graph.vertices(1),
+      DirectedGraph.vertices(1),
+    )
+    assertNotEquals[Any, Any](
+      Graph.vertices(1),
+      Multigraph.vertices(1),
+    )
+    assertNotEquals[Any, Any](Graph.empty, DirectedMultigraph.empty)
+    assertNotEquals[Any, Any](Graph(1 ~ 2), Multigraph(1 ~ 2))
+    assertEquals[Any, Any](
+      Graph.vertices(1),
+      Hypergraph.vertices(1),
+    )
+    assertEquals[Any, Any](Graph(1 ~ 2).toHypergraph, Graph(1 ~ 2))
+    assertEquals[Any, Any](Hypergraph(Hyperedge(1, 2)), Graph(1 ~ 2))
+    assertEquals[Any, Any](1 ~ 2, Multigraph(1 ~ 2))
+    assertEquals[Any, Any](Graph.path(3), Graph(0 ~ 1 ~ 2))
+    assertEquals(
+      DirectedGraph.vertices(1).##,
+      DirectedGraph.vertices(1).materialise.##,
+    )
+
+  test("equal joins can relabel different edges"):
+    val first  = Graph(1 ~ 2) :~: Graph.vertex(3)
+    val second = Graph.vertex(1) :~: Graph(2 ~ 3)
+    assertEquals[Any, Any](first, second)
+    assertEquals[Any, Any](first  % "a", Graph(1 ~ 2, 1 ~ 3 % "a", 2 ~ 3 % "a"))
+    assertEquals[Any, Any](second % "a", Graph(1 ~ 2 % "a", 1 ~ 3 % "a", 2 ~ 3))
+
   test("graphs with different vertex types combine"):
     val graph = Graph(1 ~ 2) | Graph("a" ~ "b")
     assertEquals(graph.order, 4)

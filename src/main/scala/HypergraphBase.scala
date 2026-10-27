@@ -228,6 +228,8 @@ trait HypergraphBase[+V, +E, M]
         ),
       ))
 
+  override private[kneiphof] def directed: Boolean = false
+
   override protected def kindName: String = "Hypergraph"
 
   override def empty: HypergraphBase[Nothing, Nothing, M] = hypergraphs.empty
@@ -277,7 +279,11 @@ object HypergraphBase:
 
   /**
     * The join of two hypergraphs, which remembers its new edges so that they
-    * can be relabelled with `labelled`.
+    * can be relabelled with `labelled`. Equality compares only the graphs, so
+    * equal joins can relabel different edges:
+    * `Graph(1 ~ 2) :~: Graph.vertex(3)` and `Graph.vertex(1) :~: Graph(2 ~ 3)`
+    * are the same triangle, but `labelled` relabels the edges at `3` in the
+    * first, and at `1` in the second.
     *
     * @tparam L
     *   The label of the new edges.

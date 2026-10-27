@@ -299,7 +299,8 @@ object DirectedGraphBase:
 
   /**
     * The join of two directed graphs, which remembers its new edges so that
-    * they can be relabelled with `labelled`.
+    * they can be relabelled with `labelled`. Equality compares only the graphs,
+    * so equal joins can relabel different edges (see [[HypergraphBase.Join]]).
     *
     * @tparam L
     *   The label of the new edges.

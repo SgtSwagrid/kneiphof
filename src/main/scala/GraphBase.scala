@@ -286,7 +286,8 @@ object GraphBase:
 
   /**
     * The join of two graphs, which remembers its new edges so that they can be
-    * relabelled with `labelled`.
+    * relabelled with `labelled`. Equality compares only the graphs, so equal
+    * joins can relabel different edges (see [[HypergraphBase.Join]]).
     *
     * @tparam L
     *   The label of the new edges.
