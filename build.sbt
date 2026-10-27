@@ -17,6 +17,7 @@ lazy val `kneiphof` = project
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     packagePrefix                          := "com.alecdorrington.kneiphof",
+    libraryDependencies += "com.alecdorrington" %% "scalgebra" % "0.5.0",
     libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test,
 
     // Workaround for an sbt 2.0.x classloader bug where in-process test runs

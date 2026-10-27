@@ -1,0 +1,78 @@
+package com.alecdorrington
+package kneiphof
+
+/**
+  * An immutable map from keys of type [[K]], compared only by equality, to
+  * values of type [[A]].
+  *
+  * Unlike [[Map]], a value map is covariant in its keys, so a
+  * `ValueMap[Int, A]` is also a `ValueMap[Any, A]`. Lookups accept any key for
+  * the same reason. It's stored as a hash trie, so lookups and updates take
+  * effectively constant time.
+  */
+final class ValueMap[+K, +A] private (entries: Map[Any, (K, A)])
+  extends Iterable[(K, A)]:
+
+  override def iterator: Iterator[(K, A)] = entries.valuesIterator
+
+  override def knownSize: Int = entries.size
+
+  /** The keys of this map. */
+  def keys: Iterable[K] = entries.values.map((key, _) => key)
+
+  /** The values of this map. */
+  def values: Iterable[A] = entries.values.map((_, value) => value)
+
+  /** @return `true` if and only if this map contains [[key]]. */
+  def contains[L : NotHandle](key: L): Boolean = entries.contains(key)
+
+  /** @return The value for [[key]], if there is one. */
+  def get[L : NotHandle](key: L): Option[A] = entries
+    .get(key)
+    .map((_, value) => value)
+
+  /** @return The value for [[key]], or [[default]] if there isn't one. */
+  def getOrElse[L : NotHandle, B >: A](key: L, default: => B): B = get(key)
+    .getOrElse(default)
+
+  /** @return The key of this map equal to [[key]], if there is one. */
+  def getKey[L : NotHandle](key: L): Option[K] = entries
+    .get(key)
+    .map((key, _) => key)
+
+  /** @return This map with [[key]] mapped to [[value]]. */
+  def withEntry[L >: K, B >: A](key: L, value: B): ValueMap[L, B] =
+    new ValueMap(entries.updated(key, (key, value)))
+
+  /** @return This map without [[key]]. */
+  def without(key: Any): ValueMap[K, A] = new ValueMap(entries - key)
+
+  override def equals(that: Any): Boolean = that match
+    case that: ValueMap[?, ?] => size == that.size &&
+      forall((key, value) => that.get(key).contains(value))
+    case _ => false
+
+  override def hashCode: Int = entries
+    .view
+    .mapValues((_, value) => value)
+    .toMap
+    .##
+
+  override def toString: String = map((key, value) => s"$key -> $value")
+    .mkString("ValueMap(", ", ", ")")
+
+/** The companion object for [[ValueMap]]. */
+object ValueMap:
+
+  /** @return The map with no entries. */
+  def empty[K, A]: ValueMap[K, A] = new ValueMap(Map.empty)
+
+  /**
+    * @return
+    *   The map with the given [[entries]], keeping the last of any entries with
+    *   equal keys.
+    */
+  def from[K, A](entries: IterableOnce[(K, A)]): ValueMap[K, A] = entries
+    .iterator
+    .foldLeft(empty[K, A]):
+      case (map, (key, value)) => map.withEntry(key, value)
