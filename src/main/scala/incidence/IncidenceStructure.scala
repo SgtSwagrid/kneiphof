@@ -112,8 +112,7 @@ private[kneiphof] object IncidenceStructure:
   object Arrow:
 
     def unapply(edge: Any): Option[(Any, Any, Any)] = edge match
-      case edge: DirectedHyperedge[?, ?, ?] =>
-        (edge.tail.toSeq, edge.head.toSeq) match
+      case edge: DirectedHyperedge[?, ?, ?] => (edge.tail, edge.head) match
           case (Seq(source), Seq(target)) => Some((source, target, edge.label))
           case _                          => None
       case _ => None

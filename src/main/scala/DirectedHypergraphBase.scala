@@ -210,7 +210,7 @@ trait DirectedHypergraphBase[+V, +E, M]
     .kind[M]
     .imaged(structure)(
       identity,
-      edge => List(Hyperedge.from(edge.tail.toSeq ++ edge.head, edge.label)),
+      edge => List(Hyperedge.from(edge.tail ++ edge.head, edge.label)),
       kept = algebra.additive,
     )
 
@@ -298,11 +298,23 @@ trait DirectedHypergraphBase[+V, +E, M]
       .flatMap(vertex)
       .toSet
 
-    /** The number of edges leaving this vertex, counting every copy. */
-    def outDegree: Int = outgoing.toSeq.map(multiplicity(_).count).sum
+    /**
+      * The number of edges leaving this vertex, counting every copy of each
+      * edge, and each time this vertex occurs in its tail.
+      */
+    def outDegree: Int = outgoing
+      .toSeq
+      .map(edge => edge.tail.count(_ == value) * multiplicity(edge).count)
+      .sum
 
-    /** The number of edges entering this vertex, counting every copy. */
-    def inDegree: Int = incoming.toSeq.map(multiplicity(_).count).sum
+    /**
+      * The number of edges entering this vertex, counting every copy of each
+      * edge, and each time this vertex occurs in its head.
+      */
+    def inDegree: Int = incoming
+      .toSeq
+      .map(edge => edge.head.count(_ == value) * multiplicity(edge).count)
+      .sum
 
     /** The values of the edges leaving this vertex. */
     private def outgoing: ValueSet[Hyperarc[V, E]] = incidentEdgeValues(value)

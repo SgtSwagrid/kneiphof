@@ -23,9 +23,9 @@ final case class DirectedEdge[+S, +T, +E]
           ],
           DirectedChain[S | T, Nothing, E]:
 
-  override def tail: ValueSet[S] = ValueSet(source)
+  override def tail: Seq[S] = Seq(source)
 
-  override def head: ValueSet[T] = ValueSet(target)
+  override def head: Seq[T] = Seq(target)
 
   override def vertexValues: ValueSet[S | T] = ValueSet(source, target)
 

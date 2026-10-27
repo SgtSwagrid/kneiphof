@@ -5,6 +5,35 @@ import munit.FunSuite
 /** Tests for directed graphs and hypergraphs. */
 class DirectedGraphSuite extends FunSuite:
 
+  test("directed hyperedges count repeated vertices in their tails and heads"):
+    val edge = DirectedHyperedge(Seq(1, 1, 2), Seq(3))
+    assertEquals(edge.occurrences(1), 2)
+    assertEquals[Any, Any](
+      edge,
+      DirectedHyperedge(Seq(2, 1, 1), Seq(3)),
+    )
+    assertEquals(
+      edge.##,
+      DirectedHyperedge(Seq(1, 2, 1), Seq(3)).##,
+    )
+    assertNotEquals[Any, Any](
+      edge,
+      DirectedHyperedge(Seq(1, 2), Seq(3)),
+    )
+    assertEquals(
+      DirectedMultihypergraph(edge)(1).outDegree,
+      2,
+    )
+    val merge: Int => Int = vertex => if vertex == 3 then 3 else 0
+    val graph  = DirectedMultihypergraph(DirectedHyperedge(Seq(1, 2), Seq(3)))
+    val merged = graph.mapVertices(merge)
+    assertEquals(merged.degree(0), 2)
+    assertEquals(merged.materialise.degree(0), 2)
+    assertEquals(
+      merged.underlying,
+      graph.underlying.mapVertices(merge),
+    )
+
   val graph: DirectedGraph[Int, Unit] = DirectedGraph(1 ~> 2, 1 ~> 3, 3 ~> 1)
 
   test("vertices know their successors and predecessors"):
