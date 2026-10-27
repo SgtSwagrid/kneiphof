@@ -261,7 +261,7 @@ trait GraphOps[
   private def isolated: Iterable[V] =
     vertexValues.filter(incidentEdgeValues(_).isEmpty)
 
-  /** @return [[edge]] with its multiplicity, unless that's `1`. */
+  /** @return The text of [[edge]], with its multiplicity unless that's `1`. */
   private def show(edge: Any, multiplicity: M): String =
     if multiplicity.count == 1 then edge.toString
     else s"$edge × ${ multiplicity.count }"

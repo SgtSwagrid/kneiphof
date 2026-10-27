@@ -287,7 +287,7 @@ trait Shapes[+G[+v, +e]]:
     )
     Index.Vertices(rim.toIndexedSeq)
 
-  /** @return [[count]], checking that it isn't negative. */
+  /** @return The given [[count]], after checking that it isn't negative. */
   private def nonNegative(count: Int): Int =
     require(
       count >= 0,
@@ -305,7 +305,8 @@ trait Shapes[+G[+v, +e]]:
 
   /**
     * @return
-    *   [[dimension]], checking that a hypercube of it fits in an `Int`.
+    *   The given [[dimension]], after checking that a hypercube of it fits in
+    *   an `Int`.
     */
   private def dimensions(dimension: Int): Int =
     require(
@@ -316,8 +317,8 @@ trait Shapes[+G[+v, +e]]:
 
   /**
     * @return
-    *   [[jumps]], checking that none of them would link a vertex of a circulant
-    *   graph on [[order]] vertices to itself.
+    *   The given [[jumps]], after checking that none of them would link a
+    *   vertex of a circulant graph on [[order]] vertices to itself.
     */
   private def loopless(order: Int, jumps: Seq[Int]): Seq[Int] =
     require(
@@ -328,8 +329,8 @@ trait Shapes[+G[+v, +e]]:
 
   /**
     * @return
-    *   [[k]], checking that the generalised Petersen graph `GP(n, k)` is
-    *   simple.
+    *   The given [[k]], after checking that the generalised Petersen graph
+    *   `GP(n, k)` is simple.
     */
   private def skips(n: Int, k: Int): Int =
     require(
@@ -338,7 +339,11 @@ trait Shapes[+G[+v, +e]]:
     )
     k
 
-  /** @return [[order]], checking that a cycle can have that many vertices. */
+  /**
+    * @return
+    *   The given [[order]], after checking that a cycle can have that many
+    *   vertices.
+    */
   private def cyclic(order: Int): Int =
     require(
       order >= 1,
@@ -346,7 +351,11 @@ trait Shapes[+G[+v, +e]]:
     )
     order
 
-  /** @return [[branching]], checking that a tree can branch that much. */
+  /**
+    * @return
+    *   The given [[branching]], after checking that a tree can branch that
+    *   much.
+    */
   private def branches(branching: Int): Int =
     require(
       branching >= 1,

@@ -35,7 +35,7 @@ trait AnyEdge[+V, +E, +X[+v, +e]]:
 
   /**
     * @return
-    *   Every edge obtained by replacing each end of this edge with one of its
+    *   The edges obtained by replacing each end of this edge with one of its
     *   [[choices]].
     */
   def substitute[W](choices: V => Iterable[W]): Iterable[X[W, E]]

@@ -98,8 +98,8 @@ trait GraphKind[
 
   /**
     * @return
-    *   [[graph]] with the multiplicity of [[edge]] set to [[multiplicity]],
-    *   adding its vertices unless the edge is now absent.
+    *   The graph [[graph]], with the multiplicity of [[edge]] set to
+    *   [[multiplicity]], adding its vertices unless the edge is now absent.
     */
   private[kneiphof] def updated[V, E]
     (
@@ -117,11 +117,11 @@ trait GraphKind[
         multiplicity,
       )
 
-  /** @return [[graph]] with [[vertex]] added. */
+  /** @return The graph [[graph]], with [[vertex]] added. */
   private[kneiphof] def withVertex[V, E](graph: G[V, E], vertex: V): G[V, E] =
     wrap(graph.structure.patched.withVertex(vertex))
 
-  /** @return [[graph]] without [[vertex]] and its incident edges. */
+  /** @return The graph [[graph]], without [[vertex]] and its incident edges. */
   private[kneiphof] def withoutVertex[V, E]
     (graph: G[V, E], vertex: Any)
     : G[V, E] =
@@ -130,8 +130,8 @@ trait GraphKind[
 
   /**
     * @return
-    *   [[graph]] with the multiplicity of [[edge]] set to [[multiplicity]], or
-    *   [[graph]] unchanged if it doesn't contain [[edge]].
+    *   The graph [[graph]], with the multiplicity of [[edge]] set to
+    *   [[multiplicity]], or [[graph]] unchanged if it doesn't contain [[edge]].
     */
   private[kneiphof] def withMultiplicity[V, E]
     (graph: G[V, E], edge: Any, multiplicity: M)
@@ -142,7 +142,7 @@ trait GraphKind[
       wrap(graph.structure.patched.withEdge(found, Nil, multiplicity)),
     )
 
-  /** @return [[graph]], with every edge stored. */
+  /** @return The graph [[graph]], with every edge stored. */
   private[kneiphof] def materialise[V, E](graph: G[V, E]): G[V, E] =
     if graph.structure.stored then graph else wrap(graph.structure.explicit)
 
@@ -379,7 +379,8 @@ trait GraphKind[
 
   /**
     * @return
-    *   [[explicit]], with each of [[edges]] added, summing multiplicities.
+    *   The structure [[explicit]], with each of [[edges]] added, summing
+    *   multiplicities.
     */
   private def increased[V, E]
     (

@@ -138,7 +138,7 @@ private[kneiphof] object Patch:
     Map.empty,
   )
 
-  /** @return [[touching]], with [[edge]] at each of its ends. */
+  /** @return The map [[touching]], with [[edge]] at each of its ends. */
   private def touched[X]
     (touching: Map[Any, ValueSet[X]], edge: X)
     : Map[Any, ValueSet[X]] = IncidenceStructure
@@ -149,7 +149,7 @@ private[kneiphof] object Patch:
         touching.getOrElse(end, ValueSet.empty) + edge,
       )
 
-  /** @return [[touching]], without [[edge]] at any of its ends. */
+  /** @return The map [[touching]], without [[edge]] at any of its ends. */
   private def untouched[X]
     (
       touching: Map[Any, ValueSet[X]],

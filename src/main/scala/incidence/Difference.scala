@@ -48,8 +48,8 @@ private[kneiphof] final class Difference[
 
   /**
     * @return
-    *   [[multiplicity]], less the multiplicities of [[edge]] in each of
-    *   [[others]].
+    *   The multiplicity [[multiplicity]], less the multiplicities of [[edge]]
+    *   in each of [[others]].
     */
   private def subtracted(edge: Any, multiplicity: M): M = IncidenceStructure
     .ends(edge)

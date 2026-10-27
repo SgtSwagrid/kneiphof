@@ -118,5 +118,5 @@ private[kneiphof] object Join:
       indicator(left.hasVertex(source) && right.hasVertex(target))
     case _ => 0
 
-  /** @return `1` if [[condition]] holds, and `0` otherwise. */
+  /** @return The number `1` if [[condition]] holds, and `0` otherwise. */
   private def indicator(condition: Boolean): Int = if condition then 1 else 0

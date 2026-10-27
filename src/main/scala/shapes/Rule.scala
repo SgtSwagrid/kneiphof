@@ -73,7 +73,7 @@ private[kneiphof] object Rule:
 
     override def linked(source: Int, target: Int): Boolean = source != target
 
-    /** @return Every index except [[vertex]]. */
+    /** @return The indices other than [[vertex]]. */
     private def others(vertex: Int): Iterable[Int] = (0 until order)
       .view
       .filter(_ != vertex)
