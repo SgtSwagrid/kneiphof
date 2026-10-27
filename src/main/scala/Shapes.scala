@@ -92,8 +92,8 @@ trait Shapes[+G[+v, +e]]:
   /**
     * @return
     *   The torus with the given numbers of [[rows]] and [[columns]], which is
-    *   the grid with each row and each column wrapping round into a cycle.
-    *   There must be at least `3` rows and `3` columns.
+    *   the grid with each row and each column wrapping round into a cycle as
+    *   for [[cycle]]. There must be at least `1` row and `1` column.
     */
   def torus(rows: Int, columns: Int): G[(Int, Int), Unit] =
     paired(rows, columns)(
@@ -105,7 +105,7 @@ trait Shapes[+G[+v, +e]]:
     * @return
     *   The prism on two cycles of [[order]] vertices, `(i, 0)` and `(i, 1)` for
     *   each `i` in `0 until order`, with a rung from each `(i, 0)` to `(i, 1)`.
-    *   There must be at least `3` vertices in each cycle.
+    *   The cycles are as for [[cycle]], and need at least `1` vertex each.
     */
   def prism(order: Int): G[(Int, Int), Unit] = paired(order, 2)(
     order => Shape.Cycle(cyclic(order)),
@@ -121,7 +121,9 @@ trait Shapes[+G[+v, +e]]:
   /**
     * @return
     *   The cycle through the vertices `0 until order`, in order, of which there
-    *   must be at least `3`.
+    *   must be at least `1`. The cycle of `1` vertex is a loop, and the cycle
+    *   of `2` vertices joins them twice, which is just once in undirected
+    *   graphs whose edges form a set.
     */
   def cycle(order: Int): G[Int, Unit] =
     counted(order)(order => Shape.Cycle(cyclic(order)))
@@ -129,7 +131,7 @@ trait Shapes[+G[+v, +e]]:
   /**
     * @return
     *   The cycle through the given [[vertices]], in order, of which there must
-    *   be at least `3`.
+    *   be at least `1`, as for `cycle(order)`.
     */
   def cycle[V](vertices: V*): G[V, Unit] =
     listed(vertices)(order => Shape.Cycle(cyclic(order)))
@@ -149,7 +151,7 @@ trait Shapes[+G[+v, +e]]:
   /**
     * @return
     *   The wheel with the hub `0` adjacent to each of the vertices `1 to rim`,
-    *   which form a cycle. There must be at least `3` of them.
+    *   which form a cycle as for [[cycle]]. There must be at least `1` of them.
     */
   def wheel(rim: Int): G[Int, Unit] =
     counted(rim + 1)(order => Shape.Wheel(cyclic(order - 1) + 1))
@@ -157,7 +159,8 @@ trait Shapes[+G[+v, +e]]:
   /**
     * @return
     *   The wheel with [[hub]] adjacent to each of the [[rim]] vertices, which
-    *   form a cycle in order. There must be at least `3` of them.
+    *   form a cycle in order as for [[cycle]]. There must be at least `1` of
+    *   them.
     */
   def wheel[V](hub: V, rim: V*): G[V, Unit] =
     listed(hub +: rim)(order => Shape.Wheel(cyclic(order - 1) + 1))
@@ -285,11 +288,11 @@ trait Shapes[+G[+v, +e]]:
     )
     k
 
-  /** @return [[order]], checking that a cycle of that order is simple. */
+  /** @return [[order]], checking that a cycle can have that many vertices. */
   private def cyclic(order: Int): Int =
     require(
-      order >= 3,
-      s"A cycle needs at least 3 vertices, but had $order.",
+      order >= 1,
+      s"A cycle needs at least 1 vertex, but had $order.",
     )
     order
 

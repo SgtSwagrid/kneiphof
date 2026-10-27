@@ -31,7 +31,7 @@ class ShapeSuite extends FunSuite, LazyAssertions:
       Graph.cycle("a", "b", "c"),
       Graph("a" ~ "b" ~ "c" ~ "a"),
     )
-    intercept[IllegalArgumentException](Graph.cycle(2))
+    intercept[IllegalArgumentException](Graph.cycle(0))
 
   test("stars, wheels and fans have a centre"):
     assertEquals(Graph.star(3), Graph(0 ~ 1, 0 ~ 2, 0 ~ 3))
@@ -48,7 +48,7 @@ class ShapeSuite extends FunSuite, LazyAssertions:
       3,
     )
     assertEquals(Graph.fan(3), Graph(0 ~ 1, 0 ~ 2, 0 ~ 3, 1 ~ 2 ~ 3))
-    intercept[IllegalArgumentException](Graph.wheel(2))
+    intercept[IllegalArgumentException](Graph.wheel(0))
 
   test("trees branch in breadth-first order"):
     assertEquals(
@@ -262,8 +262,105 @@ class ShapeSuite extends FunSuite, LazyAssertions:
       (0, 1) ~> (0, 0),
       (2, 0) ~> (0, 0),
     )
-    intercept[IllegalArgumentException](Graph.torus(2, 5))
-    intercept[IllegalArgumentException](Graph.prism(2))
+    intercept[IllegalArgumentException](Graph.torus(0, 5))
+    intercept[IllegalArgumentException](Graph.prism(0))
+
+  test("cycles of 1 and 2 vertices are loops and double edges"):
+    assertEquals(Graph.cycle(1), Graph(0 ~ 0))
+    assertEquals(Graph.cycle(1).degree(0), 2)
+    assertEquals(Multigraph.cycle(2), Multigraph(0 ~ 1 ~ 0))
+    assertEquals(Multigraph.cycle(2).size, 2)
+    assertEquals(
+      Multigraph.cycle(2).multiplicity(1 ~ 0),
+      Count(2),
+    )
+    assertEquals(Multigraph.cycle(2).degree(0), 2)
+    assertEquals(
+      DirectedGraph.cycle(2),
+      DirectedGraph(0 ~> 1 ~> 0),
+    )
+    assertEquals(Graph.cycle(2), Graph.path(2))
+    assertEquals(Graph.cycle(2).size, 1)
+    assertEquals(Graph.cycle(2).degree(0), 1)
+    assertEquals(Graph.wheel(1), Graph(0 ~ 1 ~ 1))
+    assertEquals(Graph.wheel(2), Graph.complete(3))
+    assertEquals(
+      Multigraph.wheel(2),
+      Multigraph(0 ~ 1, 0 ~ 2, 1 ~ 2 ~ 1),
+    )
+    val absent = Seq(0 ~ 1, 1 ~ 1, 2 ~ 2)
+    Seq(
+      Graph.cycle(1),
+      Graph.cycle(2),
+      Graph.wheel(1),
+      Graph.wheel(2),
+    ).foreach(assertLazy(_, absent*))
+    Seq(
+      Multigraph.cycle(2),
+      Multigraph.wheel(2),
+    ).foreach(assertLazy(_, absent*))
+    assertLazyDirected(DirectedGraph.cycle(2), 0 ~> 0, 1 ~> 0)
+
+  test("tori and prisms of small cycles have loops and double edges"):
+    assertEquals(Graph.torus(1, 1), Graph((0, 0) ~ (0, 0)))
+    assertEquals(Graph.torus(1, 1).degree((0, 0)), 2)
+    assertEquals(Multigraph.torus(1, 1).size, 2)
+    assertEquals(Multigraph.torus(1, 1).degree((0, 0)), 4)
+    assertEquals(
+      DirectedMultigraph.torus(1, 1).multiplicity((0, 0) ~> (0, 0)),
+      Count(2),
+    )
+    assertEquals(
+      Graph.torus(1, 3),
+      Graph(
+        (0, 0) ~ (0, 1) ~ (0, 2) ~ (0, 0),
+        (0, 0) ~ (0, 0),
+        (0, 1) ~ (0, 1),
+        (0, 2) ~ (0, 2),
+      ),
+    )
+    assertEquals(
+      Graph.torus(2, 3),
+      Graph.prism(3).mapVertices(_.swap),
+    )
+    assertEquals(Graph.torus(2, 3).size, 9)
+    assertEquals(Graph.torus(2, 3).degree((1, 2)), 3)
+    assertEquals(Multigraph.torus(2, 3).size, 12)
+    assertEquals(
+      Multigraph.torus(2, 3).multiplicity((1, 2) ~ (0, 2)),
+      Count(2),
+    )
+    assertEquals(
+      Graph.prism(2),
+      Graph.cycle((0, 0), (1, 0), (1, 1), (0, 1)),
+    )
+    assertEquals(
+      Graph.prism(1),
+      Graph((0, 0) ~ (0, 0), (0, 1) ~ (0, 1), (0, 0) ~ (0, 1)),
+    )
+    val absent = Seq((0, 0) ~ (0, 0), (0, 0) ~ (1, 0), (2, 0))
+    Seq(
+      Graph.torus(1, 1),
+      Graph.torus(1, 2),
+      Graph.torus(2, 3),
+      Graph.prism(1),
+      Graph.prism(2),
+    ).foreach(assertLazy(_, absent*))
+    Seq(
+      Multigraph.torus(1, 1),
+      Multigraph.torus(1, 2),
+      Multigraph.torus(2, 3),
+      Multigraph.prism(2),
+    ).foreach(assertLazy(_, absent*))
+    val arrows = Seq((0, 0) ~> (0, 0), (1, 0) ~> (0, 0))
+    Seq(
+      DirectedGraph.torus(1, 1),
+      DirectedGraph.torus(2, 2),
+    ).foreach(assertLazyDirected(_, arrows*))
+    Seq(
+      DirectedMultigraph.torus(1, 1),
+      DirectedMultigraph.prism(1),
+    ).foreach(assertLazyDirected(_, arrows*))
 
   test("transitive tournaments point from each vertex to every later one"):
     val tournament = DirectedGraph.transitiveTournament(4)

@@ -33,8 +33,10 @@ private[kneiphof] final class Shaping[V, M : Multiplicity as M, X]
     .index(vertex)
     .isDefined
 
-  override def multiplicity(edge: Any): M =
-    if arc(edge).isDefined then M.one else M.zero
+  override def multiplicity(edge: Any): M = M.fromInt:
+    indices(edge).fold(0): (first, second) =>
+      shape.arcs(first, second) +
+        (if directed || first == second then 0 else shape.arcs(second, first))
 
   override def incidentEdgeValues(vertex: Any): ValueSet[X] = ValueSet.from:
     indexing
@@ -47,12 +49,18 @@ private[kneiphof] final class Shaping[V, M : Multiplicity as M, X]
   override def find(edge: Any): Option[X] =
     arc(edge).map((source, target) => this.edge(source, target))
 
-  override def size: Option[Int] = Some(shape.size)
+  override def size: Option[Int] = Some(shape.size - merged)
 
-  override def degree(vertex: Any): Option[Int] = Some:
+  override def degree(vertex: Any): Option[Int] = Option.when(merged == 0):
     indexing
       .index(vertex)
       .fold(0)(index => shape.arcsFrom(index).size + shape.arcsInto(index).size)
+
+  /**
+    * The number of arcs which add nothing to the edge they repeat, because the
+    * edges form a set.
+    */
+  private val merged: Int = if M.additive then 0 else shape.repeats(directed)
 
   /** Every edge of the shape. */
   def edges: Iterable[X] = (0 until shape.order).flatMap: source =>
@@ -69,14 +77,18 @@ private[kneiphof] final class Shaping[V, M : Multiplicity as M, X]
     *   The arc of the shape which [[edge]] stands for, as the numbers of its
     *   source and target, if there is one.
     */
-  private def arc(edge: Any): Option[(Int, Int)] = ends(edge).flatMap:
-    (first, second) =>
-      (indexing.index(first), indexing.index(second)) match
-        case (Some(source), Some(target)) if shape.linked(source, target) =>
-          Some((source, target))
-        case (Some(target), Some(source))
-          if !directed && shape.linked(source, target) => Some((source, target))
-        case _ => None
+  private def arc(edge: Any): Option[(Int, Int)] = indices(edge).collect:
+    case (source, target) if shape.linked(source, target) => (source, target)
+    case (target, source) if !directed && shape.linked(source, target) =>
+      (source, target)
+
+  /**
+    * @return
+    *   The numbers of the ends of [[edge]], if it's an unlabelled edge of the
+    *   right kind between vertices of the shape.
+    */
+  private def indices(edge: Any): Option[(Int, Int)] = ends(edge).flatMap:
+    (first, second) => indexing.index(first).zip(indexing.index(second))
 
 /** The companion object for [[Shaping]]. */
 private[kneiphof] object Shaping:

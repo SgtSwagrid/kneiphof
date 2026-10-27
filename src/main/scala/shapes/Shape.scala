@@ -5,12 +5,13 @@ package shapes
 import scala.collection.Searching.{Found, InsertionPoint}
 
 /**
-  * The rule for the edges of a simple graph on the vertex indices
-  * `0 until order`, from which a shape's edges are computed when needed rather
-  * than stored.
+  * The rule for the edges of a graph on the vertex indices `0 until order`,
+  * from which a shape's edges are computed when needed rather than stored.
   *
-  * Each edge is an arc from one index to another. In undirected shapes, each
-  * edge is listed as a single arc, in either direction.
+  * Each copy of an edge is an arc from one index to another. In undirected
+  * shapes, each copy is listed as a single arc, in either direction. Arcs only
+  * repeat an edge in small cycles, such as the cycle of `2` vertices, whose two
+  * arcs are one edge in undirected graphs whose edges form a set.
   */
 private[kneiphof] trait Shape:
 
@@ -19,6 +20,21 @@ private[kneiphof] trait Shape:
 
   /** The number of arcs. */
   def size: Int
+
+  /**
+    * @return
+    *   The number of arcs which only repeat an edge listed by another arc, so
+    *   that a graph whose edges form a set has this many fewer edges than arcs.
+    *   Unless [[directed]], an arc also repeats the arc the other way.
+    */
+  def repeats(directed: Boolean): Int = 0
+
+  /** The number of indices with an arc to themselves. */
+  def loops: Int = 0
+
+  /** @return The number of arcs from [[source]] to [[target]]. */
+  def arcs(source: Int, target: Int): Int =
+    if linked(source, target) then 1 else 0
 
   /** @return The indices which an arc leads to from [[vertex]]. */
   def arcsFrom(vertex: Int): Iterable[Int]
@@ -83,6 +99,11 @@ private[kneiphof] object Shape:
 
     override def size: Int = order
 
+    override def repeats(directed: Boolean): Int =
+      if !directed && order == 2 then 1 else 0
+
+    override def loops: Int = if order == 1 then 1 else 0
+
     override def arcsFrom(vertex: Int): Iterable[Int] = List(next(vertex))
 
     override def arcsInto(vertex: Int): Iterable[Int] =
@@ -112,6 +133,11 @@ private[kneiphof] object Shape:
   final case class Wheel(override val order: Int) extends Shape:
 
     override def size: Int = 2 * (order - 1)
+
+    override def repeats(directed: Boolean): Int =
+      if !directed && order == 3 then 1 else 0
+
+    override def loops: Int = if order == 2 then 1 else 0
 
     override def arcsFrom(vertex: Int): Iterable[Int] =
       if vertex == 0 then 1 until order else List(next(vertex))
@@ -319,7 +345,8 @@ private[kneiphof] object Shape:
     * The Cartesian product of [[first]] and [[second]], on the pairs of their
     * indices `(row, column)`, numbered `row * second.order + column`. Each pair
     * is linked to the pairs which differ from it in one coordinate, by an arc
-    * of the shape for that coordinate.
+    * of the shape for that coordinate, and to itself by an arc for each
+    * coordinate with a loop.
     */
   final case class Cartesian(first: Shape, second: Shape) extends Shape:
 
@@ -327,6 +354,23 @@ private[kneiphof] object Shape:
 
     override def size: Int = Math.toIntExact:
       first.size.toLong * second.order + first.order.toLong * second.size
+
+    override def repeats(directed: Boolean): Int = Math.toIntExact:
+      first.repeats(directed).toLong * second.order +
+        first.order.toLong * second.repeats(directed) +
+        first.loops.toLong * second.loops
+
+    override def loops: Int = Math.toIntExact:
+      first.loops.toLong * second.order + first.order.toLong * second.loops -
+        first.loops.toLong * second.loops
+
+    override def arcs(source: Int, target: Int): Int =
+      (if column(source) == column(target) then
+         first.arcs(row(source), row(target))
+       else 0) +
+        (if row(source) == row(target) then
+           second.arcs(column(source), column(target))
+         else 0)
 
     override def arcsFrom(vertex: Int): Iterable[Int] =
       along(vertex)(first.arcsFrom, second.arcsFrom)
