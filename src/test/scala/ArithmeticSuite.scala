@@ -89,3 +89,11 @@ class ArithmeticSuite extends FunSuite:
       cycle.incidentEdgeValues(0),
       ValueSet(1_999_999_999 ~ 0, 0 ~ 1),
     )
+
+  test("huge shapes built the same way are equal without listing them"):
+    val grid = Graph.grid(100_000, 100_000)
+    assertEquals(grid, Graph.grid(100_000, 100_000))
+    assertNotEquals(grid, Graph.grid(100_000, 100_001))
+    intercept[UnsupportedOperationException](
+      grid == Graph.torus(100_000, 100_000),
+    )

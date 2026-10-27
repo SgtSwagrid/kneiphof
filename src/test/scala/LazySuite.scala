@@ -433,8 +433,8 @@ class LazySuite extends FunSuite, LazyAssertions:
     )
     unioned.structure match
       case union: Union[?, ?, ?] =>
-        assertEquals(union.parts.all.size, 5_001)
-        assertEquals(union.gathered.size, 4_999)
+        assertEquals(union.parts.all.size, 10_000)
+        assertEquals(union.gathered.size, 0)
       case structure => fail(s"$structure isn't one union.")
     val clique: Graph[Int, Unit] = Graph.complete(5)
     val thinned                  = steps.foldLeft(clique): (graph, i) =>
@@ -455,8 +455,8 @@ class LazySuite extends FunSuite, LazyAssertions:
     )
     summed.structure match
       case sum: Sum[?, ?, ?] =>
-        assertEquals(sum.parts.all.size, 5_001)
-        assertEquals(sum.gathered.size, 4_999)
+        assertEquals(sum.parts.all.size, 10_000)
+        assertEquals(sum.gathered.size, 0)
       case structure => fail(s"$structure isn't one sum.")
 
   test("few operands are copied, and others aren't"):
@@ -717,3 +717,37 @@ class LazySuite extends FunSuite, LazyAssertions:
     assert(clique != Graph.complete(50_001))
     assert(Graph.complete(300).materialise != Graph.complete(301))
     assert(clique != clique.filterVertices(_ != 7))
+
+  test("mixed operations on large operands nest, but cost linearly in depth"):
+    val start: Graph[Int, Unit] = Graph.cycle(3)
+    val mixed                   = (0 until 500).foldLeft(start): (graph, i) =>
+      graph - (0 ~ 1) + Graph.path((100 * i until 100 * i + 100)*)
+    assert(mixed.hasVertex(49_999))
+    assert(!mixed.hasEdge(0 ~ 1))
+    assert(mixed.hasEdge(1 ~ 2))
+
+  test("choosing how to count lists only what it needs"):
+    val grid = Graph.grid(3_000, 3_000)
+    assertEquals(
+      (Graph((0, 0) ~ (0, 1)) - grid.edgeInduced(_ => true)).size,
+      0,
+    )
+    assertEquals(Graph.fan(5_000_000).order, 5_000_001)
+    assertEquals(
+      Graph.wheel(5_000_000).order,
+      5_000_001,
+    )
+
+  test("gathered edges keep their place among the operands"):
+    val big     = Graph.complete(100)
+    val gather  = (Graph.path(1, 2) | big) + Graph.vertices(1L)
+    val later   = lazyPath(1, 3)
+    val overlay = gather | later
+    assertEquals(
+      overlay.vertex(1).map(_.value.getClass),
+      overlay.materialise.vertex(1).map(_.value.getClass),
+    )
+    assertEquals[Any, Any](
+      overlay.vertex(1).map(_.value.getClass),
+      Some(classOf[java.lang.Integer]),
+    )

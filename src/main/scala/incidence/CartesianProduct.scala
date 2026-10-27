@@ -38,6 +38,28 @@ private[kneiphof] final class CartesianProduct[
 
   override def order: Int = Math.multiplyExact(first.order, second.order)
 
+  override def knownOrder: Option[Long] =
+    for
+      rows    <- first.knownOrder
+      columns <- second.knownOrder
+      if rows == 0 || columns <= Long.MaxValue / rows
+    yield rows * columns
+
+  override def vertexIterator: Iterator[(V, W)] = first
+    .vertexIterator
+    .flatMap(v => second.vertexIterator.map((v, _)))
+
+  override def sameAs(that: IncidenceStructure[?, ?, ?]): Boolean =
+    (this eq that) ||
+    that
+      .factors
+      .exists: (left, right) =>
+        first.sameAs(left) && second.sameAs(right)
+
+  override def factors
+    : Option[(IncidenceStructure[?, ?, ?], IncidenceStructure[?, ?, ?])] =
+    Some((first, second))
+
   override def multiplicity(edge: Any): M = edge match
     case edge: AnyEdge[?, ?, ?] if edge.vertexValues.forall(isPair) =>
       val ends = edge

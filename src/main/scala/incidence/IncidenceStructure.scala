@@ -2,6 +2,7 @@ package com.alecdorrington
 package kneiphof
 package incidence
 
+import scala.annotation.tailrec
 import scala.compiletime.deferred
 
 /**
@@ -35,6 +36,41 @@ private[kneiphof] trait IncidenceStructure[+V, M, +X <: AnyEdge[?, ?, ?]]:
 
   /** The number of vertices. */
   def order: Int = vertexValues.size
+
+  /**
+    * The number of vertices, if it's known without listing them, as for stored
+    * graphs, shapes and products. It's counted in a [[Long]], so it never
+    * overflows, and it never fails, so it can choose between ways of answering
+    * a query.
+    */
+  def knownOrder: Option[Long] = None
+
+  /** The vertices, listed only as they're needed, where the structure can. */
+  def vertexIterator: Iterator[V] = vertexValues.iterator
+
+  /**
+    * The edges at each vertex in turn, listed only as they're needed, so that
+    * each edge appears once for each of its distinct ends. Where only their
+    * number matters, roughly, this stands in for [[edges]], which may first
+    * have to number every vertex.
+    */
+  def incidences: Iterator[Any] =
+    vertexIterator.flatMap(incidentEdges(_).iterator.map((edge, _) => edge))
+
+  /**
+    * @return
+    *   `true` if this structure is known to be the same graph as [[that]] from
+    *   how they're built, as for equal shapes, without listing either. If it's
+    *   `false`, they may still be the same.
+    */
+  def sameAs(that: IncidenceStructure[?, ?, ?]): Boolean = this eq that
+
+  /**
+    * The structures of the two graphs whose Cartesian product this is, if it is
+    * one, so that products can be compared by their factors.
+    */
+  def factors
+    : Option[(IncidenceStructure[?, ?, ?], IncidenceStructure[?, ?, ?])] = None
 
   /** @return The multiplicity of [[edge]], which is `zero` if it's absent. */
   def multiplicity(edge: Any): M
@@ -141,30 +177,45 @@ private[kneiphof] object IncidenceStructure:
     case _                      => ValueSet.empty
 
   /**
-    * An order too large to count is at least [[Int.MaxValue]], so this never
-    * fails, and can choose between ways of answering a query.
-    *
     * @return
-    *   The number of vertices of [[structure]], or [[Int.MaxValue]] if there
-    *   are too many to count.
+    *   The number of vertices of [[structure]] if it's known without listing
+    *   them, and otherwise [[Long.MaxValue]], so that the structures known to
+    *   be smaller come first.
     */
-  def orderHint(structure: IncidenceStructure[?, ?, ?]): Int =
-    try structure.order
-    catch case _: ArithmeticException => Int.MaxValue
+  def orderBound(structure: IncidenceStructure[?, ?, ?]): Long = structure
+    .knownOrder
+    .getOrElse(Long.MaxValue)
+
+  /**
+    * @return
+    *   `true` if and only if [[structure]] is known, without listing its
+    *   vertices, to have at most [[bound]] of them.
+    */
+  def knownAtMost
+    (
+      structure: IncidenceStructure[?, ?, ?],
+      bound: Int,
+    )
+    : Boolean = structure.knownOrder.exists(_ <= bound)
 
   /**
     * @return
     *   `true` if and only if [[first]] has at most as many elements as
-    *   [[second]], found by taking from both until one runs out.
+    *   [[second]], found by taking one from each until either runs out.
     */
+  @tailrec
   def noLonger
     (
       first: Iterator[Any],
       second: Iterator[Any],
     )
     : Boolean =
-    first.zip(second).foreach(_ => ())
-    !first.hasNext
+    if !first.hasNext then true
+    else if !second.hasNext then false
+    else
+      first.next()
+      second.next()
+      noLonger(first, second)
 
   /**
     * The most vertices a structure can have for an operation to index its
@@ -175,18 +226,30 @@ private[kneiphof] object IncidenceStructure:
   /**
     * @return
     *   The given [[edges]], each with its multiplicity, combining the
-    *   multiplicities of equal edges by [[combine]].
+    *   multiplicities of equal edges by [[operation]].
     */
   def combine[X, M]
     (edges: IterableOnce[(X, M)])
-    (combine: (M, M) => M)
+    (operation: (M, M) => M)
     : ValueMap[X, M] = edges
     .iterator
     .foldLeft(ValueMap.empty[X, M]):
       case (sums, (edge, multiplicity)) => sums.withEntry(
           edge,
-          sums.get(edge).fold(multiplicity)(combine(_, multiplicity)),
+          sums.get(edge).fold(multiplicity)(operation(_, multiplicity)),
         )
+
+  /**
+    * @return
+    *   The sum of [[orders]] if they're all known and it fits in a [[Long]].
+    */
+  def knownTotal(orders: IterableOnce[Option[Long]]): Option[Long] = orders
+    .iterator
+    .foldLeft(Option(0L)): (total, order) =>
+      for
+        sum  <- total
+        next <- order if next <= Long.MaxValue - sum
+      yield sum + next
 
   /** @return The product of [[factors]], failing rather than overflowing. */
   def product(factors: IterableOnce[Long]): Long = factors

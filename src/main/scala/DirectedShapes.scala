@@ -17,7 +17,7 @@ trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
     *   from each vertex to every later one.
     */
   def transitiveTournament(order: Int): G[Int, Unit] =
-    counted(order)(Rule.Clique(_))
+    onNumbers(order)(Rule.Clique(_))
 
   /**
     * @return
@@ -25,4 +25,4 @@ trait DirectedShapes[+G[+v, +e]] extends Shapes[G]:
     *   each vertex to every later one.
     */
   def transitiveTournament[V : NotHandle](vertices: V*): G[V, Unit] =
-    listed(vertices)(Rule.Clique(_))
+    onVertices(vertices)(Rule.Clique(_))

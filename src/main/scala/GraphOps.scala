@@ -195,7 +195,7 @@ trait GraphOps[
     *   This graph, with its vertices renumbered from `0` in the order given by
     *   their [[Ordering]].
     */
-  def indexed[W >: V : Ordering]: G[Int, E] =
+  def renumber[W >: V : Ordering]: G[Int, E] =
     mapVertices(vertexValues.toSeq.sorted[W].zipWithIndex.toMap)
 
   override def toString: String =

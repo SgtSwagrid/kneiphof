@@ -366,7 +366,7 @@ object HypergraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, Hyperedge[V, E | L]] =
-        kind[M].joined(left.structure, right.structure, label)
+        kind[M].join(left.structure, right.structure, label)
 
       override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)

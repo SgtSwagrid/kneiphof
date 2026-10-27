@@ -62,20 +62,37 @@ trait AnyGraph[+V, +E, M]:
   )
 
   /**
-    * Orders are compared first, since many graphs count their vertices without
-    * listing them. Sizes aren't, since many graphs count their edges only by
-    * listing them, and a size can be too large to count.
+    * Graphs built the same way, such as equal shapes, are equal without listing
+    * them. Otherwise, orders are compared first where they're known, since many
+    * graphs count their vertices without listing them. Sizes aren't, since many
+    * graphs count their edges only by listing them.
     *
     * @return
     *   `true` if and only if this graph and [[that]] belong to the same family,
     *   and have the same vertices and the same multiplicity for every edge.
+    * @throws UnsupportedOperationException
+    *   If the two graphs can only be compared by listing more vertices than an
+    *   [[Int]] can count.
     */
   protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean =
     (this eq that) ||
     directed == that.directed && algebra == that.algebra &&
-    IncidenceStructure.orderHint(structure) ==
-      IncidenceStructure.orderHint(that.structure) &&
-      vertexValues == that.vertexValues && edgeValues == that.edgeValues
+    (structure.sameAs(that.structure) || sameValues(that))
+
+  /**
+    * @return
+    *   `true` if and only if this graph and [[that]] have the same vertices and
+    *   the same multiplicity for every edge, compared by listing them.
+    */
+  private def sameValues(that: AnyGraph[?, ?, ?]): Boolean =
+    (structure.knownOrder, that.structure.knownOrder) match
+      case (Some(order), Some(other)) if order != other => false
+      case (Some(order), _) if order > Int.MaxValue     =>
+        throw UnsupportedOperationException(
+          s"A graph of $order vertices is too large to compare by listing them.",
+        )
+      case _ => vertexValues == that.vertexValues &&
+        edgeValues == that.edgeValues
 
 /** The companion object for [[AnyGraph]]. */
 object AnyGraph:

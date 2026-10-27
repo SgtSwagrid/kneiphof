@@ -27,7 +27,7 @@ private[kneiphof] final class Sum[+V, M : Multiplicity, +X <: AnyEdge[?, ?, ?]]
     *   This sum, with its gathered edges replaced by [[gathered]], which
     *   includes them.
     */
-  def withGathered[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
+  override def withGathered[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
     (gathered: Patch[W, M, Y])
     : Sum[W, M, Y] = Sum(parts, gathered)
 

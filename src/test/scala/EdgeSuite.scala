@@ -69,6 +69,16 @@ class EdgeSuite extends FunSuite:
     val met: Graph[Int, Unit] = Graph(1 ~ 2, 2 ~ 3) &
       Hypergraph(Hyperedge(1, 2))
     assertEquals(met, Graph(1 ~ 2))
+    val lost: Graph[Int, Unit] = Graph(1 ~ 2, 2 ~ 3) -
+      Hypergraph(Hyperedge(1, 2))
+    assertEquals(lost, Graph(2 ~ 3).addVertex(1))
+    val kept: DirectedGraph[Int, Unit] = DirectedGraph(1 ~> 2) &
+      DirectedHypergraph(DirectedHyperedge(Seq(1), Seq(2)))
+    assertEquals(kept, DirectedGraph(1 ~> 2))
+    val counts: Multigraph[Int, Unit] = Multigraph(1 ~ 2, 1 ~ 2) - (1 ~ 2)
+    assertEquals(counts, Multigraph(1 ~ 2))
+    val chain: Multigraph[Int, Unit] = (1 ~ 2 ~ 3) & Multigraph(2 ~ 3)
+    assertEquals(chain, Multigraph(2 ~ 3))
     val thinned: DirectedGraph[Int, Unit] = DirectedGraph(1 ~> 2) -
       DirectedHypergraph(DirectedHyperedge(Seq(1), Seq(2)))
     assertEquals(thinned, DirectedGraph.vertices(1, 2))

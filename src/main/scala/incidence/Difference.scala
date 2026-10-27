@@ -30,6 +30,10 @@ private[kneiphof] final class Difference[
 
   override def order: Int = base.order
 
+  override def knownOrder: Option[Long] = base.knownOrder
+
+  override def vertexIterator: Iterator[V] = base.vertexIterator
+
   override def multiplicity(edge: Any): M =
     subtract(edge, base.multiplicity(edge))
 
@@ -48,7 +52,8 @@ private[kneiphof] final class Difference[
     * which are the only ones that can be lost.
     */
   override lazy val size: Int =
-    if IncidenceStructure.noLonger(base.edges, subtrahendEdges) then super.size
+    if IncidenceStructure.noLonger(base.incidences, subtrahendIncidences) then
+      super.size
     else
       Math.addExact(
         base.size,
@@ -73,6 +78,11 @@ private[kneiphof] final class Difference[
     .iterator
     .flatMap(_.edges.map((edge, _) => edge))
 
+  /** The incidences of the graphs subtracted (see [[incidences]]). */
+  private def subtrahendIncidences: Iterator[Any] = (others.all :+ gathered)
+    .iterator
+    .flatMap(_.incidences)
+
   /**
     * @return
     *   [[multiplicity]], less the multiplicities of [[edge]] in each of the
@@ -82,14 +92,18 @@ private[kneiphof] final class Difference[
     .ends(edge)
     .headOption
     .fold(multiplicity): end =>
-      ownersOf(end).foldLeft(multiplicity)(_ - _.multiplicity(edge))
+      candidatesAt(end).foldLeft(multiplicity)(_ - _.multiplicity(edge))
 
-  /** @return The graphs subtracted which contain [[vertex]]. */
-  private def ownersOf
+  /**
+    * @return
+    *   The graphs subtracted which may have an edge at [[vertex]] (see
+    *   [[Operands.candidates]]).
+    */
+  private def candidatesAt
     (vertex: Any)
     : Seq[IncidenceStructure[Any, M, AnyEdge[?, ?, ?]]] =
-    val containing = others.containing(vertex)
-    if gathered.hasVertex(vertex) then containing :+ gathered else containing
+    val candidates = others.candidates(vertex)
+    if gathered.hasVertex(vertex) then candidates :+ gathered else candidates
 
 /** The companion object for [[Difference]]. */
 private[kneiphof] object Difference:

@@ -29,6 +29,10 @@ private[kneiphof] final class EdgeInduced[
     .incidentEdges(vertex)
     .exists((edge, _) => keep(edge))
 
+  override def vertexIterator: Iterator[V] = base
+    .vertexIterator
+    .filter(hasVertex)
+
   override def vertexValue(vertex: Any): Option[V] = base
     .vertexValue(vertex)
     .filter(hasVertex)

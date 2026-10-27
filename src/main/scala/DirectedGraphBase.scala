@@ -360,7 +360,7 @@ object DirectedGraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, Arc[V, E | L]] =
-        kind[M].joined(left.structure, right.structure, label)
+        kind[M].join(left.structure, right.structure, label)
 
       override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
@@ -394,13 +394,13 @@ object DirectedGraphBase:
       (source: V, target: V, label: E)
       : Arc[V, E] = DirectedEdge(source, target, label)
 
-    override private[kneiphof] def shaped[V]
+    override private[kneiphof] def shape[V]
       (index: Index[V], rule: Rule)
       : DirectedGraphBase[V, Unit, M] = wrap(Shape.directed[V, M](index, rule))
 
-    override private[kneiphof] def coned[V]
+    override private[kneiphof] def cone[V]
       (hub: V, index: Index[V], rule: Rule)
-      : DirectedGraphBase[V, Unit, M] = shaped(index, rule).coneFrom(hub)
+      : DirectedGraphBase[V, Unit, M] = shape(index, rule).coneFrom(hub)
 
     override private[kneiphof] def product[V, W]
       (
@@ -409,8 +409,8 @@ object DirectedGraphBase:
         right: Index[W],
         second: Rule,
       )
-      : DirectedGraphBase[(V, W), Unit, M] = shaped(left, first)
-      .cartesianProduct(shaped(right, second))
+      : DirectedGraphBase[(V, W), Unit, M] = shape(left, first)
+      .cartesianProduct(shape(right, second))
 
   /** @return The kind of directed graphs with multiplicities in [[M]]. */
   def kind[M : Multiplicity]: Kind[M] = Kind[M]()
