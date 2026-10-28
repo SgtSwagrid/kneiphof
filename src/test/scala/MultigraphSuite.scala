@@ -59,12 +59,15 @@ class MultigraphSuite extends FunSuite:
       ownEmbedding,
     )
 
-  test("difference removes copies, stopping at zero"):
+  test(
+    "difference removes copies, stopping at zero, as counts can't be negative",
+  ):
     val graph = Multigraph(1 ~ 2, 1 ~ 2)
     assertEquals((graph - Multigraph(1 ~ 2)).size, 1)
     assertEquals((graph - graph - graph).size, 0)
     assertEquals((graph - graph).order, 2)
     assertEquals((graph - (1 ~ 2)).size, 1)
+    intercept[IllegalArgumentException](Count(-1))
 
   test("merging vertices keeps parallel edges"):
     val merged = Multigraph(1 ~ 2, 2 ~ 3).mapVertices(_ => 0)
@@ -74,9 +77,6 @@ class MultigraphSuite extends FunSuite:
       Graph(1 ~ 2, 2 ~ 3).mapVertices(_ => 0).size,
       1,
     )
-
-  test("counts can't be negative"):
-    intercept[IllegalArgumentException](Count(-1))
 
   test("multigraphs print their counts"):
     assertEquals(

@@ -54,13 +54,11 @@ class DirectedGraphSuite extends FunSuite:
     assertEquals(edge.tail.map(_.value), Set(1))
     assertEquals(edge.head.map(_.value), Set(2))
 
-  test("transposing reverses every edge"):
+  test("transposing reverses every edge, and forgetting direction merges them"):
     assertEquals(
       graph.transpose,
       DirectedGraph(2 ~> 1, 3 ~> 1, 1 ~> 3),
     )
-
-  test("forgetting direction merges opposite edges of a set"):
     assertEquals(
       DirectedGraph(1 ~> 2, 2 ~> 1).underlying,
       Graph(1 ~ 2),
@@ -82,7 +80,7 @@ class DirectedGraphSuite extends FunSuite:
       Set[Node](q),
     )
 
-  test("directed hyperedges lead between sets of vertices"):
+  test("directed hyperedges lead between sets of vertices, even in a digraph"):
     val hypergraph = DirectedHypergraph(DirectedHyperedge(Seq(1, 2), Seq(3)))
     assertEquals(
       hypergraph(1).successors.map(_.value),
@@ -96,8 +94,6 @@ class DirectedGraphSuite extends FunSuite:
       hypergraph.underlying,
       Hypergraph(Hyperedge(1, 2, 3)),
     )
-
-  test("adding a hyperedge to a digraph gives a directed hypergraph"):
     val grown = graph + DirectedHyperedge(Seq(1, 2), Seq(4))
     assertEquals(grown.size, 4)
     assert(grown.hasEdge(DirectedHyperedge(Seq(2, 1), Seq(4))))

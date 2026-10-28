@@ -18,11 +18,13 @@ class ChainSuite extends FunSuite:
       Set(2),
     )
 
-  test("chains hold their edges"):
+  test("chains hold their edges, following any arrows"):
     assertEquals[Any, Any](1 ~ 2 ~ 3, Multigraph(1 ~ 2, 2 ~ 3))
     assertEquals[Any, Any](1 ~ 2 ~ 3, 3 ~ 2 ~ 1)
     assertNotEquals[Any, Any](1 ~ 2 ~ 3, 1 ~ 3 ~ 2)
     assertEquals((1 ~ 2 ~ 1).size, 2)
+    assertEquals[Any, Any](1 ~> 2 ~> 3, DirectedMultigraph(1 ~> 2, 2 ~> 3))
+    assertNotEquals[Any, Any](1 ~> 2 ~> 3, 3 ~> 2 ~> 1)
 
   test("% labels the last edge of a chain"):
     assertEquals[Any, Any](
@@ -33,10 +35,6 @@ class ChainSuite extends FunSuite:
       1 ~ 2 ~ 3 % "x",
       Multigraph[Int, Unit | String](1 ~ 2, 2 ~ 3 % "x"),
     )
-
-  test("directed chains follow their arrows"):
-    assertEquals[Any, Any](1 ~> 2 ~> 3, DirectedMultigraph(1 ~> 2, 2 ~> 3))
-    assertNotEquals[Any, Any](1 ~> 2 ~> 3, 3 ~> 2 ~> 1)
 
   test("chains build graphs of every kind"):
     assertEquals(

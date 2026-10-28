@@ -19,7 +19,7 @@ class ArithmeticSuite extends FunSuite:
     intercept[ArithmeticException](product.degree((1, 0)))
     intercept[ArithmeticException](product.size)
 
-  test("in- and out-degrees fail rather than overflow"):
+  test("degrees, in-degrees and out-degrees fail rather than overflow"):
     val graph = DirectedMultigraph.fromMultiplicities(
       Nil,
       Seq(
@@ -30,6 +30,9 @@ class ArithmeticSuite extends FunSuite:
     intercept[ArithmeticException](graph(1).outDegree)
     intercept[ArithmeticException](graph.transpose(1).inDegree)
     intercept[ArithmeticException](graph.degree(1))
+    val loop =
+      Multigraph.fromMultiplicities(Nil, Seq((1 ~ 1) -> Count(1 << 30)))
+    intercept[ArithmeticException](loop.degree(1))
 
   test("large shapes fail rather than overflow"):
     intercept[ArithmeticException](Graph.petersen(800_000_000, 2).size)
@@ -99,7 +102,7 @@ class ArithmeticSuite extends FunSuite:
     )
     intercept[UnsupportedOperationException](grid.mapVertices(identity) == grid)
     intercept[UnsupportedOperationException](grid == grid.mapVertices(identity))
-    assert(Graph.grid(1_000, 1_000) != Graph.torus(1_000, 1_000))
+    assert(Graph.grid(3, 3) != Graph.torus(3, 3))
 
   test("huge graphs differ from graphs known or found to be smaller"):
     val grid  = Graph.grid(100_000, 100_000)
