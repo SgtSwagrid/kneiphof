@@ -1,0 +1,2829 @@
+<!DOCTYPE html><html data-pathToRoot="../../../" data-rawLocation="com/alecdorrington/kneiphof/DirectedHyperedge" data-dynamicSideMenu="false"><head><meta charset="utf-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta><title>DirectedHyperedge</title><link rel="shortcut icon" type="image/x-icon" href="../../../favicon.ico"></link><script type="text/javascript" src="../../../scripts/theme.js"></script><script type="text/javascript" src="../../../scripts/searchData.js" defer="true"></script><script type="text/javascript" src="../../../scripts/scastieConfiguration.js" defer="true"></script><link rel="stylesheet" href="../../../styles/theme/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/components/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/components/button/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/layout/bundle.css"></link><link rel="stylesheet" href="../../../styles/dotty-icons.css"></link><link rel="stylesheet" href="../../../styles/filter-bar.css"></link><link rel="stylesheet" href="../../../styles/searchbar.css"></link><link rel="stylesheet" href="../../../styles/social-links.css"></link><link rel="stylesheet" href="../../../styles/versions-dropdown.css"></link><link rel="stylesheet" href="../../../styles/content-contributors.css"></link><script type="text/javascript" src="../../../hljs/highlight.pack.js" defer="true"></script><script type="text/javascript" src="../../../scripts/hljs-scala3.js" defer="true"></script><script type="text/javascript" src="../../../scripts/ux.js" defer="true"></script><script type="text/javascript" src="../../../scripts/common/component.js" defer="true"></script><script type="text/javascript" src="../../../scripts/common/utils.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/FilterBar.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/DocumentableList.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/Input.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/FilterGroup.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/Filter.js" defer="true"></script><script type="text/javascript" src="../../../scripts/scaladoc-scalajs.js" defer="true"></script><script type="text/javascript" src="../../../scripts/contributors.js" defer="true"></script><script type="text/javascript" src="https://d3js.org/d3.v6.min.js" defer="true"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js" defer="true"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js" defer="true"></script><script type="text/javascript" src="https://scastie.scala-lang.org/embedded.js" defer="true"></script><script type="text/javascript" src="../../../scripts/data.js" defer="true"></script><script>var pathToRoot = "../../../";</script></head><body><div id=""><div id="header" class="body-small"><div class="header-container-left"><a href="../../../" class="logo-container"><span class="project-name h300">Kneiphof</span></a><span onclick="dropdownHandler(event)" class="text-button with-arrow" id="dropdown-trigger"><a></a></span><div id="version-dropdown" class="dropdown-menu"></div></div><div class="header-container-right"><button id="search-toggle" class="icon-button"></button><span id="theme-toggle" class="icon-button"></span><span id="mobile-menu-toggle" class="icon-button hamburger"></span></div></div><div id="mobile-menu"><div class="mobile-menu-header body-small"><span class="mobile-menu-logo"><span class="project-name h300">Kneiphof</span></span><button id="mobile-menu-close" class="icon-button close"></button></div><div class="mobile-menu-container body-medium"><input id="mobile-scaladoc-searchbar-input" class="scaladoc-searchbar-input" type="search" placeholder="Find anything"></input><span id="mobile-theme-toggle" class="mobile-menu-item mode"></span></div></div><span id="mobile-sidebar-toggle" class="floating-button"></span><div id="leftColumn" class="body-small"><div class="switcher-container"><a id="api-nav-button" class="switcher h100 selected" href="../../../index.html">API</a></div><nav id="api-nav" class="side-menu"><div class="ni n0 expanded"><span class="nh h100 expanded cs"><button class="ar icon-button expanded"></button><a href="../kneiphof.html"><span class="micon pa"></span><span>com.alecdorrington.kneiphof</span></a></span><div class="ni n1 "><span class="nh "><a href="AnyEdge.html"><span class="micon tr"></span><span>AnyEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="AnyGraph$.html"><span class="micon ob"></span><span>AnyGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="AnyGraph.html"><span class="micon tr"></span><span>AnyGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Chain$.html"><span class="micon ob"></span><span>Chain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Chain.html"><span class="micon tr"></span><span>Chain</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="Count$.html"><span class="micon ob"></span><span>Count</span></a></span><div class="ni n2 "><span class="nh "><a href="Count$$given_Multiplicity_Count$.html"><span class="micon ob"></span><span>given_Multiplicity_Count</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedChain.html"><span class="micon tr"></span><span>DirectedChain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedChain$.html"><span class="micon ob"></span><span>DirectedChain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedEdge.html"><span class="micon cl"></span><span>DirectedEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedEdge$.html"><span class="micon ob"></span><span>DirectedEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedGraph$.html"><span class="micon ob"></span><span>DirectedGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedGraphBase.html"><span class="micon tr"></span><span>DirectedGraphBase</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedGraphBase$.html"><span class="micon ob"></span><span>DirectedGraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 expanded"><span class="nh h100 selected"><a href="#"><span class="micon tr"></span><span>DirectedHyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedHyperedge$.html"><span class="micon ob"></span><span>DirectedHyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedHypergraph$.html"><span class="micon ob"></span><span>DirectedHypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedHypergraphBase.html"><span class="micon tr"></span><span>DirectedHypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$DirectedEdgeOps.html"><span class="micon tr"></span><span>DirectedEdgeOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$DirectedVertexOps.html"><span class="micon tr"></span><span>DirectedVertexOps</span></a></span></div></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedHypergraphBase$.html"><span class="micon ob"></span><span>DirectedHypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedMultigraph$.html"><span class="micon ob"></span><span>DirectedMultigraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedMultihypergraph$.html"><span class="micon ob"></span><span>DirectedMultihypergraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedShapes.html"><span class="micon tr"></span><span>DirectedShapes</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Edge$.html"><span class="micon ob"></span><span>Edge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Edge.html"><span class="micon cl"></span><span>Edge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Embedding.html"><span class="micon tr"></span><span>Embedding</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Embedding$.html"><span class="micon ob"></span><span>Embedding</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Graph$.html"><span class="micon ob"></span><span>Graph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="GraphBase$.html"><span class="micon ob"></span><span>GraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="GraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="GraphBase.html"><span class="micon tr"></span><span>GraphBase</span></a></span></div><div class="ni n1 "><span class="nh "><a href="GraphKind.html"><span class="micon tr"></span><span>GraphKind</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="GraphOps.html"><span class="micon tr"></span><span>GraphOps</span></a></span><div class="ni n2 "><span class="nh "><a href="GraphOps$EdgeOps.html"><span class="micon tr"></span><span>EdgeOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphOps$VertexOps.html"><span class="micon tr"></span><span>VertexOps</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="Handle.html"><span class="micon tr"></span><span>Handle</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hyperedge.html"><span class="micon tr"></span><span>Hyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hyperedge$.html"><span class="micon ob"></span><span>Hyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hypergraph$.html"><span class="micon ob"></span><span>Hypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="HypergraphBase$.html"><span class="micon ob"></span><span>HypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="HypergraphBase.html"><span class="micon tr"></span><span>HypergraphBase</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Lookup$.html"><span class="micon ob"></span><span>Lookup</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Lookup.html"><span class="micon cl"></span><span>Lookup</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Multigraph$.html"><span class="micon ob"></span><span>Multigraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Multihypergraph$.html"><span class="micon ob"></span><span>Multihypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="Multiplicity$.html"><span class="micon ob"></span><span>Multiplicity</span></a></span><div class="ni n2 "><span class="nh "><a href="Multiplicity$$given_Multiplicity_Boolean$.html"><span class="micon ob"></span><span>given_Multiplicity_Boolean</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="Multiplicity.html"><span class="micon tr"></span><span>Multiplicity</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NotGraph$.html"><span class="micon ob"></span><span>NotGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NotGraph.html"><span class="micon cl"></span><span>NotGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Shapes.html"><span class="micon tr"></span><span>Shapes</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueMap$.html"><span class="micon ob"></span><span>ValueMap</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueMap.html"><span class="micon cl"></span><span>ValueMap</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueSet$.html"><span class="micon ob"></span><span>ValueSet</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueSet.html"><span class="micon cl"></span><span>ValueSet</span></a></span></div></div></nav></div><div id="footer" class="body-small"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div><div id="scaladoc-searchBar"></div><div id="main"><div class="breadcrumbs container"><a href="../../../index.html">Kneiphof</a>/<a href="../kneiphof.html">com.alecdorrington.kneiphof</a>/<a href="DirectedHyperedge.html">DirectedHyperedge</a></div><div id="content" class="body-medium"><div><div class="cover-header">
+ <a href="DirectedHyperedge$.html"><span class="icon"><span class="micon tr"></span><span class="micon companion ob"></span></span></a>
+ <h1 class="h600 multi">DirectedHyperedge</h1>
+</div>
+<div class="fqname body-large">
+ <span>com.alecdorrington.kneiphof.DirectedHyperedge</span>
+</div>
+<div class="companion-badge body-small">
+ <span>See the<span class="micon ob"></span><a href="DirectedHyperedge$.html">DirectedHyperedge</a> companion object</span>
+</div>
+<div class="main-signature mono-small-block">
+ <div class="signature">
+  <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="DirectedHyperedge.html" t="n" class="documentableName ">DirectedHyperedge</a>[<span t="k">+</span><span data-unresolved-link="" t="t">S</span>, <span t="k">+</span><span data-unresolved-link="" t="t">T</span>, <span t="k">+</span><span data-unresolved-link="" t="t">E</span>]<span t="k"> extends </span><a href="AnyEdge.html" t="t">AnyEdge</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>]<span t="k">, </span></span><span class="signature-long"><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]</span>
+ </div>
+</div>
+<div class="cover">
+ <div class="doc">
+  <p>A directed edge from a multiset of vertices of type <span data-unresolved-link="">S</span> (its tail) to a multiset of vertices of type <span data-unresolved-link="">T</span> (its head).</p>
+  <p>As for the ends of a <a href="Hyperedge.html">Hyperedge</a>, a vertex may occur more than once in either, so that merging vertices keeps every occurrence, and so every degree. The tail and head may overlap, and either may be empty, but not both. Every directed hyperedge is also the directed multihypergraph containing just itself, once.</p>
+ </div>
+ <section id="attributes">
+  <h2 class="h500">Attributes</h2>
+  <dl class="attributes">
+   <dt class="body-small">Companion</dt>
+   <dd class="body-medium">
+    <a href="DirectedHyperedge$.html">object</a>
+   </dd>
+   <dt class="body-small">Graph</dt>
+   <dd class="body-medium">
+    <div id="inheritance-diagram" class="diagram-class showGraph">
+     <button type="button" class="label-only-button" onclick="zoomOut()">Reset zoom</button><button type="button" class="label-only-button" onclick="hideGraph()">Hide graph</button><button type="button" class="label-only-button" onclick="showGraph()">Show graph</button>
+     <svg id="graph"></svg>
+     <script type="text/dot" id="dot"> digraph g {
+ node0 [id=node0, label="<span style=\"color: #FFFFFF;\">trait <a href=\"DirectedHyperedge.html\" t=\"n\">DirectedHyperedge</a>[<span t=\"t\">S</span>, <span t=\"t\">T</span>, <span t=\"t\">E</span>]</span>", class="trait vertex"];
+node1 [id=node1, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Object</span></span>", class="class vertex"];
+node2 [id=node2, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Any</span></span>", class="class vertex"];
+node3 [id=node3, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">Matchable</span></span>", class="trait vertex"];
+node4 [id=node4, label="<span style=\"color: #FFFFFF;\">trait <a href=\"AnyEdge.html\" t=\"n\">AnyEdge</a>[<span t=\"t\">S</span><span t=\"k\"> | </span><span t=\"t\">T</span>, <span t=\"t\">E</span>, <a href=\"../kneiphof.html#Hyperarc-0\" t=\"t\">Hyperarc</a>]</span>", class="trait vertex"];
+node5 [id=node5, label="<span style=\"color: #FFFFFF;\">trait <a href=\"DirectedHypergraphBase.html\" t=\"n\">DirectedHypergraphBase</a>[<span t=\"t\">S</span><span t=\"k\"> | </span><span t=\"t\">T</span>, <span t=\"t\">E</span>, <a href=\"../kneiphof.html#Count-0\" t=\"t\">Count</a>]</span>", class="trait vertex"];
+node6 [id=node6, label="<span style=\"color: #FFFFFF;\">trait <a href=\"GraphOps.html\" t=\"n\">GraphOps</a>[<span t=\"t\">S</span><span t=\"k\"> | </span><span t=\"t\">T</span>, <span t=\"t\">E</span>, <a href=\"../kneiphof.html#Count-0\" t=\"t\">Count</a>, <a href=\"../kneiphof.html#Hyperarc-0\" t=\"t\">Hyperarc</a>, [<span t=\"t\">v</span>, <span t=\"t\">e</span>]<span t=\"k\"> =&gt;&gt; </span><a href=\"DirectedHypergraphBase.html\" t=\"t\">DirectedHypergraphBase</a>[<span t=\"t\">v</span>, <span t=\"t\">e</span>, <a href=\"../kneiphof.html#Count-0\" t=\"t\">Count</a>]]</span>", class="trait vertex"];
+node7 [id=node7, label="<span style=\"color: #FFFFFF;\">trait <a href=\"AnyGraph.html\" t=\"n\">AnyGraph</a>[<span t=\"t\">S</span><span t=\"k\"> | </span><span t=\"t\">T</span>, <span t=\"t\">E</span>, <a href=\"../kneiphof.html#Count-0\" t=\"t\">Count</a>]</span>", class="trait vertex"];
+node8 [id=node8, label="<span style=\"color: #FFFFFF;\">class <a href=\"DirectedEdge.html\" t=\"n\">DirectedEdge</a>[<span t=\"t\">S</span>, <span t=\"t\">T</span>, <span t=\"t\">E</span>]</span>", class="class vertex"];
+
+
+ node0 -> node1;
+node1 -> node2;
+node1 -> node3;
+node3 -> node2;
+node0 -> node4;
+node4 -> node1;
+node0 -> node5;
+node5 -> node1;
+node5 -> node6;
+node6 -> node1;
+node6 -> node7;
+node7 -> node1;
+node0 -> node6;
+node8 -> node0;
+
+}
+</script>
+    </div>
+   </dd>
+   <dt class="body-small">Supertypes</dt>
+   <dd class="body-medium">
+    <div class="mono-small-block supertypes">
+     <div>
+      trait <a href="DirectedHypergraphBase.html" t="n">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+     </div>
+     <div>
+      trait <a href="GraphOps.html" t="n">GraphOps</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>, <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>, [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]]
+     </div>
+     <div>
+      trait <a href="AnyGraph.html" t="n">AnyGraph</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+     </div>
+     <div>
+      trait <a href="AnyEdge.html" t="n">AnyEdge</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>]
+     </div>
+     <div>
+      class <span data-unresolved-link="" t="n">Object</span>
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">Matchable</span>
+     </div>
+     <div>
+      class <span data-unresolved-link="" t="n">Any</span>
+     </div>
+     <span class="show-all-code show-content text-button h100">Show all</span>
+    </div>
+   </dd>
+   <dt class="body-small">Known subtypes</dt>
+   <dd class="body-medium">
+    <div class="mono-small-block subtypes">
+     <div>
+      class <a href="DirectedEdge.html" t="n">DirectedEdge</a>[<span t="t">S</span>, <span t="t">T</span>, <span t="t">E</span>]
+     </div>
+     <span></span>
+    </div>
+   </dd>
+  </dl>
+ </section>
+</div>
+<section id="members-list">
+ <h2 class="h500">Members list</h2>
+ <div class="documentableFilter">
+  <div class="filtersContainer"></div>
+  <input class="filterableInput" placeholder="Filter by any phrase" data-test-id="filterBarInput" type="search"><button class="clearButton label-only-button" data-test-id="filterBarClearButton">Clear all</button>
+ </div>
+ <div class="membersList expand">
+  <div class="tabs">
+   <div class="contents">
+    <section id="Type-members">
+     <div data-togglable="Type members" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Type members" class="h400">Type members</h3>
+      </div>
+      <section id="Inherited-classlikes">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited classlikes</h4>
+        </div>
+        <div class="documentableElement" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="DirectedHypergraphBase$DirectedEdgeOps.html" t="n" class="documentableName ">DirectedEdgeOps</a><span t="k"> extends </span><a href="GraphOps$EdgeOps.html" t="t">EdgeOps</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The operations on an edge of this directed hypergraph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The operations on an edge of this directed hypergraph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase$DirectedEdgeOps.html">DirectedHypergraphBase</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="DirectedHypergraphBase.html" t="n">DirectedHypergraphBase</a>.<span t="k">this</span>.<a href="GraphOps$EdgeOps.html" t="t">EdgeOps</a>
+                </div>
+                <div>
+                 trait <a href="Handle.html" t="n">Handle</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="DirectedHypergraphBase$DirectedVertexOps.html" t="n" class="documentableName ">DirectedVertexOps</a><span t="k"> extends </span><a href="GraphOps$VertexOps.html" t="t">VertexOps</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The operations on a vertex of this directed hypergraph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The operations on a vertex of this directed hypergraph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase$DirectedVertexOps.html">DirectedHypergraphBase</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="DirectedHypergraphBase.html" t="n">DirectedHypergraphBase</a>.<span t="k">this</span>.<a href="GraphOps$VertexOps.html" t="t">VertexOps</a>
+                </div>
+                <div>
+                 trait <a href="Handle.html" t="n">Handle</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="GraphOps$EdgeOps.html" t="n" class="documentableName ">EdgeOps</a><span t="k"> extends </span><a href="Handle.html" t="t">Handle</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The operations on an edge of this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The operations on an edge of this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps$EdgeOps.html">GraphOps</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="Handle.html" t="n">Handle</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Known subtypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 trait <a href="DirectedHypergraphBase.html" t="n">DirectedHypergraphBase</a>.<span t="k">this</span>.<a href="DirectedHypergraphBase$DirectedEdgeOps.html" t="t">DirectedEdgeOps</a>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="GraphOps$VertexOps.html" t="n" class="documentableName ">VertexOps</a><span t="k"> extends </span><a href="Handle.html" t="t">Handle</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The operations on a vertex of this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The operations on a vertex of this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps$VertexOps.html">GraphOps</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="Handle.html" t="n">Handle</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Known subtypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 trait <a href="DirectedHypergraphBase.html" t="n">DirectedHypergraphBase</a>.<span t="k">this</span>.<a href="DirectedHypergraphBase$DirectedVertexOps.html" t="t">DirectedVertexOps</a>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Inherited-types">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited types</h4>
+        </div>
+        <div class="documentableElement" id="Edge-0" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">type </span></span><a href="DirectedHyperedge.html#Edge-0" t="n" class="documentableName ">Edge</a> = <a href="DirectedHypergraphBase$DirectedEdgeOps.html" t="t">DirectedEdgeOps</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>An edge of this graph, from which its vertices can be explored.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>An edge of this graph, from which its vertices can be explored.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#Edge-0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="Vertex-0" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">type </span></span><a href="DirectedHyperedge.html#Vertex-0" t="n" class="documentableName ">Vertex</a> = <a href="DirectedHypergraphBase$DirectedVertexOps.html" t="t">DirectedVertexOps</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>A vertex of this graph, from which its neighbourhood can be explored.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>A vertex of this graph, from which its neighbourhood can be explored.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#Vertex-0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+    <section id="Value-members">
+     <div data-togglable="Value members" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Value members" class="h400">Value members</h3>
+      </div>
+      <section id="Abstract-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Abstract methods</h4>
+        </div>
+        <div class="documentableElement" id="head-0">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#head-0" t="n" class="documentableName ">head</a>: <span data-unresolved-link="" t="t">Seq</span>[<span t="t">T</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The vertices this hyperedge enters, each repeated as often as it occurs. Their order doesn't matter.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The vertices this hyperedge enters, each repeated as often as it occurs. Their order doesn't matter.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small"></dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="tail-0">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#tail-0" t="n" class="documentableName ">tail</a>: <span data-unresolved-link="" t="t">Seq</span>[<span t="t">S</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The vertices this hyperedge leaves, each repeated as often as it occurs. Their order doesn't matter.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The vertices this hyperedge leaves, each repeated as often as it occurs. Their order doesn't matter.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small"></dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Concrete-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Concrete methods</h4>
+        </div>
+        <div class="documentableElement" id="equals-4ad" data-f-keywords="final,override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">final override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#equals-4ad" t="n" class="documentableName ">equals</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <span data-unresolved-link="" t="t">Any</span>): <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Graphs too large to list are compared as the trait's documentation says.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Graphs too large to list are compared as the trait's documentation says.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> is a graph of the same family, with the same vertices and the same multiplicity for every edge.</p>
+              </dd>
+              <dt class="body-small">Throws</dt>
+              <dd class="body-medium">
+               <div>
+                <div>
+                 <span data-unresolved-link="">UnsupportedOperationException</span>
+                 <p>If either graph is known to have more vertices than an <span data-unresolved-link="">Int</span> can count, the two aren't built the same way, and the other isn't known or found to have fewer vertices, since then they could only be compared by listing more vertices than a set can hold. Two lazy graphs whose orders aren't known are compared by listing them, however large they are.</p>
+                </div>
+               </div>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="AnyGraph.html">AnyGraph</a> -&gt; <span data-unresolved-link="">Any</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="map-fffff5fd" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#map-fffff5fd" t="n" class="documentableName ">map</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>, <span t="k"></span><span data-unresolved-link="" t="t">F</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertexMap</span>: (<span t="t">S</span><span t="k"> | </span><span t="t">T</span>) <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="n">labelMap</span>: <span t="t">E</span> <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">F</span>): <a href="DirectedHyperedge.html" t="t">DirectedHyperedge</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The image of this graph, with each vertex transformed by <span data-unresolved-link="" title="Problem linking vertexMap: Couldn't resolve a member for the given link query">vertexMap</span> and each label by <span data-unresolved-link="" title="Problem linking labelMap: Couldn't resolve a member for the given link query">labelMap</span>. Vertices with the same image merge, and the multiplicities of edges with the same image are summed.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a> -&gt; <a href="AnyEdge.html">AnyEdge</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="mapVertices-8f" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#mapVertices-8f" t="n" class="documentableName ">mapVertices</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">transform</span>: (<span t="t">S</span><span t="k"> | </span><span t="t">T</span>) <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">W</span>): <a href="DirectedHyperedge.html" t="t">DirectedHyperedge</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The image of this graph, with each vertex transformed by <span data-unresolved-link="" title="Problem linking transform: Couldn't resolve a member for the given link query">transform</span>. Vertices with the same image merge, and so do their edges (see <a href="GraphOps.html#map-5c8">map</a>).</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="GraphOps.html">GraphOps</a> -&gt; <a href="AnyEdge.html">AnyEdge</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="occurrences-7cd" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#occurrences-7cd" t="n" class="documentableName ">occurrences</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <span data-unresolved-link="" t="t">Int</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The number of times <span data-unresolved-link="" title="Problem linking vertex: Couldn't resolve a member for the given link query">vertex</span> occurs as an end of this edge.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="AnyEdge.html">AnyEdge</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="reverse-0">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#reverse-0" t="n" class="documentableName ">reverse</a>: <a href="DirectedHyperedge.html" t="t">DirectedHyperedge</a>[<span t="t">T</span>, <span t="t">S</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This hyperedge, with its tail and head swapped.</p>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="shapeHash-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#shapeHash-0" t="n" class="documentableName ">shapeHash</a>: <span data-unresolved-link="" t="t">Int</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>A hash of the ends and label of this edge, consistent with equality between edges, which graphs use to hash their edges without hashing the edges themselves.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>A hash of the ends and label of this edge, consistent with equality between edges, which graphs use to hash their edges without hashing the edges themselves.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="AnyEdge.html">AnyEdge</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="substitute-fffff7e4" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#substitute-fffff7e4" t="n" class="documentableName ">substitute</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">choices</span>: (<span t="t">S</span><span t="k"> | </span><span t="t">T</span>) <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">W</span>]): <span data-unresolved-link="" t="t">Iterable</span>[<a href="DirectedHyperedge.html" t="t">DirectedHyperedge</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>]]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The edges obtained by replacing each end of this edge with one of its <span data-unresolved-link="" title="Problem linking choices: Couldn't resolve a member for the given link query">choices</span>.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="AnyEdge.html">AnyEdge</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="toString-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#toString-0" t="n" class="documentableName ">toString</a>: <span data-unresolved-link="" t="t">String</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Returns a string representation of the object.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Returns a string representation of the object.</p>
+              <p>The default representation is platform dependent.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>a string representation of the object.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="GraphOps.html">GraphOps</a> -&gt; <span data-unresolved-link="">Any</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="transpose-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#transpose-0" t="n" class="documentableName ">transpose</a>: <a href="DirectedHyperedge.html" t="t">DirectedHyperedge</a>[<span t="t">T</span>, <span t="t">S</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The hypergraph with every edge reversed.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The hypergraph with every edge reversed.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html">DirectedHypergraphBase</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="vertexValues-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#vertexValues-0" t="n" class="documentableName ">vertexValues</a>: <a href="ValueSet.html" t="t">ValueSet</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The values of the vertices of this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The values of the vertices of this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="AnyGraph.html">AnyGraph</a> -&gt; <a href="AnyEdge.html">AnyEdge</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Inherited-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited methods</h4>
+        </div>
+        <div class="documentableElement" id="%-8ee" data-f-keywords="infix" data-f-inherited="AnyEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#%-8ee" t="n" class="documentableName ">%</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span> : <a href="NotGraph.html" t="t">NotGraph</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">label</span>: <span data-unresolved-link="" t="t">F</span>): <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">F</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="AnyEdge.html#withLabel-8ee">withLabel</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="AnyEdge.html#withLabel-8ee">withLabel</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyEdge.html#%-8ee">AnyEdge</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="&amp;-fffff5ca" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#&amp;-fffff5ca" t="n" class="documentableName ">&amp;</a>[<span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#intersection-fffff5ca">intersection</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#intersection-fffff5ca">intersection</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#&amp;-fffff5ca">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="+-808" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#+-808" t="n" class="documentableName ">+</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>, <span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#sum-808">sum</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#sum-808">sum</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#+-808">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="--fffff5ca" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#--fffff5ca" t="n" class="documentableName ">-</a>[<span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#difference-fffff5ca">difference</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#difference-fffff5ca">difference</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#--fffff5ca">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id=":~&gt;-606" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#:~&gt;-606" t="n" class="documentableName ">:~&gt;</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">A</span><span t="k"> &lt;: </span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="DirectedHypergraphBase$$Join.html" t="t">Join</a>[<span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>, <span data-unresolved-link="" t="t">Unit</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#coneTo-606">coneTo</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#coneTo-606">coneTo</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#:~&gt;-606">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id=":~&gt;:-fffffe74" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#:~&gt;:-fffffe74" t="n" class="documentableName ">:~&gt;:</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase$$Join.html" t="t">Join</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <span data-unresolved-link="" t="t">Unit</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#join-fffffe74">join</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#join-fffffe74">join</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#:~&gt;:-fffffe74">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="addVertex-2b2" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#addVertex-2b2" t="n" class="documentableName ">addVertex</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">A</span><span t="k"> &lt;: </span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph with <a href="GraphOps.html#vertex-3d7">vertex</a> added, if it's not already present.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#addVertex-2b2">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#addVertex-2b2">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="addVertices-5fe" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#addVertices-5fe" t="n" class="documentableName ">addVertices</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">A</span><span t="k"> &lt;: </span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">A</span>]): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph with all of <a href="GraphOps.html#vertices-0">vertices</a> added.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#addVertices-5fe">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="apply-fffffcda" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#apply-fffffcda" t="n" class="documentableName ">apply</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">A</span>): <a href="GraphOps.html#Vertex-0" t="t">Vertex</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The vertex with the given <span data-unresolved-link="" title="Problem linking value: Couldn't resolve a member for the given link query">value</span>.</p>
+              </dd>
+              <dt class="body-small">Throws</dt>
+              <dd class="body-medium">
+               <div>
+                <div>
+                 <span data-unresolved-link="">NoSuchElementException</span>
+                 <p>If <span data-unresolved-link="" title="Problem linking value: Couldn't resolve a member for the given link query">value</span> isn't a vertex of this graph.</p>
+                </div>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#apply-fffffcda">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="cartesianProduct-5a0" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#cartesianProduct-5a0" t="n" class="documentableName ">cartesianProduct</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[(<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">W</span>), <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The Cartesian product <code>G □ H</code> of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, on the pairs <code>(v, w)</code> of their vertices, with a copy of each edge of this hypergraph for each vertex <code>w</code> of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, and a copy of each edge of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> for each vertex <code>v</code> of this hypergraph. Copies keep their labels. The copies of two loops which differ only in their end coincide, which is one edge, for edge sets. So <code>path(m) □ path(n)</code> is a grid.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#cartesianProduct-5a0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="coneFrom-606" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#coneFrom-606" t="n" class="documentableName ">coneFrom</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">A</span><span t="k"> &lt;: </span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="DirectedHypergraphBase$$Join.html" t="t">Join</a>[<span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>, <span data-unresolved-link="" t="t">Unit</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The cone over this hypergraph with apex <a href="DirectedHypergraphBase.html#vertex-3d7">vertex</a>, with an edge labelled <code>()</code> from <a href="DirectedHypergraphBase.html#vertex-3d7">vertex</a> to every vertex of this hypergraph (see <a href="DirectedHypergraphBase.html#join-fffffe74">join</a>).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#coneFrom-606">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="coneTo-606" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#coneTo-606" t="n" class="documentableName ">coneTo</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">A</span><span t="k"> &lt;: </span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="DirectedHypergraphBase$$Join.html" t="t">Join</a>[<span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>, <span data-unresolved-link="" t="t">Unit</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The cone over this hypergraph with apex <a href="DirectedHypergraphBase.html#vertex-3d7">vertex</a>, with an edge labelled <code>()</code> from every vertex of this hypergraph to <a href="DirectedHypergraphBase.html#vertex-3d7">vertex</a> (see <a href="DirectedHypergraphBase.html#join-fffffe74">join</a>).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#coneTo-606">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="counted-fffff2af" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#counted-fffff2af" t="n" class="documentableName ">counted</a>(<span t="k">using </span><span t="k"></span><a href="../kneiphof.html#Count-0" t="t">Count</a> <span data-unresolved-link="" t="t">=:=</span> <span data-unresolved-link="" t="t">Boolean</span>): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This hypergraph as a multihypergraph, with one copy of each edge. An edge set doesn't count copies, so it only mixes with multihypergraphs through this, as in <code>m &amp; g.counted</code>, or <code>m - g.counted</code> to remove one copy of each edge of <code>g</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#counted-fffff2af">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="degree-7cd" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#degree-7cd" t="n" class="documentableName ">degree</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <span data-unresolved-link="" t="t">Int</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The number of edges incident to <a href="GraphOps.html#vertex-3d7">vertex</a>, counting every copy of each edge, and counting loops twice.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#degree-7cd">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="difference-fffff5ca" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#difference-fffff5ca" t="n" class="documentableName ">difference</a>[<span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">embedding</span>: <a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The difference of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, which keeps the vertices of this hypergraph and subtracts the multiplicity of each edge in <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>. So <code>DirectedGraph.complete(n) - g</code> is the complement of a <code>DirectedGraph[Int, Unit]</code> <code>g</code> on the vertices <code>0 until n</code>. To remove the vertices of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> as well, with their edges, use <code>removeVertices(that.vertexValues)</code>. <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> may be any directed hypergraph or directed graph whose multiplicities embed in <span data-unresolved-link="">M</span>, so it may also be an edge or chain, as in <code>g - (1 ~&gt; 2)</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#difference-fffff5ca">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="disjointUnion-5a0" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#disjointUnion-5a0" t="n" class="documentableName ">disjointUnion</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Either</span>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">W</span>], <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The disjoint union of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, whose vertices are tagged by which side they came from.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#disjointUnion-5a0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="edge-3d7" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#edge-3d7" t="n" class="documentableName ">edge</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">A</span>): <span data-unresolved-link="" t="t">Option</span>[<a href="DirectedHypergraphBase.html#Edge-0" t="t">Edge</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The edge with the given <span data-unresolved-link="" title="Problem linking value: Couldn't resolve a member for the given link query">value</span>, if it's in this graph.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#edge-3d7">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#edge-3d7">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="edgeInduced-7f1" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#edgeInduced-7f1" t="n" class="documentableName ">edgeInduced</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">predicate</span>: <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>] <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">Boolean</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The subgraph induced by the edges satisfying <span data-unresolved-link="" title="Problem linking predicate: Couldn't resolve a member for the given link query">predicate</span>, with only the vertices incident to them.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#edgeInduced-7f1">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="edges-0" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#edges-0" t="n" class="documentableName ">edges</a>: <span data-unresolved-link="" t="t">Set</span>[<a href="GraphOps.html#Edge-0" t="t">Edge</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The edges of this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The edges of this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#edges-0">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="empty-0" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#empty-0" t="n" class="documentableName ">empty</a>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Nothing</span>, <span data-unresolved-link="" t="t">Nothing</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The empty graph of the same kind.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#empty-0">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#empty-0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="filterEdges-7f1" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#filterEdges-7f1" t="n" class="documentableName ">filterEdges</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">predicate</span>: <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>] <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">Boolean</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The spanning subgraph with every vertex, but only the edges satisfying <span data-unresolved-link="" title="Problem linking predicate: Couldn't resolve a member for the given link query">predicate</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#filterEdges-7f1">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="filterVertices-7f1" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#filterVertices-7f1" t="n" class="documentableName ">filterVertices</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">predicate</span>: <span t="t">S</span><span t="k"> | </span><span t="t">T</span> <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">Boolean</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The subgraph induced by the vertices satisfying <span data-unresolved-link="" title="Problem linking predicate: Couldn't resolve a member for the given link query">predicate</span>, with every edge between them.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#filterVertices-7f1">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="flatMapVertices-fffff176" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#flatMapVertices-fffff176" t="n" class="documentableName ">flatMapVertices</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">transform</span>: <span t="t">S</span><span t="k"> | </span><span t="t">T</span> <span t="k">=&gt;</span> <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The hypergraph in which each vertex <code>v</code> is replaced by the hypergraph <code>transform(v)</code>, and each edge by its copies between the replacements of its ends. Equal vertices of different replacements merge. Each end is replaced independently, so a loop at <code>v</code> becomes a copy for every ordered pair of vertices of <code>transform(v)</code>: a loop at each, and an edge each way between every two.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#flatMapVertices-fffff176">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="flatten-bfb" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#flatten-bfb" t="n" class="documentableName ">flatten</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">nested</span>: <span t="t">S</span><span t="k"> | </span><span t="t">T</span> <span data-unresolved-link="" t="t">&lt;:&lt;</span> <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The hypergraph obtained by replacing each vertex with the hypergraph it holds (see <a href="DirectedHypergraphBase.html#flatMapVertices-fffff176">flatMapVertices</a>, including how loops are replaced).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#flatten-bfb">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="hasEdge-fffffd06" data-f-inherited="AnyGraph">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#hasEdge-fffffd06" t="n" class="documentableName ">hasEdge</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">edge</span>: <span data-unresolved-link="" t="t">A</span>): <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking edge: Couldn't resolve a member for the given link query">edge</span> is an edge of this graph.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyGraph.html#hasEdge-fffffd06">AnyGraph</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="hasVertex-fffffd06" data-f-inherited="AnyGraph">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#hasVertex-fffffd06" t="n" class="documentableName ">hasVertex</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking vertex: Couldn't resolve a member for the given link query">vertex</span> is a vertex of this graph.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyGraph.html#hasVertex-fffffd06">AnyGraph</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="hashCode-0" data-f-keywords="final,override" data-f-inherited="SingleEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">final override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#hashCode-0" t="n" class="documentableName ">hashCode</a>: <span data-unresolved-link="" t="t">Int</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>A graph known to have more vertices than an <span data-unresolved-link="">Int</span> can count hashes only its order, since its vertices can't be listed. Equal graphs have equal orders, so this agrees with equality.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>A graph known to have more vertices than an <span data-unresolved-link="">Int</span> can count hashes only its order, since its vertices can't be listed. Equal graphs have equal orders, so this agrees with equality.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <span data-unresolved-link="">SingleEdge</span> -&gt; <a href="AnyGraph.html">AnyGraph</a> -&gt; <span data-unresolved-link="">Any</span>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <span data-unresolved-link="">SingleEdge (hidden)</span>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="incidentEdgeValues-e27" data-f-keywords="override" data-f-inherited="SingleEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#incidentEdgeValues-e27" t="n" class="documentableName ">incidentEdgeValues</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="ValueSet.html" t="t">ValueSet</a>[<a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The values of the edges incident to <a href="GraphOps.html#vertex-3d7">vertex</a>.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <span data-unresolved-link="">SingleEdge</span> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <span data-unresolved-link="">SingleEdge (hidden)</span>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="induced-fffffe1f" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#induced-fffffe1f" t="n" class="documentableName ">induced</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">A</span>]): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The subgraph induced by <a href="GraphOps.html#vertices-0">vertices</a>, with every edge between them.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#induced-fffffe1f">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="intersection-fffff5ca" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#intersection-fffff5ca" t="n" class="documentableName ">intersection</a>[<span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">Any</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">embedding</span>: <a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The intersection of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, which keeps their common vertices and the meet of each edge's multiplicities, so that it's the largest subgraph of both. For the subgraph of this hypergraph with every edge between the vertices of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, use <code>induced(that.vertexValues)</code>. <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> may be any directed hypergraph or directed graph whose multiplicities embed in <span data-unresolved-link="">M</span>, as for <a href="DirectedHypergraphBase.html#difference-fffff5ca">difference</a>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#intersection-fffff5ca">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="join-fffffe74" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#join-fffffe74" t="n" class="documentableName ">join</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase$$Join.html" t="t">Join</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <span data-unresolved-link="" t="t">Unit</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The join of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, with an extra edge labelled <code>()</code> from every vertex of this hypergraph to every vertex of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, which <a href="DirectedHypergraphBase$$Join.html#withLabel-906">DirectedHypergraphBase.Join.withLabel</a> can relabel. This is the flattening of the edge <code>this ~&gt; that</code>, so it pairs each vertex of this hypergraph with each vertex of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> even where the two share vertices: a vertex in both gains a loop, and two vertices in both gain an edge each way.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#join-fffffe74">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="lexicographicProduct-5a0" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#lexicographicProduct-5a0" t="n" class="documentableName ">lexicographicProduct</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[(<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">W</span>), <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The lexicographic product <code>G[H]</code>, in which each vertex is replaced by a copy of <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#lexicographicProduct-5a0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="lexicographicSum-fffff176" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#lexicographicSum-fffff176" t="n" class="documentableName ">lexicographicSum</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">transform</span>: <span t="t">S</span><span t="k"> | </span><span t="t">T</span> <span t="k">=&gt;</span> <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[(<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">W</span>), <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The lexicographic sum (or X-join), in which each vertex <code>v</code> is replaced by a disjoint copy of the hypergraph <code>transform(v)</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#lexicographicSum-fffff176">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="mapEdges-fffff420" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#mapEdges-fffff420" t="n" class="documentableName ">mapEdges</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">transform</span>: <span t="t">E</span> <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">F</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">F</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph, with each edge label transformed by <span data-unresolved-link="" title="Problem linking transform: Couldn't resolve a member for the given link query">transform</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#mapEdges-fffff420">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="mapLabel-5d3" data-f-inherited="AnyEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#mapLabel-5d3" t="n" class="documentableName ">mapLabel</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">transform</span>: <span t="t">E</span> <span t="k">=&gt;</span> <span data-unresolved-link="" t="t">F</span>): <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">F</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This edge, with its label transformed by <span data-unresolved-link="" title="Problem linking transform: Couldn't resolve a member for the given link query">transform</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyEdge.html#mapLabel-5d3">AnyEdge</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="materialise-0" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#materialise-0" t="n" class="documentableName ">materialise</a>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph with every edge stored. Every operation computes its result only as it's queried, so a graph which will be queried repeatedly, or built from a long chain of operations, should be materialised.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#materialise-0">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#materialise-0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="multiplicity-a2d" data-f-inherited="AnyGraph">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#multiplicity-a2d" t="n" class="documentableName ">multiplicity</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">edge</span>: <span data-unresolved-link="" t="t">A</span>): <a href="../kneiphof.html#Count-0" t="t">Count</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The multiplicity of <span data-unresolved-link="" title="Problem linking edge: Couldn't resolve a member for the given link query">edge</span>, which is <code>zero</code> if it's absent.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyGraph.html#multiplicity-a2d">AnyGraph</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="order-0" data-f-inherited="AnyGraph">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#order-0" t="n" class="documentableName ">order</a>: <span data-unresolved-link="" t="t">Int</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The number of vertices in this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The number of vertices in this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyGraph.html#order-0">AnyGraph</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="removeEdge-fffff77a" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#removeEdge-fffff77a" t="n" class="documentableName ">removeEdge</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">edge</span>: <span data-unresolved-link="" t="t">A</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph without any copies of <a href="GraphOps.html#edge-3d7">edge</a>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#removeEdge-fffff77a">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="removeVertex-fffff731" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#removeVertex-fffff731" t="n" class="documentableName ">removeVertex</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph without <a href="GraphOps.html#vertex-3d7">vertex</a> and its incident edges.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#removeVertex-fffff731">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#removeVertex-fffff731">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="removeVertices-fffffe1f" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#removeVertices-fffffe1f" t="n" class="documentableName ">removeVertices</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">A</span>]): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph without any of <a href="GraphOps.html#vertices-0">vertices</a> or their incident edges.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#removeVertices-fffffe1f">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="renumber-fffff301" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#renumber-fffff301" t="n" class="documentableName ">renumber</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span> : <span data-unresolved-link="" t="t">Ordering</span>]: [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span data-unresolved-link="" t="t">Int</span>, <span t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph, with its vertices renumbered from <code>0</code> in the order given by their <span data-unresolved-link="">Ordering</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#renumber-fffff301">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="size-0" data-f-inherited="AnyGraph">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#size-0" t="n" class="documentableName ">size</a>: <span data-unresolved-link="" t="t">Int</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The number of edges in this graph, counting every copy of each edge.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The number of edges in this graph, counting every copy of each edge.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyGraph.html#size-0">AnyGraph</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="sum-808" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#sum-808" t="n" class="documentableName ">sum</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>, <span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">embedding</span>: <a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The sum of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, which adds the multiplicities of their edges. For edge sets, this is the same as their union. <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> may have any multiplicities which embed in <span data-unresolved-link="">M</span>, so it may also be an edge or chain, such as <code>DirectedHyperedge(Seq(1, 2), Seq(3))</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#sum-808">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="support-fffffdd2" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#support-fffffdd2" t="n" class="documentableName ">support</a>(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">embedding</span>: <a href="Embedding.html" t="t">Embedding</a>[<a href="../kneiphof.html#Count-0" t="t">Count</a>, <span data-unresolved-link="" t="t">Boolean</span>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <span data-unresolved-link="" t="t">Boolean</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The edge set of this hypergraph, in which each edge with any copies is present once.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#support-fffffdd2">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="underlying-0" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#underlying-0" t="n" class="documentableName ">underlying</a>: <a href="HypergraphBase.html" t="t">HypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The undirected hypergraph obtained by forgetting the direction of every edge. A vertex in both the tail and head of an edge occurs twice in its image.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The undirected hypergraph obtained by forgetting the direction of every edge. A vertex in both the tail and head of an edge occurs twice in its image.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#underlying-0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="union-808" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#union-808" t="n" class="documentableName ">union</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>, <span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">embedding</span>: <a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The union of this hypergraph and <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span>, which takes the join of their multiplicities. Vertices with equal values coincide. <span data-unresolved-link="" title="Problem linking that: Couldn't resolve a member for the given link query">that</span> may have any multiplicities which embed in <span data-unresolved-link="">M</span>, as for <a href="DirectedHypergraphBase.html#sum-808">sum</a>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#union-808">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="vertex-3d7" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#vertex-3d7" t="n" class="documentableName ">vertex</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">A</span>): <span data-unresolved-link="" t="t">Option</span>[<a href="DirectedHypergraphBase.html#Vertex-0" t="t">Vertex</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The vertex with the given <span data-unresolved-link="" title="Problem linking value: Couldn't resolve a member for the given link query">value</span>, if it's in this graph.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#vertex-3d7">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#vertex-3d7">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="vertices-0" data-f-inherited="GraphOps">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#vertices-0" t="n" class="documentableName ">vertices</a>: <span data-unresolved-link="" t="t">Set</span>[<a href="GraphOps.html#Vertex-0" t="t">Vertex</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The vertices of this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The vertices of this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphOps.html#vertices-0">GraphOps</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="withEdge-b1d" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#withEdge-b1d" t="n" class="documentableName ">withEdge</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">edge</span>: <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">multiplicity</span>: <a href="../kneiphof.html#Count-0" t="t">Count</a>): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This hypergraph with the multiplicity of <a href="DirectedHypergraphBase.html#edge-3d7">edge</a> set to <a href="DirectedHypergraphBase.html#multiplicity-a2d">multiplicity</a>, adding its vertices if necessary.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#withEdge-b1d">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="withLabel-8ee" data-f-inherited="AnyEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#withLabel-8ee" t="n" class="documentableName ">withLabel</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span> : <a href="NotGraph.html" t="t">NotGraph</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">label</span>: <span data-unresolved-link="" t="t">F</span>): <a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">F</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This edge, with its label replaced by <a href="AnyEdge.html#label-0">label</a>, which can't be an edge or graph (see <a href="NotGraph.html">NotGraph</a>).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyEdge.html#withLabel-8ee">AnyEdge</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="withMultiplicity-fffff944" data-f-keywords="override" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#withMultiplicity-fffff944" t="n" class="documentableName ">withMultiplicity</a>[<span t="k"></span><span data-unresolved-link="" t="t">A</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">edge</span>: <span data-unresolved-link="" t="t">A</span>, <span t="k"></span><span data-unresolved-link="" t="n">multiplicity</span>: <a href="../kneiphof.html#Count-0" t="t">Count</a>): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>This graph with the multiplicity of <a href="GraphOps.html#edge-3d7">edge</a> set to <a href="GraphOps.html#multiplicity-a2d">multiplicity</a>, or this graph unchanged if it doesn't contain <a href="GraphOps.html#edge-3d7">edge</a>.</p>
+              </dd>
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="DirectedHypergraphBase.html#withMultiplicity-fffff944">DirectedHypergraphBase</a> -&gt; <a href="GraphOps.html">GraphOps</a>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#withMultiplicity-fffff944">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="|-808" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#|-808" t="n" class="documentableName ">|</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>, <span t="k"></span><span data-unresolved-link="" t="t">N</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <span data-unresolved-link="" t="t">N</span>])(<span t="k">using </span><span t="k"></span><a href="Embedding.html" t="t">Embedding</a>[<span data-unresolved-link="" t="t">N</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#union-808">union</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#union-808">union</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#|-808">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="~&gt;:-606" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#~&gt;:-606" t="n" class="documentableName ">~&gt;:</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span><span t="k"> &gt;: </span><span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="k"></span><span data-unresolved-link="" t="t">A</span><span t="k"> &lt;: </span><span data-unresolved-link="" t="t">W</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">A</span>): <a href="DirectedHypergraphBase$$Join.html" t="t">Join</a>[<span data-unresolved-link="" t="t">W</span>, <span t="t">E</span>, <span data-unresolved-link="" t="t">Unit</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#coneFrom-606">coneFrom</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#coneFrom-606">coneFrom</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#~&gt;:-606">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="⊔-5a0" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#⊔-5a0" t="n" class="documentableName ">⊔</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">Either</span>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">W</span>], <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#disjointUnion-5a0">disjointUnion</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#disjointUnion-5a0">disjointUnion</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#⊔-5a0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="□-5a0" data-f-keywords="infix" data-f-inherited="DirectedHypergraphBase">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">infix </span></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#□-5a0" t="n" class="documentableName ">□</a>[<span t="k"></span><span data-unresolved-link="" t="t">W</span>, <span t="k"></span><span data-unresolved-link="" t="t">F</span><span t="k"> &gt;: </span><span t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">that</span>: <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[<span data-unresolved-link="" t="t">W</span>, <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]): <a href="DirectedHypergraphBase.html" t="t">DirectedHypergraphBase</a>[(<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span data-unresolved-link="" t="t">W</span>), <span data-unresolved-link="" t="t">F</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="DirectedHypergraphBase.html#cartesianProduct-5a0">cartesianProduct</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="DirectedHypergraphBase.html#cartesianProduct-5a0">cartesianProduct</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="DirectedHypergraphBase.html#□-5a0">DirectedHypergraphBase</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Inherited-and-Abstract-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited and Abstract methods</h4>
+        </div>
+        <div class="documentableElement" id="label-0" data-f-inherited="AnyEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="DirectedHyperedge.html#label-0" t="n" class="documentableName ">label</a>: <span t="t">E</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The label of this edge, which is <code>()</code> for unlabelled edges.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The label of this edge, which is <code>()</code> for unlabelled edges.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="AnyEdge.html#label-0">AnyEdge</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Inherited-fields">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited fields</h4>
+        </div>
+        <div class="documentableElement" id="edgeValues-0" data-f-keywords="lazy,override" data-f-inherited="SingleEdge">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">lazy override </span></span><span class="kind"><span t="k">val </span></span><a href="DirectedHyperedge.html#edgeValues-0" t="n" class="documentableName ">edgeValues</a>: <a href="ValueMap.html" t="t">ValueMap</a>[<a href="../kneiphof.html#Hyperarc-0" t="t">Hyperarc</a>[<span t="t">S</span><span t="k"> | </span><span t="t">T</span>, <span t="t">E</span>], <a href="../kneiphof.html#Count-0" t="t">Count</a>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The multiplicity of each edge value present in this graph.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The multiplicity of each edge value present in this graph.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <span data-unresolved-link="">SingleEdge (hidden)</span>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+   </div>
+  </div>
+ </div>
+</section></div><div id="toc" class="body-small"><div id="toc-container"><span class="toc-title h200">In this article</span><nav class="toc-nav"><ul class="toc-list"><li><a href="#attributes">Attributes</a></li><li><a href="#members-list">Members list</a><ul><li><a href="#Type-members">Type members</a><ul><li><a href="#Inherited-classlikes">Inherited classlikes</a></li><li><a href="#Inherited-types">Inherited types</a></li></ul></li><li><a href="#Value-members">Value members</a><ul><li><a href="#Abstract-methods">Abstract methods</a></li><li><a href="#Concrete-methods">Concrete methods</a></li><li><a href="#Inherited-methods">Inherited methods</a></li><li><a href="#Inherited-and-Abstract-methods">Inherited and Abstract methods</a></li><li><a href="#Inherited-fields">Inherited fields</a></li></ul></li></ul></li></ul></nav></div></div></div><div id="footer" class="body-small mobile-footer"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div></div></div></body></html>

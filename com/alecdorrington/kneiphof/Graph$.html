@@ -1,0 +1,1073 @@
+<!DOCTYPE html><html data-pathToRoot="../../../" data-rawLocation="com/alecdorrington/kneiphof/Graph$" data-dynamicSideMenu="false"><head><meta charset="utf-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta><title>Graph</title><link rel="shortcut icon" type="image/x-icon" href="../../../favicon.ico"></link><script type="text/javascript" src="../../../scripts/theme.js"></script><script type="text/javascript" src="../../../scripts/searchData.js" defer="true"></script><script type="text/javascript" src="../../../scripts/scastieConfiguration.js" defer="true"></script><link rel="stylesheet" href="../../../styles/theme/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/components/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/components/button/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/layout/bundle.css"></link><link rel="stylesheet" href="../../../styles/dotty-icons.css"></link><link rel="stylesheet" href="../../../styles/filter-bar.css"></link><link rel="stylesheet" href="../../../styles/searchbar.css"></link><link rel="stylesheet" href="../../../styles/social-links.css"></link><link rel="stylesheet" href="../../../styles/versions-dropdown.css"></link><link rel="stylesheet" href="../../../styles/content-contributors.css"></link><script type="text/javascript" src="../../../hljs/highlight.pack.js" defer="true"></script><script type="text/javascript" src="../../../scripts/hljs-scala3.js" defer="true"></script><script type="text/javascript" src="../../../scripts/ux.js" defer="true"></script><script type="text/javascript" src="../../../scripts/common/component.js" defer="true"></script><script type="text/javascript" src="../../../scripts/common/utils.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/FilterBar.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/DocumentableList.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/Input.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/FilterGroup.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/Filter.js" defer="true"></script><script type="text/javascript" src="../../../scripts/scaladoc-scalajs.js" defer="true"></script><script type="text/javascript" src="../../../scripts/contributors.js" defer="true"></script><script type="text/javascript" src="https://d3js.org/d3.v6.min.js" defer="true"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js" defer="true"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js" defer="true"></script><script type="text/javascript" src="https://scastie.scala-lang.org/embedded.js" defer="true"></script><script type="text/javascript" src="../../../scripts/data.js" defer="true"></script><script>var pathToRoot = "../../../";</script></head><body><div id=""><div id="header" class="body-small"><div class="header-container-left"><a href="../../../" class="logo-container"><span class="project-name h300">Kneiphof</span></a><span onclick="dropdownHandler(event)" class="text-button with-arrow" id="dropdown-trigger"><a></a></span><div id="version-dropdown" class="dropdown-menu"></div></div><div class="header-container-right"><button id="search-toggle" class="icon-button"></button><span id="theme-toggle" class="icon-button"></span><span id="mobile-menu-toggle" class="icon-button hamburger"></span></div></div><div id="mobile-menu"><div class="mobile-menu-header body-small"><span class="mobile-menu-logo"><span class="project-name h300">Kneiphof</span></span><button id="mobile-menu-close" class="icon-button close"></button></div><div class="mobile-menu-container body-medium"><input id="mobile-scaladoc-searchbar-input" class="scaladoc-searchbar-input" type="search" placeholder="Find anything"></input><span id="mobile-theme-toggle" class="mobile-menu-item mode"></span></div></div><span id="mobile-sidebar-toggle" class="floating-button"></span><div id="leftColumn" class="body-small"><div class="switcher-container"><a id="api-nav-button" class="switcher h100 selected" href="../../../index.html">API</a></div><nav id="api-nav" class="side-menu"><div class="ni n0 expanded"><span class="nh h100 expanded cs"><button class="ar icon-button expanded"></button><a href="../kneiphof.html"><span class="micon pa"></span><span>com.alecdorrington.kneiphof</span></a></span><div class="ni n1 "><span class="nh "><a href="AnyEdge.html"><span class="micon tr"></span><span>AnyEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="AnyGraph$.html"><span class="micon ob"></span><span>AnyGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="AnyGraph.html"><span class="micon tr"></span><span>AnyGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Chain$.html"><span class="micon ob"></span><span>Chain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Chain.html"><span class="micon tr"></span><span>Chain</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="Count$.html"><span class="micon ob"></span><span>Count</span></a></span><div class="ni n2 "><span class="nh "><a href="Count$$given_Multiplicity_Count$.html"><span class="micon ob"></span><span>given_Multiplicity_Count</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedChain.html"><span class="micon tr"></span><span>DirectedChain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedChain$.html"><span class="micon ob"></span><span>DirectedChain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedEdge.html"><span class="micon cl"></span><span>DirectedEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedEdge$.html"><span class="micon ob"></span><span>DirectedEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedGraph$.html"><span class="micon ob"></span><span>DirectedGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedGraphBase.html"><span class="micon tr"></span><span>DirectedGraphBase</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedGraphBase$.html"><span class="micon ob"></span><span>DirectedGraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedHyperedge.html"><span class="micon tr"></span><span>DirectedHyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedHyperedge$.html"><span class="micon ob"></span><span>DirectedHyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedHypergraph$.html"><span class="micon ob"></span><span>DirectedHypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedHypergraphBase.html"><span class="micon tr"></span><span>DirectedHypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$DirectedEdgeOps.html"><span class="micon tr"></span><span>DirectedEdgeOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$DirectedVertexOps.html"><span class="micon tr"></span><span>DirectedVertexOps</span></a></span></div></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedHypergraphBase$.html"><span class="micon ob"></span><span>DirectedHypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedMultigraph$.html"><span class="micon ob"></span><span>DirectedMultigraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedMultihypergraph$.html"><span class="micon ob"></span><span>DirectedMultihypergraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedShapes.html"><span class="micon tr"></span><span>DirectedShapes</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Edge$.html"><span class="micon ob"></span><span>Edge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Edge.html"><span class="micon cl"></span><span>Edge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Embedding.html"><span class="micon tr"></span><span>Embedding</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Embedding$.html"><span class="micon ob"></span><span>Embedding</span></a></span></div><div class="ni n1 expanded"><span class="nh h100 selected"><a href="#"><span class="micon ob"></span><span>Graph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="GraphBase$.html"><span class="micon ob"></span><span>GraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="GraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="GraphBase.html"><span class="micon tr"></span><span>GraphBase</span></a></span></div><div class="ni n1 "><span class="nh "><a href="GraphKind.html"><span class="micon tr"></span><span>GraphKind</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="GraphOps.html"><span class="micon tr"></span><span>GraphOps</span></a></span><div class="ni n2 "><span class="nh "><a href="GraphOps$EdgeOps.html"><span class="micon tr"></span><span>EdgeOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphOps$VertexOps.html"><span class="micon tr"></span><span>VertexOps</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="Handle.html"><span class="micon tr"></span><span>Handle</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hyperedge.html"><span class="micon tr"></span><span>Hyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hyperedge$.html"><span class="micon ob"></span><span>Hyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hypergraph$.html"><span class="micon ob"></span><span>Hypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="HypergraphBase$.html"><span class="micon ob"></span><span>HypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="HypergraphBase.html"><span class="micon tr"></span><span>HypergraphBase</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Lookup$.html"><span class="micon ob"></span><span>Lookup</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Lookup.html"><span class="micon cl"></span><span>Lookup</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Multigraph$.html"><span class="micon ob"></span><span>Multigraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Multihypergraph$.html"><span class="micon ob"></span><span>Multihypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="Multiplicity$.html"><span class="micon ob"></span><span>Multiplicity</span></a></span><div class="ni n2 "><span class="nh "><a href="Multiplicity$$given_Multiplicity_Boolean$.html"><span class="micon ob"></span><span>given_Multiplicity_Boolean</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="Multiplicity.html"><span class="micon tr"></span><span>Multiplicity</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NotGraph$.html"><span class="micon ob"></span><span>NotGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NotGraph.html"><span class="micon cl"></span><span>NotGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Shapes.html"><span class="micon tr"></span><span>Shapes</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueMap$.html"><span class="micon ob"></span><span>ValueMap</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueMap.html"><span class="micon cl"></span><span>ValueMap</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueSet$.html"><span class="micon ob"></span><span>ValueSet</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueSet.html"><span class="micon cl"></span><span>ValueSet</span></a></span></div></div></nav></div><div id="footer" class="body-small"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div><div id="scaladoc-searchBar"></div><div id="main"><div class="breadcrumbs container"><a href="../../../index.html">Kneiphof</a>/<a href="../kneiphof.html">com.alecdorrington.kneiphof</a>/<a href="Graph$.html">Graph</a></div><div id="content" class="body-medium"><div><div class="cover-header">
+ <span class="icon"><span class="micon ob"></span></span>
+ <h1 class="h600 single">Graph</h1>
+</div>
+<div class="fqname body-large">
+ <span>com.alecdorrington.kneiphof.Graph</span>
+</div>
+<div class="main-signature mono-small-block">
+ <div class="signature">
+  <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">object </span></span><a href="Graph$.html" t="n" class="documentableName ">Graph</a><span t="k"> extends </span><a href="GraphBase$$Kind.html" t="t">Kind</a>[<span data-unresolved-link="" t="t">Boolean</span>]</span><span class="signature-long"></span>
+ </div>
+</div>
+<div class="cover">
+ <div class="doc">
+  <p>Graphs whose edges form a set.</p>
+ </div>
+ <section id="attributes">
+  <h2 class="h500">Attributes</h2>
+  <dl class="attributes">
+   <dt class="body-small">Graph</dt>
+   <dd class="body-medium">
+    <div id="inheritance-diagram" class="diagram-class showGraph">
+     <button type="button" class="label-only-button" onclick="zoomOut()">Reset zoom</button><button type="button" class="label-only-button" onclick="hideGraph()">Hide graph</button><button type="button" class="label-only-button" onclick="showGraph()">Show graph</button>
+     <svg id="graph"></svg>
+     <script type="text/dot" id="dot"> digraph g {
+ node0 [id=node0, label="<span style=\"color: #FFFFFF;\">object <a href=\"Graph$.html\" t=\"n\">Graph</a></span>", class="object vertex"];
+node1 [id=node1, label="<span style=\"color: #FFFFFF;\">class <a href=\"GraphBase$$Kind.html\" t=\"n\">Kind</a>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="class vertex"];
+node2 [id=node2, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Object</span></span>", class="class vertex"];
+node3 [id=node3, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Any</span></span>", class="class vertex"];
+node4 [id=node4, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">Matchable</span></span>", class="trait vertex"];
+node5 [id=node5, label="<span style=\"color: #FFFFFF;\">trait <a href=\"GraphKind.html\" t=\"n\">GraphKind</a>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>, <a href=\"Edge.html\" t=\"t\">Edge</a>, [<span t=\"t\">v</span>, <span t=\"t\">e</span>]<span t=\"k\"> =&gt;&gt; </span><a href=\"GraphBase.html\" t=\"t\">GraphBase</a>[<span t=\"t\">v</span>, <span t=\"t\">e</span>, <span data-unresolved-link=\"\" t=\"t\">Boolean</span>], [<span t=\"t\">v</span>, <span t=\"t\">e</span>]<span t=\"k\"> =&gt;&gt; </span><a href=\"GraphBase.html\" t=\"t\">GraphBase</a>[<span t=\"t\">v</span>, <span t=\"t\">e</span>, <a href=\"../kneiphof.html#Count-0\" t=\"t\">Count</a>]]</span>", class="trait vertex"];
+node6 [id=node6, label="<span style=\"color: #FFFFFF;\">trait <a href=\"Shapes.html\" t=\"n\">Shapes</a>[[<span t=\"t\">v</span>, <span t=\"t\">e</span>]<span t=\"k\"> =&gt;&gt; </span><a href=\"GraphBase.html\" t=\"t\">GraphBase</a>[<span t=\"t\">v</span>, <span t=\"t\">e</span>, <span data-unresolved-link=\"\" t=\"t\">Boolean</span>]]</span>", class="trait vertex"];
+
+
+ node0 -> node1;
+node1 -> node2;
+node2 -> node3;
+node2 -> node4;
+node4 -> node3;
+node1 -> node5;
+node5 -> node2;
+node1 -> node6;
+node6 -> node2;
+
+}
+</script>
+    </div>
+   </dd>
+   <dt class="body-small">Supertypes</dt>
+   <dd class="body-medium">
+    <div class="mono-small-block supertypes">
+     <div>
+      class <a href="GraphBase$$Kind.html" t="n">Kind</a>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <a href="Shapes.html" t="n">Shapes</a>[[<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>]]
+     </div>
+     <div>
+      trait <a href="GraphKind.html" t="n">GraphKind</a>[<span data-unresolved-link="" t="t">Boolean</span>, <a href="Edge.html" t="t">Edge</a>, [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>], [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>]]
+     </div>
+     <div>
+      class <span data-unresolved-link="" t="n">Object</span>
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">Matchable</span>
+     </div>
+     <div>
+      class <span data-unresolved-link="" t="n">Any</span>
+     </div>
+     <span class="show-all-code show-content text-button h100">Show all</span>
+    </div>
+   </dd>
+   <dt class="body-small">Self type</dt>
+   <dd class="body-medium">
+    <div class="mono-small-block supertypes">
+     <span></span>
+     <div>
+      <a href="Graph$.html" t="n">Graph</a>.<span t="k">type</span>
+     </div>
+    </div>
+   </dd>
+  </dl>
+ </section>
+</div>
+<section id="members-list">
+ <h2 class="h500">Members list</h2>
+ <div class="documentableFilter">
+  <div class="filtersContainer"></div>
+  <input class="filterableInput" placeholder="Filter by any phrase" data-test-id="filterBarInput" type="search"><button class="clearButton label-only-button" data-test-id="filterBarClearButton">Clear all</button>
+ </div>
+ <div class="membersList expand">
+  <div class="tabs">
+   <div class="contents">
+    <section id="Value-members">
+     <div data-togglable="Value members" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Value members" class="h400">Value members</h3>
+      </div>
+      <section id="Inherited-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited methods</h4>
+        </div>
+        <div class="documentableElement" id="apply-43d" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#apply-43d" t="n" class="documentableName ">apply</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span>, <span t="k"></span><span data-unresolved-link="" t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">parts</span>: [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <a href="../kneiphof.html#Count-0" t="t">Count</a>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The graph with the vertices and edges of all the given <span data-unresolved-link="" title="Problem linking parts: Couldn't resolve a member for the given link query">parts</span>, such as edges (<code>1 ~ 2</code>), chains (<code>1 ~ 2 ~ 3</code>) or multigraphs, adding the counts of repeated edges.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#apply-43d">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="circulant-a5" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#circulant-a5" t="n" class="documentableName ">circulant</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">order</span>: <span data-unresolved-link="" t="t">Int</span>, <span t="k"></span><span data-unresolved-link="" t="n">jumps</span>: <span data-unresolved-link="" t="t">Int</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The circulant graph on the vertices <code>0 until order</code>, in which each vertex <code>i</code> is adjacent to <code>i + jump</code>, going round modulo <span data-unresolved-link="" title="Problem linking order: Couldn't resolve a member for the given link query">order</span>, for each of the <span data-unresolved-link="" title="Problem linking jumps: Couldn't resolve a member for the given link query">jumps</span> (pointing from <code>i</code>, for directed graphs). So <code>circulant(n, 1)</code> is <code>cycle(n)</code> for <code>n &gt;= 3</code>, and <code>circulant(2 * n, 1, n)</code> is the Möbius ladder.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#circulant-a5">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="clique-fffffb05" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#clique-fffffb05" t="n" class="documentableName ">clique</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The clique on the given <span data-unresolved-link="" title="Problem linking vertices: Couldn't resolve a member for the given link query">vertices</span>, in which every two are adjacent (in both directions, for directed graphs). The complete graph on the vertices <code>0 until n</code> is <code>complete(n)</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#clique-fffffb05">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="complete-dbe" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#complete-dbe" t="n" class="documentableName ">complete</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">sizes</span>: <span data-unresolved-link="" t="t">Int</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The complete graph with parts of the given <span data-unresolved-link="" title="Problem linking sizes: Couldn't resolve a member for the given link query">sizes</span>, following the notation <code>K_n</code>, <code>K_{m, n}</code>, and so on, on the vertices <code>0, 1, ...</code>. A single size <code>n</code> gives the complete graph on <code>n</code> vertices, in which every two vertices are adjacent. Several sizes give the complete multipartite graph, whose vertices are split into parts of those sizes in order, and in which every two vertices in different parts are adjacent. Adjacent vertices are joined both ways, for directed graphs. So <code>complete(3, 4)</code> is the complete bipartite graph, and <code>complete(1, 1, 1)</code> is <code>complete(3)</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#complete-dbe">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="cycle-fffffb05" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#cycle-fffffb05" t="n" class="documentableName ">cycle</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The cycle through the given <span data-unresolved-link="" title="Problem linking vertices: Couldn't resolve a member for the given link query">vertices</span>, in order, of which there must be at least <code>1</code>, as for <code>cycle(order)</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#cycle-fffffb05">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="cycle-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#cycle-aba" t="n" class="documentableName ">cycle</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">order</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The cycle through the vertices <code>0 until order</code>, in order, of which there must be at least <code>1</code>. The cycle of <code>1</code> vertex is a loop, and the cycle of <code>2</code> vertices joins them twice, which is just once in undirected graphs whose edges form a set.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#cycle-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="empty-0" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#empty-0" t="n" class="documentableName ">empty</a>: [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Nothing</span>, <span data-unresolved-link="" t="t">Nothing</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Alias of <a href="GraphKind.html#vertices-fffffc52">vertices</a>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Alias of <a href="GraphKind.html#vertices-fffffc52">vertices</a>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#empty-0">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="fan-fffff498" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#fan-fffff498" t="n" class="documentableName ">fan</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">hub</span>: <span data-unresolved-link="" t="t">V</span>, <span t="k"></span><span data-unresolved-link="" t="n">rim</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The fan with <span data-unresolved-link="" title="Problem linking hub: Couldn't resolve a member for the given link query">hub</span> adjacent to each of the <span data-unresolved-link="" title="Problem linking rim: Couldn't resolve a member for the given link query">rim</span> vertices, which form a path in order.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#fan-fffff498">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="fan-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#fan-aba" t="n" class="documentableName ">fan</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">rim</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The fan with the hub <code>0</code> adjacent to each of the vertices <code>1 to rim</code>, which form a path.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#fan-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="from-fffffa28" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#from-fffffa28" t="n" class="documentableName ">from</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>, <span t="k"></span><span data-unresolved-link="" t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">V</span>], <span t="k"></span><span data-unresolved-link="" t="n">edges</span>: <span data-unresolved-link="" t="t">Iterable</span>[<a href="Edge.html" t="t">Edge</a>[<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]]): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The graph with the given <a href="GraphKind.html#vertices-fffffc52">vertices</a>, plus the given <span data-unresolved-link="" title="Problem linking edges: Couldn't resolve a member for the given link query">edges</span> and their vertices.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#from-fffffa28">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="from-fffffd28" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#from-fffffd28" t="n" class="documentableName ">from</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span>, <span t="k"></span><span data-unresolved-link="" t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">edges</span>: <span data-unresolved-link="" t="t">Iterable</span>[<a href="Edge.html" t="t">Edge</a>[<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]]): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The graph with the given <span data-unresolved-link="" title="Problem linking edges: Couldn't resolve a member for the given link query">edges</span> and their vertices.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#from-fffffd28">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="fromMultiplicities-fffffa28" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#fromMultiplicities-fffffa28" t="n" class="documentableName ">fromMultiplicities</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>, <span t="k"></span><span data-unresolved-link="" t="t">E</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">V</span>], <span t="k"></span><span data-unresolved-link="" t="n">edges</span>: <span data-unresolved-link="" t="t">Iterable</span>[(<a href="Edge.html" t="t">Edge</a>[<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>], <span data-unresolved-link="" t="t">Boolean</span>)]): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">E</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The graph with the given <a href="GraphKind.html#vertices-fffffc52">vertices</a>, plus the given <span data-unresolved-link="" title="Problem linking edges: Couldn't resolve a member for the given link query">edges</span> with their multiplicities, summed where an edge is repeated.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#fromMultiplicities-fffffa28">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="grid-573" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#grid-573" t="n" class="documentableName ">grid</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">rows</span>: <span data-unresolved-link="" t="t">Int</span>, <span t="k"></span><span data-unresolved-link="" t="n">columns</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][(<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Int</span>), <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The grid with the given numbers of <span data-unresolved-link="" title="Problem linking rows: Couldn't resolve a member for the given link query">rows</span> and <span data-unresolved-link="" title="Problem linking columns: Couldn't resolve a member for the given link query">columns</span>, whose vertices <code>(row, column)</code> are adjacent to their neighbours in the same row or column (pointing down and right, for directed graphs).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#grid-573">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="hypercube-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#hypercube-aba" t="n" class="documentableName ">hypercube</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">dimension</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The hypercube of the given <span data-unresolved-link="" title="Problem linking dimension: Couldn't resolve a member for the given link query">dimension</span>, on the vertices <code>0 until 2^dimension</code>, in which two vertices are adjacent when their binary forms differ in exactly one bit (pointing to the one with the bit set, for directed graphs).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#hypercube-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="onNumbers-fffff81d" data-f-visibility="protected" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">protected </span></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#onNumbers-fffff81d" t="n" class="documentableName ">onNumbers</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">order</span>: <span data-unresolved-link="" t="t">Int</span>)(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">rule</span>: <span data-unresolved-link="" t="t">Int</span> <span t="k">=&gt;</span> <span t="t">Rule</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The shape <span data-unresolved-link="" title="Problem linking rule: Couldn't resolve a member for the given link query">rule</span> makes on the vertices <code>0 until order</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#onNumbers-fffff81d">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="onVertices-a08" data-f-visibility="protected" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">protected </span></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#onVertices-a08" t="n" class="documentableName ">onVertices</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">Seq</span>[<span data-unresolved-link="" t="t">V</span>])(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">rule</span>: <span data-unresolved-link="" t="t">Int</span> <span t="k">=&gt;</span> <span t="t">Rule</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The shape <span data-unresolved-link="" title="Problem linking rule: Couldn't resolve a member for the given link query">rule</span> makes on the given <span data-unresolved-link="" title="Problem linking vertices: Couldn't resolve a member for the given link query">vertices</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#onVertices-a08">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="path-fffffb05" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#path-fffffb05" t="n" class="documentableName ">path</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The path through the given <span data-unresolved-link="" title="Problem linking vertices: Couldn't resolve a member for the given link query">vertices</span>, in order.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#path-fffffb05">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="path-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#path-aba" t="n" class="documentableName ">path</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">order</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The path through the vertices <code>0 until order</code>, in order.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#path-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="petersen-573" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#petersen-573" t="n" class="documentableName ">petersen</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>, <span t="k"></span><span data-unresolved-link="" t="n">k</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The generalised Petersen graph <code>GP(n, k)</code>, whose outer vertices <code>0 until n</code> form a cycle, each joined by a spoke to the inner vertex <code>n + i</code>, and in which each inner vertex <code>n + i</code> is adjacent to <code>n + i + k</code>, going round modulo <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>. <span data-unresolved-link="" title="Problem linking k: Couldn't resolve a member for the given link query">k</span> must be at least <code>1</code> and less than <code>n / 2</code>. So <code>petersen(n, 1)</code> is a prism, and <code>petersen(10, 2)</code> is the dodecahedron.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#petersen-573">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="petersen-0" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#petersen-0" t="n" class="documentableName ">petersen</a>: [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The Petersen graph, which is <code>petersen(5, 2)</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#petersen-0">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="prism-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#prism-aba" t="n" class="documentableName ">prism</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">order</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][(<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Int</span>), <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The prism on two cycles of <span data-unresolved-link="" title="Problem linking order: Couldn't resolve a member for the given link query">order</span> vertices, <code>(i, 0)</code> and <code>(i, 1)</code> for each <code>i</code> in <code>0 until order</code>, with a rung from each <code>(i, 0)</code> to <code>(i, 1)</code>. The cycles are as for <a href="Shapes.html#cycle-fffffb05">cycle</a>, and need at least <code>1</code> vertex each.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#prism-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="star-fffff498" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#star-fffff498" t="n" class="documentableName ">star</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">centre</span>: <span data-unresolved-link="" t="t">V</span>, <span t="k"></span><span data-unresolved-link="" t="n">leaves</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The star with <span data-unresolved-link="" title="Problem linking centre: Couldn't resolve a member for the given link query">centre</span> adjacent to each of the <span data-unresolved-link="" title="Problem linking leaves: Couldn't resolve a member for the given link query">leaves</span>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#star-fffff498">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="star-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#star-aba" t="n" class="documentableName ">star</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">leaves</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The star with the centre <code>0</code> adjacent to each of the leaves <code>1 to leaves</code> (pointing outwards, for directed graphs).</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#star-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="torus-573" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#torus-573" t="n" class="documentableName ">torus</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">rows</span>: <span data-unresolved-link="" t="t">Int</span>, <span t="k"></span><span data-unresolved-link="" t="n">columns</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][(<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Int</span>), <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The torus with the given numbers of <span data-unresolved-link="" title="Problem linking rows: Couldn't resolve a member for the given link query">rows</span> and <span data-unresolved-link="" title="Problem linking columns: Couldn't resolve a member for the given link query">columns</span>, which is the grid with each row and each column wrapping round into a cycle as for <a href="Shapes.html#cycle-fffffb05">cycle</a>. There must be at least <code>1</code> row and <code>1</code> column.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#torus-573">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="tree-fffffeea" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#tree-fffffeea" t="n" class="documentableName ">tree</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">branching</span>: <span data-unresolved-link="" t="t">Int</span>, <span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The complete tree on the given <span data-unresolved-link="" title="Problem linking vertices: Couldn't resolve a member for the given link query">vertices</span> in breadth-first order, in which each vertex has up to <span data-unresolved-link="" title="Problem linking branching: Couldn't resolve a member for the given link query">branching</span> children.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#tree-fffffeea">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="tree-573" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#tree-573" t="n" class="documentableName ">tree</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">branching</span>: <span data-unresolved-link="" t="t">Int</span>, <span t="k"></span><span data-unresolved-link="" t="n">order</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The complete tree on the vertices <code>0 until order</code>, in which each vertex has up to <span data-unresolved-link="" title="Problem linking branching: Couldn't resolve a member for the given link query">branching</span> children (pointing away from the root <code>0</code>, for directed graphs). The vertices are numbered in breadth-first order, so the children of <code>v</code> are <code>branching * v + 1</code> to <code>branching * v + branching</code>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#tree-573">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="vertex-fffff77a" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#vertex-fffff77a" t="n" class="documentableName ">vertex</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertex</span>: <span data-unresolved-link="" t="t">V</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Nothing</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The graph with the single vertex <a href="GraphKind.html#vertex-fffff77a">vertex</a> and no edges, which is the unit of <a href="HypergraphBase.html#flatMapVertices-fffffc0e">HypergraphBase.flatMapVertices</a> and <a href="DirectedHypergraphBase.html#flatMapVertices-fffff176">DirectedHypergraphBase.flatMapVertices</a>.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#vertex-fffff77a">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="vertices-fffffc52" data-f-inherited="GraphKind">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#vertices-fffffc52" t="n" class="documentableName ">vertices</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">vertices</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Nothing</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The graph with the given <a href="GraphKind.html#vertices-fffffc52">vertices</a> and no edges.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="GraphKind.html#vertices-fffffc52">GraphKind</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="wheel-fffff498" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#wheel-fffff498" t="n" class="documentableName ">wheel</a>[<span t="k"></span><span data-unresolved-link="" t="t">V</span> : <a href="../kneiphof.html#NotHandle-0" t="t">NotHandle</a>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">hub</span>: <span data-unresolved-link="" t="t">V</span>, <span t="k"></span><span data-unresolved-link="" t="n">rim</span>: <span data-unresolved-link="" t="t">V</span>*): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">V</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The wheel with <span data-unresolved-link="" title="Problem linking hub: Couldn't resolve a member for the given link query">hub</span> adjacent to each of the <span data-unresolved-link="" title="Problem linking rim: Couldn't resolve a member for the given link query">rim</span> vertices, which form a cycle in order as for <a href="Shapes.html#cycle-fffffb05">cycle</a>. There must be at least <code>1</code> of them.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#wheel-fffff498">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="wheel-aba" data-f-inherited="Shapes">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Graph$.html#wheel-aba" t="n" class="documentableName ">wheel</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">rim</span>: <span data-unresolved-link="" t="t">Int</span>): [<span t="t">v</span>, <span t="t">e</span>]<span t="k"> =&gt;&gt; </span><a href="GraphBase.html" t="t">GraphBase</a>[<span t="t">v</span>, <span t="t">e</span>, <span data-unresolved-link="" t="t">Boolean</span>][<span data-unresolved-link="" t="t">Int</span>, <span data-unresolved-link="" t="t">Unit</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Returns</dt>
+              <dd class="body-medium">
+               <p>The wheel with the hub <code>0</code> adjacent to each of the vertices <code>1 to rim</code>, which form a cycle as for <a href="Shapes.html#cycle-fffffb05">cycle</a>. There must be at least <code>1</code> of them.</p>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <a href="Shapes.html#wheel-aba">Shapes</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+   </div>
+  </div>
+ </div>
+</section></div><div id="toc" class="body-small"><div id="toc-container"><span class="toc-title h200">In this article</span><nav class="toc-nav"><ul class="toc-list"><li><a href="#attributes">Attributes</a></li><li><a href="#members-list">Members list</a><ul><li><a href="#Value-members">Value members</a><ul><li><a href="#Inherited-methods">Inherited methods</a></li></ul></li></ul></li></ul></nav></div></div></div><div id="footer" class="body-small mobile-footer"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div></div></div></body></html>

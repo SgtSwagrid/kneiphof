@@ -1,0 +1,1371 @@
+<!DOCTYPE html><html data-pathToRoot="../../../" data-rawLocation="com/alecdorrington/kneiphof/Multiplicity$$given_Multiplicity_Boolean$" data-dynamicSideMenu="false"><head><meta charset="utf-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta><title>given_Multiplicity_Boolean</title><link rel="shortcut icon" type="image/x-icon" href="../../../favicon.ico"></link><script type="text/javascript" src="../../../scripts/theme.js"></script><script type="text/javascript" src="../../../scripts/searchData.js" defer="true"></script><script type="text/javascript" src="../../../scripts/scastieConfiguration.js" defer="true"></script><link rel="stylesheet" href="../../../styles/theme/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/components/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/components/button/bundle.css"></link><link rel="stylesheet" href="../../../styles/theme/layout/bundle.css"></link><link rel="stylesheet" href="../../../styles/dotty-icons.css"></link><link rel="stylesheet" href="../../../styles/filter-bar.css"></link><link rel="stylesheet" href="../../../styles/searchbar.css"></link><link rel="stylesheet" href="../../../styles/social-links.css"></link><link rel="stylesheet" href="../../../styles/versions-dropdown.css"></link><link rel="stylesheet" href="../../../styles/content-contributors.css"></link><script type="text/javascript" src="../../../hljs/highlight.pack.js" defer="true"></script><script type="text/javascript" src="../../../scripts/hljs-scala3.js" defer="true"></script><script type="text/javascript" src="../../../scripts/ux.js" defer="true"></script><script type="text/javascript" src="../../../scripts/common/component.js" defer="true"></script><script type="text/javascript" src="../../../scripts/common/utils.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/FilterBar.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/DocumentableList.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/Input.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/FilterGroup.js" defer="true"></script><script type="text/javascript" src="../../../scripts/components/Filter.js" defer="true"></script><script type="text/javascript" src="../../../scripts/scaladoc-scalajs.js" defer="true"></script><script type="text/javascript" src="../../../scripts/contributors.js" defer="true"></script><script type="text/javascript" src="https://d3js.org/d3.v6.min.js" defer="true"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js" defer="true"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js" defer="true"></script><script type="text/javascript" src="https://scastie.scala-lang.org/embedded.js" defer="true"></script><script type="text/javascript" src="../../../scripts/data.js" defer="true"></script><script>var pathToRoot = "../../../";</script></head><body><div id=""><div id="header" class="body-small"><div class="header-container-left"><a href="../../../" class="logo-container"><span class="project-name h300">Kneiphof</span></a><span onclick="dropdownHandler(event)" class="text-button with-arrow" id="dropdown-trigger"><a></a></span><div id="version-dropdown" class="dropdown-menu"></div></div><div class="header-container-right"><button id="search-toggle" class="icon-button"></button><span id="theme-toggle" class="icon-button"></span><span id="mobile-menu-toggle" class="icon-button hamburger"></span></div></div><div id="mobile-menu"><div class="mobile-menu-header body-small"><span class="mobile-menu-logo"><span class="project-name h300">Kneiphof</span></span><button id="mobile-menu-close" class="icon-button close"></button></div><div class="mobile-menu-container body-medium"><input id="mobile-scaladoc-searchbar-input" class="scaladoc-searchbar-input" type="search" placeholder="Find anything"></input><span id="mobile-theme-toggle" class="mobile-menu-item mode"></span></div></div><span id="mobile-sidebar-toggle" class="floating-button"></span><div id="leftColumn" class="body-small"><div class="switcher-container"><a id="api-nav-button" class="switcher h100 selected" href="../../../index.html">API</a></div><nav id="api-nav" class="side-menu"><div class="ni n0 expanded"><span class="nh h100 expanded cs"><button class="ar icon-button expanded"></button><a href="../kneiphof.html"><span class="micon pa"></span><span>com.alecdorrington.kneiphof</span></a></span><div class="ni n1 "><span class="nh "><a href="AnyEdge.html"><span class="micon tr"></span><span>AnyEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="AnyGraph$.html"><span class="micon ob"></span><span>AnyGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="AnyGraph.html"><span class="micon tr"></span><span>AnyGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Chain$.html"><span class="micon ob"></span><span>Chain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Chain.html"><span class="micon tr"></span><span>Chain</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="Count$.html"><span class="micon ob"></span><span>Count</span></a></span><div class="ni n2 "><span class="nh "><a href="Count$$given_Multiplicity_Count$.html"><span class="micon ob"></span><span>given_Multiplicity_Count</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedChain.html"><span class="micon tr"></span><span>DirectedChain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedChain$.html"><span class="micon ob"></span><span>DirectedChain</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedEdge.html"><span class="micon cl"></span><span>DirectedEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedEdge$.html"><span class="micon ob"></span><span>DirectedEdge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedGraph$.html"><span class="micon ob"></span><span>DirectedGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedGraphBase.html"><span class="micon tr"></span><span>DirectedGraphBase</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedGraphBase$.html"><span class="micon ob"></span><span>DirectedGraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedGraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedHyperedge.html"><span class="micon tr"></span><span>DirectedHyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedHyperedge$.html"><span class="micon ob"></span><span>DirectedHyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedHypergraph$.html"><span class="micon ob"></span><span>DirectedHypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedHypergraphBase.html"><span class="micon tr"></span><span>DirectedHypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$DirectedEdgeOps.html"><span class="micon tr"></span><span>DirectedEdgeOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$DirectedVertexOps.html"><span class="micon tr"></span><span>DirectedVertexOps</span></a></span></div></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="DirectedHypergraphBase$.html"><span class="micon ob"></span><span>DirectedHypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="DirectedHypergraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="DirectedMultigraph$.html"><span class="micon ob"></span><span>DirectedMultigraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedMultihypergraph$.html"><span class="micon ob"></span><span>DirectedMultihypergraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="DirectedShapes.html"><span class="micon tr"></span><span>DirectedShapes</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Edge$.html"><span class="micon ob"></span><span>Edge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Edge.html"><span class="micon cl"></span><span>Edge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Embedding.html"><span class="micon tr"></span><span>Embedding</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Embedding$.html"><span class="micon ob"></span><span>Embedding</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Graph$.html"><span class="micon ob"></span><span>Graph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="GraphBase$.html"><span class="micon ob"></span><span>GraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="GraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="GraphBase.html"><span class="micon tr"></span><span>GraphBase</span></a></span></div><div class="ni n1 "><span class="nh "><a href="GraphKind.html"><span class="micon tr"></span><span>GraphKind</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="GraphOps.html"><span class="micon tr"></span><span>GraphOps</span></a></span><div class="ni n2 "><span class="nh "><a href="GraphOps$EdgeOps.html"><span class="micon tr"></span><span>EdgeOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="GraphOps$VertexOps.html"><span class="micon tr"></span><span>VertexOps</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="Handle.html"><span class="micon tr"></span><span>Handle</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hyperedge.html"><span class="micon tr"></span><span>Hyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hyperedge$.html"><span class="micon ob"></span><span>Hyperedge</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Hypergraph$.html"><span class="micon ob"></span><span>Hypergraph</span></a></span></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="HypergraphBase$.html"><span class="micon ob"></span><span>HypergraphBase</span></a></span><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Join$.html"><span class="micon ob"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Join.html"><span class="micon tr"></span><span>Join</span></a></span></div><div class="ni n2 "><span class="nh "><a href="HypergraphBase$$Kind.html"><span class="micon cl"></span><span>Kind</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="HypergraphBase.html"><span class="micon tr"></span><span>HypergraphBase</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Lookup$.html"><span class="micon ob"></span><span>Lookup</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Lookup.html"><span class="micon cl"></span><span>Lookup</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Multigraph$.html"><span class="micon ob"></span><span>Multigraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Multihypergraph$.html"><span class="micon ob"></span><span>Multihypergraph</span></a></span></div><div class="ni n1 expanded"><span class="nh h100 expanded cs"><button class="ar icon-button expanded"></button><a href="Multiplicity$.html"><span class="micon ob"></span><span>Multiplicity</span></a></span><div class="ni n2 expanded"><span class="nh h100 selected"><a href="#"><span class="micon ob"></span><span>given_Multiplicity_Boolean</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="Multiplicity.html"><span class="micon tr"></span><span>Multiplicity</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NotGraph$.html"><span class="micon ob"></span><span>NotGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NotGraph.html"><span class="micon cl"></span><span>NotGraph</span></a></span></div><div class="ni n1 "><span class="nh "><a href="Shapes.html"><span class="micon tr"></span><span>Shapes</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueMap$.html"><span class="micon ob"></span><span>ValueMap</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueMap.html"><span class="micon cl"></span><span>ValueMap</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueSet$.html"><span class="micon ob"></span><span>ValueSet</span></a></span></div><div class="ni n1 "><span class="nh "><a href="ValueSet.html"><span class="micon cl"></span><span>ValueSet</span></a></span></div></div></nav></div><div id="footer" class="body-small"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div><div id="scaladoc-searchBar"></div><div id="main"><div class="breadcrumbs container"><a href="../../../index.html">Kneiphof</a>/<a href="../kneiphof.html">com.alecdorrington.kneiphof</a>/<a href="Multiplicity$.html">Multiplicity</a>/<a href="Multiplicity$$given_Multiplicity_Boolean$.html">given_Multiplicity_Boolean</a></div><div id="content" class="body-medium"><div><div class="cover-header">
+ <span class="icon"><span class="micon ob"></span></span>
+ <h1 class="h600 single">given_Multiplicity_Boolean</h1>
+</div>
+<div class="fqname body-large">
+ <span>com.alecdorrington.kneiphof.Multiplicity.given_Multiplicity_Boolean</span>
+</div>
+<div class="main-signature mono-small-block">
+ <div class="signature">
+  <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">object </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html" t="n" class="documentableName ">given_Multiplicity_Boolean</a><span t="k"> extends </span><a href="Multiplicity.html" t="t">Multiplicity</a>[<span data-unresolved-link="" t="t">Boolean</span>]</span><span class="signature-long"></span>
+ </div>
+</div>
+<div class="cover">
+ <div class="doc">
+  <p>Set multiplicities, where each edge is either present or absent.</p>
+ </div>
+ <section id="attributes">
+  <h2 class="h500">Attributes</h2>
+  <dl class="attributes">
+   <dt class="body-small">Graph</dt>
+   <dd class="body-medium">
+    <div id="inheritance-diagram" class="diagram-class showGraph">
+     <button type="button" class="label-only-button" onclick="zoomOut()">Reset zoom</button><button type="button" class="label-only-button" onclick="hideGraph()">Hide graph</button><button type="button" class="label-only-button" onclick="showGraph()">Show graph</button>
+     <svg id="graph"></svg>
+     <script type="text/dot" id="dot"> digraph g {
+ node0 [id=node0, label="<span style=\"color: #FFFFFF;\">object <a href=\"Multiplicity$$given_Multiplicity_Boolean$.html\" t=\"n\">given_Multiplicity_Boolean</a></span>", class="object vertex"];
+node1 [id=node1, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Object</span></span>", class="class vertex"];
+node2 [id=node2, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Any</span></span>", class="class vertex"];
+node3 [id=node3, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">Matchable</span></span>", class="trait vertex"];
+node4 [id=node4, label="<span style=\"color: #FFFFFF;\">trait <a href=\"Multiplicity.html\" t=\"n\">Multiplicity</a>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node5 [id=node5, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">Semiring</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node6 [id=node6, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">AdditiveMonoid</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node7 [id=node7, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">AdditiveSemigroup</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node8 [id=node8, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">AdditiveMagma</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node9 [id=node9, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">Algebra</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node10 [id=node10, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">AdditiveIdentity</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node11 [id=node11, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">MultiplicativeMonoid</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node12 [id=node12, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">MultiplicativeSemigroup</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node13 [id=node13, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">MultiplicativeMagma</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node14 [id=node14, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">MultiplicativeIdentity</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node15 [id=node15, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">Lattice</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node16 [id=node16, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">JoinSemilattice</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+node17 [id=node17, label="<span style=\"color: #FFFFFF;\">trait <span data-unresolved-link=\"\" t=\"n\">MeetSemilattice</span>[<span data-unresolved-link=\"\" t=\"t\">Boolean</span>]</span>", class="trait vertex"];
+
+
+ node0 -> node1;
+node1 -> node2;
+node1 -> node3;
+node3 -> node2;
+node0 -> node4;
+node4 -> node1;
+node4 -> node5;
+node5 -> node1;
+node5 -> node6;
+node6 -> node1;
+node6 -> node7;
+node7 -> node1;
+node7 -> node8;
+node8 -> node1;
+node8 -> node9;
+node9 -> node1;
+node6 -> node10;
+node10 -> node1;
+node10 -> node9;
+node5 -> node11;
+node11 -> node1;
+node11 -> node12;
+node12 -> node1;
+node12 -> node13;
+node13 -> node1;
+node13 -> node9;
+node11 -> node14;
+node14 -> node1;
+node14 -> node9;
+node4 -> node15;
+node15 -> node1;
+node15 -> node16;
+node16 -> node1;
+node16 -> node9;
+node15 -> node17;
+node17 -> node1;
+node17 -> node9;
+
+}
+</script>
+    </div>
+   </dd>
+   <dt class="body-small">Supertypes</dt>
+   <dd class="body-medium">
+    <div class="mono-small-block supertypes">
+     <div>
+      trait <a href="Multiplicity.html" t="n">Multiplicity</a>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">Lattice</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">MeetSemilattice</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">JoinSemilattice</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">Semiring</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">MultiplicativeMonoid</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">MultiplicativeIdentity</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">MultiplicativeSemigroup</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">MultiplicativeMagma</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">AdditiveMonoid</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">AdditiveIdentity</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">AdditiveSemigroup</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">AdditiveMagma</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">Algebra</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+     </div>
+     <div>
+      class <span data-unresolved-link="" t="n">Object</span>
+     </div>
+     <div>
+      trait <span data-unresolved-link="" t="n">Matchable</span>
+     </div>
+     <div>
+      class <span data-unresolved-link="" t="n">Any</span>
+     </div>
+     <span class="show-all-code show-content text-button h100">Show all</span>
+    </div>
+   </dd>
+   <dt class="body-small">Self type</dt>
+   <dd class="body-medium">
+    <div class="mono-small-block supertypes">
+     <span></span>
+     <div>
+      <a href="Multiplicity$$given_Multiplicity_Boolean$.html" t="n">given_Multiplicity_Boolean</a>.<span t="k">type</span>
+     </div>
+    </div>
+   </dd>
+  </dl>
+ </section>
+</div>
+<section id="members-list">
+ <h2 class="h500">Members list</h2>
+ <div class="documentableFilter">
+  <div class="filtersContainer"></div>
+  <input class="filterableInput" placeholder="Filter by any phrase" data-test-id="filterBarInput" type="search"><button class="clearButton label-only-button" data-test-id="filterBarClearButton">Clear all</button>
+ </div>
+ <div class="membersList expand">
+  <div class="tabs">
+   <div class="contents">
+    <section id="Value-members">
+     <div data-togglable="Value members" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Value members" class="h400">Value members</h3>
+      </div>
+      <section id="Concrete-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Concrete methods</h4>
+        </div>
+        <div class="documentableElement" id="additive-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#additive-0" t="n" class="documentableName ">additive</a>: <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p><code>true</code> if and only if sums add the numbers of copies, as for <a href="../kneiphof.html#Count-0">Count</a> but not <span data-unresolved-link="">Boolean</span>, so that sizes and degrees add too.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p><code>true</code> if and only if sums add the numbers of copies, as for <a href="../kneiphof.html#Count-0">Count</a> but not <span data-unresolved-link="">Boolean</span>, so that sizes and degrees add too.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <a href="Multiplicity.html">Multiplicity</a>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="one-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#one-0" t="n" class="documentableName ">one</a>: <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The unique multiplicative identity in this algebra. Typically given by values such as <code>1</code> or <code>1.0F</code>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The unique multiplicative identity in this algebra. Typically given by values such as <code>1</code> or <code>1.0F</code>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <span data-unresolved-link="">MultiplicativeIdentity</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" id="zero-0" data-f-keywords="override">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#zero-0" t="n" class="documentableName ">zero</a>: <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The unique additive identity in this algebra. Typically given by values such as <code>0</code>, <code>0.0F</code>, or <code>Seq.empty</code>.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The unique additive identity in this algebra. Typically given by values such as <code>0</code>, <code>0.0F</code>, or <code>Seq.empty</code>.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Definition Classes</dt>
+              <dd class="body-medium">
+               <div>
+                <span data-unresolved-link="">AdditiveIdentity</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Inherited-methods">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited methods</h4>
+        </div>
+        <div class="documentableElement" id="fromInt-aba" data-f-inherited="Semiring">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#fromInt-aba" t="n" class="documentableName ">fromInt</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>): <span data-unresolved-link="" t="t">Boolean</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Computes the canonical representation of the integer <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span> in this algebra, i.e. <code>1 + 1 + … + 1</code> (<span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span> times).</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Computes the canonical representation of the integer <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span> in this algebra, i.e. <code>1 + 1 + … + 1</code> (<span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span> times).</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Throws</dt>
+              <dd class="body-medium">
+               <div>
+                <div>
+                 <span data-unresolved-link="">IllegalArgumentException</span>
+                 <p>if <code>n &amp;lt; 0</code> and this algebra has no additive inverse.</p>
+                </div>
+               </div>
+              </dd>
+              <dt class="body-small">Inherited from:</dt>
+              <dd class="body-medium">
+               <span data-unresolved-link="">Semiring</span>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+    <section id="Extensions">
+     <div data-togglable="Extensions" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Extensions" class="h400">Extensions</h3>
+      </div>
+      <section id="Extensions">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Extensions</h4>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="add-b60" data-f-keywords="override">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#add-b60" t="n" class="documentableName ">add</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the sum of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x + y</code>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the sum of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x + y</code>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <span data-unresolved-link="">AdditiveMagma</span>
+                </div>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="and-b60" data-f-keywords="override">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#and-b60" t="n" class="documentableName ">and</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the conjunction (meet) of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x ∧ y</code>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the conjunction (meet) of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x ∧ y</code>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <span data-unresolved-link="">MeetSemilattice</span>
+                </div>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="count-3c7" data-f-keywords="override">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#count-3c7" t="n" class="documentableName ">count</a>: <span data-unresolved-link="" t="t">Int</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>The number of copies of an edge that <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> stands for.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>The number of copies of an edge that <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> stands for.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <a href="Multiplicity.html">Multiplicity</a>
+                </div>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="monus-b60" data-f-keywords="override">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#monus-b60" t="n" class="documentableName ">monus</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="cover">
+              <div class="doc"></div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Returns</dt>
+               <dd class="body-medium">
+                <p>The truncated difference of <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, which is <code>x - y</code> stopping at <a href="Multiplicity.html#zero-0">zero</a>.</p>
+               </dd>
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <a href="Multiplicity.html">Multiplicity</a>
+                </div>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="mul-b60" data-f-keywords="override">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#mul-b60" t="n" class="documentableName ">mul</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the product of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x × y</code>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the product of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x × y</code>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <span data-unresolved-link="">MultiplicativeMagma</span>
+                </div>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="or-b60" data-f-keywords="override">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#or-b60" t="n" class="documentableName ">or</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the disjunction (join) of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x ∨ y</code>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the disjunction (join) of two values <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and <span data-unresolved-link="" title="Problem linking y: Couldn't resolve a member for the given link query">y</span>, i.e. <code>x ∨ y</code>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <span data-unresolved-link="">JoinSemilattice</span>
+                </div>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section id="Inherited-extensions">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Inherited extensions</h4>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="+-fffffab9" data-f-keywords="infix,inline" data-f-inherited="AdditiveMagma">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#+-fffffab9" t="n" class="documentableName ">+</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">add</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">add</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveMagma</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="*-fffffab9" data-f-keywords="infix,inline" data-f-inherited="MultiplicativeMagma">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#*-fffffab9" t="n" class="documentableName ">*</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">mul</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">mul</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeMagma</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="*:-4d" data-f-keywords="infix,inline" data-f-inherited="AdditiveSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#*:-4d" t="n" class="documentableName ">*:</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">scale</span>, with the factor on the left.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">scale</span>, with the factor on the left.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id=":*-fffffc87" data-f-keywords="infix,inline" data-f-inherited="AdditiveSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#:*-fffffc87" t="n" class="documentableName ">:*</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">scale</span>, with the factor on the right.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">scale</span>, with the factor on the right.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="isZero-4ad" data-f-keywords="inline" data-f-inherited="AdditiveIdentity">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#isZero-4ad" t="n" class="documentableName ">isZero</a>: <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="cover">
+              <div class="doc"></div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Returns</dt>
+               <dd class="body-medium">
+                <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> equals <span data-unresolved-link="">zero</span>.</p>
+               </dd>
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveIdentity</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="nonZero-4ad" data-f-keywords="inline" data-f-inherited="AdditiveIdentity">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#nonZero-4ad" t="n" class="documentableName ">nonZero</a>: <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="cover">
+              <div class="doc"></div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Returns</dt>
+               <dd class="body-medium">
+                <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> doesn't equal <span data-unresolved-link="">zero</span>.</p>
+               </dd>
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveIdentity</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="isOne-4ad" data-f-keywords="inline" data-f-inherited="MultiplicativeIdentity">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#isOne-4ad" t="n" class="documentableName ">isOne</a>: <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="cover">
+              <div class="doc"></div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Returns</dt>
+               <dd class="body-medium">
+                <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> equals <span data-unresolved-link="">one</span>.</p>
+               </dd>
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeIdentity</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="nonOne-4ad" data-f-keywords="inline" data-f-inherited="MultiplicativeIdentity">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#nonOne-4ad" t="n" class="documentableName ">nonOne</a>: <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="cover">
+              <div class="doc"></div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Returns</dt>
+               <dd class="body-medium">
+                <p><code>true</code> if and only if <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> doesn't equal <span data-unresolved-link="">one</span>.</p>
+               </dd>
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeIdentity</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="scale-fffffc87" data-f-keywords="override" data-f-inherited="AdditiveMonoid">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#scale-fffffc87" t="n" class="documentableName ">scale</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> multiplied by <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>, for any non-negative integer <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> multiplied by <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>, for any non-negative integer <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Throws</dt>
+               <dd class="body-medium">
+                <div>
+                 <div>
+                  <span data-unresolved-link="">IllegalArgumentException</span>
+                  <p>if <code>n &amp;lt; 0</code>.</p>
+                 </div>
+                </div>
+               </dd>
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <span data-unresolved-link="">AdditiveMonoid</span> -&gt; <span data-unresolved-link="">AdditiveSemigroup</span>
+                </div>
+               </dd>
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveMonoid</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="**-fffffc87" data-f-keywords="infix,inline" data-f-inherited="MultiplicativeSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#**-fffffc87" t="n" class="documentableName ">**</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">pow</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">pow</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="|-fffffab9" data-f-keywords="infix,inline" data-f-inherited="JoinSemilattice">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#|-fffffab9" t="n" class="documentableName ">|</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">or</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">or</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">JoinSemilattice</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="&amp;-fffffab9" data-f-keywords="infix,inline" data-f-inherited="MeetSemilattice">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#&amp;-fffffab9" t="n" class="documentableName ">&amp;</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>An alias for <span data-unresolved-link="">and</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>An alias for <span data-unresolved-link="">and</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MeetSemilattice</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="pow-fffffc87" data-f-keywords="override" data-f-inherited="MultiplicativeMonoid">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">override </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#pow-fffffc87" t="n" class="documentableName ">pow</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">n</span>: <span data-unresolved-link="" t="t">Int</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> raised to the power of <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>, for any non-negative integer <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> raised to the power of <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>, for any non-negative integer <span data-unresolved-link="" title="Problem linking n: Couldn't resolve a member for the given link query">n</span>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Throws</dt>
+               <dd class="body-medium">
+                <div>
+                 <div>
+                  <span data-unresolved-link="">IllegalArgumentException</span>
+                  <p>if <code>n &amp;lt; 0</code>.</p>
+                 </div>
+                </div>
+               </dd>
+               <dt class="body-small">Definition Classes</dt>
+               <dd class="body-medium">
+                <div>
+                 <span data-unresolved-link="">MultiplicativeMonoid</span> -&gt; <span data-unresolved-link="">MultiplicativeSemigroup</span>
+                </div>
+               </dd>
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeMonoid</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>)</span>
+         <div class="documentableElement" id="--fffffab9" data-f-keywords="infix,inline" data-f-inherited="Multiplicity">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">infix inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#--fffffab9" t="n" class="documentableName ">-</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">y</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Alias of <a href="Multiplicity.html#monus-fffffab9">monus</a>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Alias of <a href="Multiplicity.html#monus-fffffab9">monus</a>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <a href="Multiplicity.html#--fffffab9">Multiplicity</a>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">xs</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">Boolean</span>])</span>
+         <div class="documentableElement" id="sumOrZero-2cd" data-f-keywords="inline" data-f-inherited="AdditiveMonoid">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#sumOrZero-2cd" t="n" class="documentableName ">sumOrZero</a>: <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the sum of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ + xs₂ + …</code>, or else <span data-unresolved-link="">zero</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the sum of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ + xs₂ + …</code>, or else <span data-unresolved-link="">zero</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveMonoid</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">xs</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">Boolean</span>])</span>
+         <div class="documentableElement" id="productOrOne-2cd" data-f-keywords="inline" data-f-inherited="MultiplicativeMonoid">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#productOrOne-2cd" t="n" class="documentableName ">productOrOne</a>: <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the product of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ × xs₂ × …</code>, or else <span data-unresolved-link="">one</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the product of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ × xs₂ × …</code>, or else <span data-unresolved-link="">one</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeMonoid</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">xs</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">Boolean</span>])</span>
+         <div class="documentableElement" id="productFrom-fffff260" data-f-keywords="inline" data-f-inherited="MultiplicativeSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#productFrom-fffff260" t="n" class="documentableName ">productFrom</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the product of <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>x × xs₁ × xs₂ × …</code>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the product of <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>x × xs₁ × xs₂ × …</code>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="productOption-c77" data-f-keywords="inline" data-f-inherited="MultiplicativeSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#productOption-c77" t="n" class="documentableName ">productOption</a>: <span data-unresolved-link="" t="t">Option</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the product of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ × xs₂ × …</code>, or else <span data-unresolved-link="">None</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the product of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ × xs₂ × …</code>, or else <span data-unresolved-link="">None</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="productOrElse-fffffb5d" data-f-keywords="inline" data-f-inherited="MultiplicativeSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#productOrElse-fffffb5d" t="n" class="documentableName ">productOrElse</a>[<span t="k"></span><span data-unresolved-link="" t="t">Y</span><span t="k"> &gt;: </span><span data-unresolved-link="" t="t">Boolean</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">default</span>: <span data-unresolved-link="" t="t">Y</span>): <span data-unresolved-link="" t="t">Y</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the product of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ × xs₂ × …</code>, or else <span data-unresolved-link="" title="Problem linking default: Couldn't resolve a member for the given link query">default</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the product of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ × xs₂ × …</code>, or else <span data-unresolved-link="" title="Problem linking default: Couldn't resolve a member for the given link query">default</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">MultiplicativeSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div>
+         <span class="groupHeader"><span t="k">extension </span>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">xs</span>: <span data-unresolved-link="" t="t">Iterable</span>[<span data-unresolved-link="" t="t">Boolean</span>])</span>
+         <div class="documentableElement" id="sumFrom-fffff260" data-f-keywords="inline" data-f-inherited="AdditiveSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#sumFrom-fffff260" t="n" class="documentableName ">sumFrom</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">x</span>: <span data-unresolved-link="" t="t">Boolean</span>): <span data-unresolved-link="" t="t">Boolean</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the sum of <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>x + xs₁ + xs₂ + …</code>.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the sum of <span data-unresolved-link="" title="Problem linking x: Couldn't resolve a member for the given link query">x</span> and all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>x + xs₁ + xs₂ + …</code>.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="sumOption-c77" data-f-keywords="inline" data-f-inherited="AdditiveSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#sumOption-c77" t="n" class="documentableName ">sumOption</a>: <span data-unresolved-link="" t="t">Option</span>[<span data-unresolved-link="" t="t">Boolean</span>]
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the sum of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ + xs₂ + …</code>, or else <span data-unresolved-link="">None</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the sum of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ + xs₂ + …</code>, or else <span data-unresolved-link="">None</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="documentableElement" id="sumOrElse-fffffb5d" data-f-keywords="inline" data-f-inherited="AdditiveSemigroup">
+          <div class="documentableElement-expander">
+           <button class="icon-button ar show-content"></button>
+           <div class="header monospace mono-medium">
+            <div class="signature">
+             <span class="modifiers"><span t="k">inline </span></span><span class="kind"><span t="k">def </span></span><a href="Multiplicity$$given_Multiplicity_Boolean$.html#sumOrElse-fffffb5d" t="n" class="documentableName ">sumOrElse</a>[<span t="k"></span><span data-unresolved-link="" t="t">Y</span><span t="k"> &gt;: </span><span data-unresolved-link="" t="t">Boolean</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">default</span>: <span data-unresolved-link="" t="t">Y</span>): <span data-unresolved-link="" t="t">Y</span>
+            </div>
+           </div>
+          </div>
+          <div class="docs">
+           <span class="modifiers"></span>
+           <div>
+            <div class="originInfo"></div>
+            <div class="memberDocumentation">
+             <div class="documentableBrief doc">
+              <p>Computes the sum of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ + xs₂ + …</code>, or else <span data-unresolved-link="" title="Problem linking default: Couldn't resolve a member for the given link query">default</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+             </div>
+             <div class="cover">
+              <div class="doc">
+               <p>Computes the sum of all values in <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span>, i.e. <code>xs₁ + xs₂ + …</code>, or else <span data-unresolved-link="" title="Problem linking default: Couldn't resolve a member for the given link query">default</span> if <span data-unresolved-link="" title="Problem linking xs: Couldn't resolve a member for the given link query">xs</span> is empty.</p>
+              </div>
+              <h2 class="h200">Attributes</h2>
+              <dl class="attributes attributes-small">
+               <dt class="body-small">Inherited from:</dt>
+               <dd class="body-medium">
+                <span data-unresolved-link="">AdditiveSemigroup</span>
+               </dd>
+              </dl>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+   </div>
+  </div>
+ </div>
+</section></div><div id="toc" class="body-small"><div id="toc-container"><span class="toc-title h200">In this article</span><nav class="toc-nav"><ul class="toc-list"><li><a href="#attributes">Attributes</a></li><li><a href="#members-list">Members list</a><ul><li><a href="#Value-members">Value members</a><ul><li><a href="#Concrete-methods">Concrete methods</a></li><li><a href="#Inherited-methods">Inherited methods</a></li></ul></li><li><a href="#Extensions">Extensions</a><ul><li><a href="#Extensions">Extensions</a></li><li><a href="#Inherited-extensions">Inherited extensions</a></li></ul></li></ul></li></ul></nav></div></div></div><div id="footer" class="body-small mobile-footer"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div></div></div></body></html>
