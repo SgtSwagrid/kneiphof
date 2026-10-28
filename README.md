@@ -11,12 +11,16 @@
   
 </div>
 
+> [!WARNING]
+> Kneiphof is still a prototype. Anything could be broken or change between minor versions.
+
 ## ⬇️ Installation
 
-Add the following dependency to your `build.sbt`:
+The following applies for [Scala 3](https://www.scala-lang.org/) projects built with [sbt 2](https://www.scala-sbt.org/).
+Add the library to your `build.sbt` file, with the desired version number (e.g. [latest](../../releases/latest)):
 
 ```scala
-libraryDependencies += "com.alecdorrington" %% "kneiphof" % "0.1.0"
+libraryDependencies += "com.alecdorrington" %% "kneiphof" % "{version}"
 ```
 
 ## 👁️ See also
