@@ -102,7 +102,7 @@ class ArithmeticSuite extends FunSuite:
     )
     intercept[UnsupportedOperationException](grid.mapVertices(identity) == grid)
     intercept[UnsupportedOperationException](grid == grid.mapVertices(identity))
-    assert(Graph.grid(3, 3) != Graph.torus(3, 3))
+    assert(Graph.grid(100, 100) != Graph.torus(100, 100))
 
   test("huge graphs differ from graphs known or found to be smaller"):
     val grid  = Graph.grid(100_000, 100_000)

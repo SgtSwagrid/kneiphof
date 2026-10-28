@@ -461,10 +461,10 @@ class LazySuite extends FunSuite, LazyAssertions:
     (Graph.vertex(0) + stored).structure match
       case _: Union[?, ?, ?] => ()
       case structure         => fail(s"$structure copied the stored operand.")
-    val vertices = Graph.vertices((0 to GraphKind.patchable)*)
-    (start + vertices).structure match
-      case _: Union[?, ?, ?] => ()
-      case structure         => fail(s"$structure copied the vertices.")
+    Seq(GraphKind.patchable + 1, 1_000_000).foreach: count =>
+      (start + Graph.vertices((0 until count)*)).structure match
+        case _: Union[?, ?, ?] => ()
+        case structure         => fail(s"$structure copied $count vertices.")
     val subtrahend = Graph.complete(200).materialise
     val thinned    = Graph.complete(5) - subtrahend
     assertEquals(thinned.size, 0)

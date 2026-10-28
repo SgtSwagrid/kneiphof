@@ -220,7 +220,13 @@ class GraphSuite extends FunSuite:
       Graph.empty,
     )
 
-  test("empty calls make empty graphs"):
+  test("graphs can be built from vertices alone, and empty calls make empty ones"):
+    assertEquals(Graph.vertices(1, 2, 3).order, 3)
+    assertEquals(Graph.vertices(1, 2, 3).size, 0)
+    assertEquals(
+      DirectedGraph.vertices(1, 2),
+      DirectedGraph.vertices(2, 1),
+    )
     val graph = Graph(1 ~ 2)
     assertEquals(Graph.empty, Graph.vertices())
     assertEquals(Graph.path(), Graph.empty)
