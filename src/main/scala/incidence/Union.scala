@@ -27,7 +27,7 @@ private[kneiphof] final class Union[
   override lazy val size: Int =
     if disjoint then IncidenceStructure.total(operands.map(_.size))
     else
-      val largest = operands.maxBy(IncidenceStructure.orderHint)
+      val largest = operands.maxBy(IncidenceStructure.orderBound)
       val others  = operands.filterNot(_ eq largest)
       Math.addExact(
         largest.size,
@@ -51,7 +51,7 @@ private[kneiphof] final class Union[
     *   This union, with its gathered edges replaced by [[gathered]], which
     *   includes them.
     */
-  def withGathered[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
+  override def withGathered[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
     (gathered: Patch[W, M, Y])
     : Union[W, M, Y] = Union(parts, gathered)
 

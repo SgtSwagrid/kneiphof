@@ -20,13 +20,17 @@ private[kneiphof] final class Intersection[
   extends IncidenceStructure[V, M, X]:
 
   override lazy val vertexValues: ValueSet[V] =
-    val fewest = (base +: others).minBy(IncidenceStructure.orderHint)
+    val fewest = (base +: others).minBy(IncidenceStructure.orderBound)
     ValueSet.from:
       fewest
         .vertexValues
         .iterator
         .flatMap(base.vertexValue)
         .filter(vertex => others.forall(_.hasVertex(vertex)))
+
+  override def maxOrder: Option[Long] = (base +: others)
+    .flatMap(_.maxOrder)
+    .minOption
 
   override def hasVertex(vertex: Any): Boolean = base.hasVertex(vertex) &&
     others.forall(_.hasVertex(vertex))

@@ -8,6 +8,13 @@ private[kneiphof] trait Index[+V]:
   /** The number of vertices. */
   def order: Int
 
+  /**
+    * @return
+    *   `true` if this index is known to name the same vertices, in the same
+    *   order, as [[that]].
+    */
+  def sameAs(that: Index[?]): Boolean = this eq that
+
   /** @return The vertex numbered [[index]]. */
   def vertex(index: Int): V
 
@@ -29,8 +36,32 @@ private[kneiphof] object Index:
 
     override def index(vertex: Any): Option[Int] = Index.number(vertex, order)
 
+    override def sameAs(that: Index[?]): Boolean = that match
+      case that: Numbers => order == that.order
+      case _             => false
+
+  /**
+    * The numbers in [[range]], numbered in order, and found by arithmetic
+    * rather than a table.
+    */
+  final class Interval(private val range: Range) extends Index[Int]:
+
+    override def order: Int = range.size
+
+    override def vertex(index: Int): Int = range(index)
+
+    override def index(vertex: Any): Option[Int] = Some(vertex.##)
+      .filter(number => vertex == number && range.contains(number))
+      .map(number => (number - range.start) / range.step)
+
+    override def sameAs(that: Index[?]): Boolean = that match
+      case that: Interval => range == that.range
+      case _              => false
+
   /** The given [[vertices]], numbered in the order given. */
-  final class Vertices[+V](vertices: IndexedSeq[V]) extends Index[V]:
+  final class Vertices[+V]
+    (private val vertices: IndexedSeq[V])
+    extends Index[V]:
 
     require(
       vertices.distinct.size == vertices.size,
@@ -42,6 +73,10 @@ private[kneiphof] object Index:
     override def vertex(index: Int): V = vertices(index)
 
     override def index(vertex: Any): Option[Int] = positions.get(vertex)
+
+    override def sameAs(that: Index[?]): Boolean = that match
+      case that: Vertices[?] => vertices == that.vertices
+      case _                 => false
 
     /** The number of each vertex. */
     private lazy val positions: Map[Any, Int] = vertices

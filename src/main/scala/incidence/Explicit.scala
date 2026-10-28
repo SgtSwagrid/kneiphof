@@ -22,6 +22,8 @@ private[kneiphof] final class Explicit[
 
   override def hasVertex(vertex: Any): Boolean = vertexValues.contains(vertex)
 
+  override def knownOrder: Option[Long] = Some(vertexValues.size)
+
   override def multiplicity(edge: Any): M =
     multiplicities.getOrElse(edge, M.zero)
 

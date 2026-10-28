@@ -44,6 +44,20 @@ private[kneiphof] final class Join[
     if disjoint then Math.addExact(left.order, right.order)
     else vertexValues.size
 
+  /**
+    * The order, known when both operands' are, and they're known to be disjoint
+    * by listing a few vertices of the smaller.
+    */
+  override def maxOrder: Option[Long] =
+    IncidenceStructure.knownTotal(Seq(left.maxOrder, right.maxOrder))
+
+  override def knownOrder: Option[Long] =
+    (left.knownOrder, right.knownOrder) match
+      case (Some(first), Some(second))
+        if first.min(second) <= IncidenceStructure.indexable && disjoint =>
+        IncidenceStructure.knownTotal(Seq(Some(first), Some(second)))
+      case _ => None
+
   override def multiplicity(edge: Any): M = left.multiplicity(edge) +
     right.multiplicity(edge) + M.fromInt(links(edge))
 
@@ -76,8 +90,8 @@ private[kneiphof] final class Join[
     */
   private lazy val disjoint: Boolean =
     val (smaller, larger) =
-      if IncidenceStructure.orderHint(left) <=
-          IncidenceStructure.orderHint(right)
+      if IncidenceStructure.orderBound(left) <=
+          IncidenceStructure.orderBound(right)
       then (left, right)
       else (right, left)
     !smaller.vertexValues.exists(larger.hasVertex)

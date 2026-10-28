@@ -19,6 +19,13 @@ import scala.util.hashing.MurmurHash3
   * `Set() != List()`. So a graph equals the hypergraph with its edges, and a
   * lazy graph equals its materialisation, but an edgeless graph doesn't equal
   * an edgeless directed graph or multigraph.
+  *
+  * A graph known to have more vertices than an [[Int]] can count can only be
+  * compared with a graph built the same way, such as an equal grid, or with one
+  * known or found to have fewer vertices. Comparing it with any other graph
+  * throws an [[UnsupportedOperationException]], since that would mean listing
+  * more vertices than a set can hold. Such graphs hash only their order, so
+  * they can be kept in hash sets and maps, alongside graphs built the same way.
   */
 trait AnyGraph[+V, +E, M]:
 
@@ -52,30 +59,88 @@ trait AnyGraph[+V, +E, M]:
   /** The number of edges in this graph, counting every copy of each edge. */
   def size: Int = structure.size
 
+  /**
+    * Graphs too large to list are compared as the trait's documentation says.
+    *
+    * @return
+    *   `true` if and only if [[that]] is a graph of the same family, with the
+    *   same vertices and the same multiplicity for every edge.
+    * @throws UnsupportedOperationException
+    *   If either graph is known to have more vertices than an [[Int]] can
+    *   count, the two aren't built the same way, and the other isn't known or
+    *   found to have fewer vertices, since then they could only be compared by
+    *   listing more vertices than a set can hold. Two lazy graphs whose orders
+    *   aren't known are compared by listing them, however large they are.
+    */
   override def equals(that: Any): Boolean = that match
     case that: AnyGraph[?, ?, ?] => sameGraph(that)
     case _                       => false
 
-  override def hashCode: Int = AnyGraph.hash(
-    vertexValues,
-    edgeValues.map((edge, multiplicity) => AnyGraph.shape(edge) -> multiplicity),
-  )
+  /**
+    * A graph known to have more vertices than an [[Int]] can count hashes only
+    * its order, since its vertices can't be listed. Equal graphs have equal
+    * orders, so this agrees with equality.
+    */
+  override def hashCode: Int = structure.knownOrder match
+    case Some(order) if order > Int.MaxValue => order.##
+    case _                                   => AnyGraph.hash(
+        vertexValues,
+        edgeValues.map((edge, multiplicity) =>
+          AnyGraph.shape(edge) -> multiplicity,
+        ),
+      )
 
   /**
-    * Orders are compared first, since many graphs count their vertices without
-    * listing them. Sizes aren't, since many graphs count their edges only by
-    * listing them, and a size can be too large to count.
+    * Graphs built the same way, such as equal shapes, are equal without listing
+    * them. Otherwise, orders are compared first where they're known, since many
+    * graphs count their vertices without listing them. Sizes aren't, since many
+    * graphs count their edges only by listing them.
     *
     * @return
     *   `true` if and only if this graph and [[that]] belong to the same family,
     *   and have the same vertices and the same multiplicity for every edge.
+    * @throws UnsupportedOperationException
+    *   If the two graphs can only be compared by listing more vertices than an
+    *   [[Int]] can count.
     */
   protected final def sameGraph(that: AnyGraph[?, ?, ?]): Boolean =
     (this eq that) ||
     directed == that.directed && algebra == that.algebra &&
-    IncidenceStructure.orderHint(structure) ==
-      IncidenceStructure.orderHint(that.structure) &&
-      vertexValues == that.vertexValues && edgeValues == that.edgeValues
+    (structure.sameAs(that.structure) || sameValues(that))
+
+  /**
+    * @return
+    *   `true` if and only if this graph and [[that]] have the same vertices and
+    *   the same multiplicity for every edge, compared by listing them.
+    */
+  private def sameValues(that: AnyGraph[?, ?, ?]): Boolean =
+    val orders = Seq(
+      structure.knownOrder,
+      that.structure.knownOrder,
+    ).flatten
+    if orders.distinct.size > 1 then false
+    else
+      orders.find(_ > Int.MaxValue) match
+        case None => vertexValues == that.vertexValues &&
+          edgeValues == that.edgeValues
+        case Some(order) =>
+          if Seq(this, that).exists(_.fewerThan(order)) then false
+          else
+            throw UnsupportedOperationException(
+              s"A graph of $order vertices is too large to compare by listing them.",
+            )
+
+  /**
+    * @return
+    *   `true` if and only if this graph, whose order isn't known, is known to
+    *   have fewer than [[order]] vertices, which is more than an [[Int]] can
+    *   count. With no bound on its order, it's found by listing at most an
+    *   [[Int]]'s worth of its vertices.
+    */
+  private def fewerThan(order: Long): Boolean = structure.knownOrder.isEmpty &&
+    structure
+      .maxOrder
+      .fold(!structure.vertexIterator.drop(Int.MaxValue).hasNext)(_ < order)
 
 /** The companion object for [[AnyGraph]]. */
 object AnyGraph:

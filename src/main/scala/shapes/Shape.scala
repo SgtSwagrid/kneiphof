@@ -24,11 +24,11 @@ private[kneiphof] final class Shape[
   X <: AnyEdge[?, ?, ?],
 ]
   (
-    index: Index[V],
-    rule: Rule,
+    private val index: Index[V],
+    private val rule: Rule,
     link: (V, V) => X,
     ends: Any => Option[(Any, Any)],
-    directed: Boolean,
+    private val directed: Boolean,
   )
   extends IncidenceStructure[V, M, X]:
 
@@ -42,6 +42,17 @@ private[kneiphof] final class Shape[
     .map(index.vertex)
 
   override def order: Int = rule.order
+
+  override def knownOrder: Option[Long] = Some(rule.order)
+
+  override def vertexIterator: Iterator[V] = (0 until rule.order)
+    .iterator
+    .map(index.vertex)
+
+  override def sameAs(that: IncidenceStructure[?, ?, ?]): Boolean = that match
+    case that: Shape[?, ?, ?] => (this eq that) ||
+      rule == that.rule && directed == that.directed && index.sameAs(that.index)
+    case _ => false
 
   override def multiplicity(edge: Any): M = indices(edge).fold(M.zero):
     (first, second) => copies(first, second)

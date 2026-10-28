@@ -32,6 +32,12 @@ private[kneiphof] final class Support[
 
   override def order: Int = base.order
 
+  override def knownOrder: Option[Long] = base.knownOrder
+
+  override def maxOrder: Option[Long] = base.maxOrder
+
+  override def vertexIterator: Iterator[V] = base.vertexIterator
+
   override def multiplicity(edge: Any): M = convert(base.multiplicity(edge))
 
   override def incidentEdges(vertex: Any): Iterable[(X, M)] = base

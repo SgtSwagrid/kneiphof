@@ -3,8 +3,8 @@ package kneiphof
 
 import com.alecdorrington.kneiphof.incidence.{
   CartesianProduct, Copy, Difference, EdgeInduced, Explicit, Image,
-  IncidenceStructure, Intersection, Join, Patch, Subgraph, Substitution, Sum,
-  Union,
+  IncidenceStructure, Intersection, Join, Overlay, Patch, Subgraph,
+  Substitution, Sum, Union,
 }
 import scala.compiletime.deferred
 
@@ -43,7 +43,7 @@ trait GraphKind[
     *   The join of the graphs whose incidence structures are [[left]] and
     *   [[right]], whose new edges are labelled [[label]].
     */
-  private[kneiphof] def joined[V, E, L]
+  private[kneiphof] def join[V, E, L]
     (
       left: IncidenceStructure[V, M, X[V, E]],
       right: IncidenceStructure[V, M, X[V, E]],
@@ -64,7 +64,7 @@ trait GraphKind[
   private[kneiphof] def wrap[V, E](structure: IncidenceStructure[V, M, X[V, E]])
     : G[V, E]
 
-  /** Alias of [[vertices]] with no vertices: the empty graph of this kind. */
+  /** Alias of [[vertices]]. */
   def empty: G[Nothing, Nothing] = vertices()
 
   /**
@@ -189,12 +189,10 @@ trait GraphKind[
     )
     : G[V, E] =
     if !algebra.additive then union(first, second)
-    else if !GraphKind.few(second) then wrap(Sum.of(first.structure, second))
     else
-      first.structure match
-        case sum: Sum[V, M, X[V, E]] =>
-          wrap(sum.withGathered(add(sum.gathered, second)(_ + _)))
-        case structure => wrap(add(structure.patch, second)(_ + _))
+      overlay(first, second, _ + _)(Sum.of(first.structure, second)):
+        case sum: Sum[V, M, X[V, E]] => Some(sum)
+        case _                       => None
 
   /**
     * @return
@@ -207,12 +205,9 @@ trait GraphKind[
       second: IncidenceStructure[V, M, X[V, E]],
     )
     : G[V, E] =
-    if !GraphKind.few(second) then wrap(Union.of(first.structure, second))
-    else
-      first.structure match
-        case union: Union[V, M, X[V, E]] =>
-          wrap(union.withGathered(add(union.gathered, second)(_ | _)))
-        case structure => wrap(add(structure.patch, second)(_ | _))
+    overlay(first, second, _ | _)(Union.of(first.structure, second)):
+      case union: Union[V, M, X[V, E]] => Some(union)
+      case _                           => None
 
   /**
     * @return
@@ -358,6 +353,35 @@ trait GraphKind[
 
   /**
     * @return
+    *   The sum or union of [[first]] and the graph whose incidence structure is
+    *   [[second]], whose multiplicities are combined by [[combine]]. A few
+    *   listable vertices and edges are gathered into an overlay [[first]]
+    *   already is, as [[overlayOf]] tells, or else added to a patch of it, so
+    *   that adding edges one at a time stays cheap. Otherwise, the result is
+    *   [[both]], the overlay of the two, which a chain of overlays extends.
+    */
+  private def overlay[V, E]
+    (
+      first: G[V, E],
+      second: IncidenceStructure[V, M, X[V, E]],
+      combine: (M, M) => M,
+    )
+    (both: => IncidenceStructure[V, M, X[V, E]])
+    (
+      overlayOf: IncidenceStructure[V, M, X[V, E]] => Option[
+        Overlay[V, M, X[V, E]],
+      ],
+    )
+    : G[V, E] = wrap:
+    if !GraphKind.few(second) then both
+    else
+      overlayOf(first.structure).fold(
+        add(first.structure.patch, second)(combine),
+      ): existing =>
+        existing.withGathered(add(existing.gathered, second)(combine))
+
+  /**
+    * @return
     *   [[patch]], with the vertices and edges of [[few]] added, combining the
     *   multiplicities of each edge by [[combine]].
     */
@@ -465,7 +489,7 @@ private[kneiphof] object GraphKind:
     */
   private def few(structure: IncidenceStructure[?, ?, ?]): Boolean =
     structure.listable &&
-    IncidenceStructure.orderHint(structure) <= patchable &&
+    IncidenceStructure.knownAtMost(structure, patchable) &&
     structure.edges.drop(patchable).isEmpty
 
   /**

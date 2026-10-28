@@ -48,6 +48,21 @@ private[kneiphof] final class Substitution[
     if disjoint then IncidenceStructure.total(parts.values.map(_.order))
     else vertexValues.size
 
+  /**
+    * The order, known when the replacements are known to be disjoint, few, and
+    * of known orders.
+    */
+  override def maxOrder: Option[Long] =
+    if !IncidenceStructure.knownAtMost(outer, IncidenceStructure.indexable) then
+      None
+    else IncidenceStructure.knownTotal(parts.values.map(_.maxOrder))
+
+  override def knownOrder: Option[Long] =
+    if owner.isEmpty ||
+      !outer.knownOrder.exists(_ <= IncidenceStructure.indexable)
+    then None
+    else IncidenceStructure.knownTotal(parts.values.map(_.knownOrder))
+
   override def multiplicity(edge: Any): M = edge match
     case edge: AnyEdge[?, ?, ?] => within(edge) + between(edge)
     case _                      => M.zero

@@ -20,6 +20,21 @@ private[kneiphof] final class Operands[+V, M, +X <: AnyEdge[?, ?, ?]]
       case (operand, position) if operand.hasVertex(vertex) => position
     positions.sorted.map(all)
 
+  /**
+    * @return
+    *   The operands which may have an edge at [[vertex]], in order: those
+    *   indexed with it, and every other, without asking whether it has the
+    *   vertex, since asking about an edge directly can be cheaper.
+    */
+  def candidates(vertex: Any): Seq[IncidenceStructure[V, M, X]] =
+    val positions = indexed.getOrElse(vertex, Nil) ++
+      large.map((_, position) => position)
+    positions.sorted.map(all)
+
+  /** @return `true` if and only if one of the operands contains [[vertex]]. */
+  def contain(vertex: Any): Boolean = indexed.contains(vertex) ||
+    large.exists((operand, _) => operand.hasVertex(vertex))
+
   /** @return These operands, followed by [[next]]. */
   def append[W >: V, Y >: X <: AnyEdge[?, ?, ?]]
     (next: IncidenceStructure[W, M, Y])
@@ -43,8 +58,8 @@ private[kneiphof] final class Operands[+V, M, +X <: AnyEdge[?, ?, ?]]
       .forall:
         case Seq(first, second) =>
           val (smaller, larger) =
-            if IncidenceStructure.orderHint(first) <=
-                IncidenceStructure.orderHint(second)
+            if IncidenceStructure.orderBound(first) <=
+                IncidenceStructure.orderBound(second)
             then (first, second)
             else (second, first)
           smaller.vertexValues.forall(!larger.hasVertex(_))
@@ -54,7 +69,7 @@ private[kneiphof] final class Operands[+V, M, +X <: AnyEdge[?, ?, ?]]
   private lazy val (small, large) = all
     .zipWithIndex
     .partition((operand, _) =>
-      IncidenceStructure.orderHint(operand) <= IncidenceStructure.indexable,
+      IncidenceStructure.knownAtMost(operand, IncidenceStructure.indexable),
     )
 
   /** The positions of the operands with few vertices containing each vertex. */

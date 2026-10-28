@@ -345,7 +345,7 @@ object GraphBase:
 
       override private[kneiphof] lazy val structure
         : IncidenceStructure[V, M, kneiphof.Edge[V, E | L]] =
-        kind[M].joined(left.structure, right.structure, label)
+        kind[M].join(left.structure, right.structure, label)
 
       override def withLabel[F : NotGraph](label: F): Join[V, E, F, M] =
         Joined(left, right, label)
@@ -379,13 +379,13 @@ object GraphBase:
       (source: V, target: V, label: E)
       : Edge[V, E] = kneiphof.Edge(source, target, label)
 
-    override private[kneiphof] def shaped[V]
+    override private[kneiphof] def shape[V]
       (index: Index[V], rule: Rule)
       : GraphBase[V, Unit, M] = wrap(Shape.undirected[V, M](index, rule))
 
-    override private[kneiphof] def coned[V]
+    override private[kneiphof] def cone[V]
       (hub: V, index: Index[V], rule: Rule)
-      : GraphBase[V, Unit, M] = shaped(index, rule).cone(hub)
+      : GraphBase[V, Unit, M] = shape(index, rule).cone(hub)
 
     override private[kneiphof] def product[V, W]
       (
@@ -395,7 +395,7 @@ object GraphBase:
         second: Rule,
       )
       : GraphBase[(V, W), Unit, M] =
-      shaped(left, first).cartesianProduct(shaped(right, second))
+      shape(left, first).cartesianProduct(shape(right, second))
 
     override private[kneiphof] def directed: Boolean = false
 

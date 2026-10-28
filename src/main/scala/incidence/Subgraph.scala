@@ -21,7 +21,11 @@ private[kneiphof] final class Subgraph[
 
   override lazy val vertexValues: ValueSet[V] = base.vertexValues.filter(keep)
 
+  override def vertexIterator: Iterator[V] = base.vertexIterator.filter(keep)
+
   override def hasVertex(vertex: Any): Boolean = vertexValue(vertex).isDefined
+
+  override def maxOrder: Option[Long] = base.maxOrder
 
   override def vertexValue(vertex: Any): Option[V] = base
     .vertexValue(vertex)

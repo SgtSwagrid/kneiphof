@@ -155,6 +155,9 @@ class GraphSuite extends FunSuite:
       compileErrors("graph.edgeValues.get(edge)"),
       compileErrors("graph.edgeValues.getOrElse(edge, false)"),
       compileErrors("graph.edgeValues.getKey(edge)"),
+      compileErrors("graph.vertexValues - vertex"),
+      compileErrors("graph.vertexValues.excl(vertex)"),
+      compileErrors("graph.edgeValues.without(edge)"),
     ).foreach(errors =>
       assert(
         errors.contains("is a handle on a vertex or edge"),
@@ -163,6 +166,15 @@ class GraphSuite extends FunSuite:
     )
     assert(graph.hasVertex(vertex.value))
     assert(graph.hasEdge(edge.value))
+    assert(ValueSet(vertex).contains(vertex))
+    assertEquals(
+      ValueSet(vertex) - vertex,
+      ValueSet.empty,
+    )
+    assertEquals(
+      ValueMap.empty.withEntry(edge, 1).get(edge),
+      Some(1),
+    )
     assertEquals(
       graph.induced(vertex.neighbours.map(_.value)),
       Graph.vertex(2),
@@ -332,7 +344,7 @@ class GraphSuite extends FunSuite:
 
   test("vertices can be renumbered"):
     assertEquals(
-      Graph("b" ~ "c", "a" ~ "b").indexed,
+      Graph("b" ~ "c", "a" ~ "b").renumber,
       Graph(0 ~ 1, 1 ~ 2),
     )
 

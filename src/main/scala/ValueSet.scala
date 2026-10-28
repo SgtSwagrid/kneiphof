@@ -16,10 +16,11 @@ final class ValueSet[+A] private (elements: Map[Any, A]) extends Iterable[A]:
   override def knownSize: Int = elements.size
 
   /** @return `true` if and only if this set contains [[element]]. */
-  def contains[B : NotHandle](element: B): Boolean = elements.contains(element)
+  def contains[B](element: B)(using Lookup[B, A]): Boolean =
+    elements.contains(element)
 
   /** @return The element of this set equal to [[element]], if there is one. */
-  def get[B : NotHandle](element: B): Option[A] = elements.get(element)
+  def get[B](element: B)(using Lookup[B, A]): Option[A] = elements.get(element)
 
   /** @return This set with [[element]] added. */
   def incl[B >: A](element: B): ValueSet[B] =
@@ -29,10 +30,11 @@ final class ValueSet[+A] private (elements: Map[Any, A]) extends Iterable[A]:
   infix def + [B >: A](element: B): ValueSet[B] = incl(element)
 
   /** @return This set without [[element]]. */
-  def excl(element: Any): ValueSet[A] = new ValueSet(elements - element)
+  def excl[B](element: B)(using Lookup[B, A]): ValueSet[A] =
+    new ValueSet(elements - element)
 
   /** Alias of [[excl]]. */
-  infix def - (element: Any): ValueSet[A] = excl(element)
+  infix def - [B](element: B)(using Lookup[B, A]): ValueSet[A] = excl(element)
 
   /** @return The union of this set and [[that]]. */
   def union[B >: A](that: ValueSet[B]): ValueSet[B] =

@@ -24,19 +24,19 @@ final class ValueMap[+K, +A] private (entries: Map[Any, (K, A)])
   def values: Iterable[A] = entries.values.map((_, value) => value)
 
   /** @return `true` if and only if this map contains [[key]]. */
-  def contains[L : NotHandle](key: L): Boolean = entries.contains(key)
+  def contains[L](key: L)(using Lookup[L, K]): Boolean = entries.contains(key)
 
   /** @return The value for [[key]], if there is one. */
-  def get[L : NotHandle](key: L): Option[A] = entries
+  def get[L](key: L)(using Lookup[L, K]): Option[A] = entries
     .get(key)
     .map((_, value) => value)
 
   /** @return The value for [[key]], or [[default]] if there isn't one. */
-  def getOrElse[L : NotHandle, B >: A](key: L, default: => B): B = get(key)
-    .getOrElse(default)
+  def getOrElse[L, B >: A](key: L, default: => B)(using Lookup[L, K]): B =
+    get(key).getOrElse(default)
 
   /** @return The key of this map equal to [[key]], if there is one. */
-  def getKey[L : NotHandle](key: L): Option[K] = entries
+  def getKey[L](key: L)(using Lookup[L, K]): Option[K] = entries
     .get(key)
     .map((key, _) => key)
 
@@ -45,7 +45,8 @@ final class ValueMap[+K, +A] private (entries: Map[Any, (K, A)])
     new ValueMap(entries.updated(key, (key, value)))
 
   /** @return This map without [[key]]. */
-  def without(key: Any): ValueMap[K, A] = new ValueMap(entries - key)
+  def without[L](key: L)(using Lookup[L, K]): ValueMap[K, A] =
+    new ValueMap(entries - key)
 
   override def equals(that: Any): Boolean = that match
     case that: ValueMap[?, ?] => size == that.size &&
