@@ -220,7 +220,9 @@ class GraphSuite extends FunSuite:
       Graph.empty,
     )
 
-  test("graphs can be built from vertices alone, and empty calls make empty ones"):
+  test(
+    "graphs can be built from vertices alone, and empty calls make empty ones",
+  ):
     assertEquals(Graph.vertices(1, 2, 3).order, 3)
     assertEquals(Graph.vertices(1, 2, 3).size, 0)
     assertEquals(
