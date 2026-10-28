@@ -19,6 +19,11 @@ class ShapeSuite extends FunSuite, LazyAssertions:
     )
     assertEquals(Graph.clique(3), Graph.vertex(3))
     assertEquals(Graph.complete(1), Graph.vertex(0))
+    assertEquals(Multigraph.complete(4).size, 6)
+    assertEquals(
+      Multigraph.complete(4).multiplicity(0 ~ 1),
+      Count(1),
+    )
 
   test("paths and cycles follow their vertices in order"):
     assertEquals(Graph.path(4), Graph(0 ~ 1 ~ 2 ~ 3))
@@ -61,18 +66,10 @@ class ShapeSuite extends FunSuite, LazyAssertions:
     )
     assertEquals(Graph.tree(1, 4), Graph.path(4))
 
-  test("shapes need distinct vertices"):
+  test("shapes need distinct vertices and counts that aren't negative"):
     intercept[IllegalArgumentException](Graph.clique("A", "A"))
-
-  test("large shapes answer queries without building their edges"):
-    val clique = Graph.complete(50_000)
-    assertEquals(clique.size, 1_249_975_000)
-    assert(clique.hasEdge(49_999 ~ 7))
-    assertEquals(clique(7).degree, 49_999)
-    assertEquals(
-      Graph.tree(2, 1_000_000)(499_999).degree,
-      2,
-    )
+    intercept[IllegalArgumentException](Graph.star(-1))
+    intercept[IllegalArgumentException](Graph.fan(-1))
 
   test("directed shapes follow their arrows"):
     assertEquals(
@@ -90,13 +87,6 @@ class ShapeSuite extends FunSuite, LazyAssertions:
       2,
     )
     assertEquals(DirectedGraph.tree(2, 7)(6).inDegree, 1)
-
-  test("multigraph shapes have one copy of each edge"):
-    assertEquals(Multigraph.complete(4).size, 6)
-    assertEquals(
-      Multigraph.complete(4).multiplicity(0 ~ 1),
-      Count(1),
-    )
 
   test("shapes support every graph operation"):
     assertEquals(Graph.path(3) + (2 ~ 0), Graph.cycle(3))
@@ -430,7 +420,15 @@ class ShapeSuite extends FunSuite, LazyAssertions:
     )
     assertLazyDirected(tournament, 1 ~> 0, 2 ~> 3)
 
-  test("large new shapes answer queries without building their edges"):
+  test("large shapes answer queries without building their edges"):
+    val clique = Graph.complete(50_000)
+    assertEquals(clique.size, 1_249_975_000)
+    assert(clique.hasEdge(49_999 ~ 7))
+    assertEquals(clique(7).degree, 49_999)
+    assertEquals(
+      Graph.tree(2, 1_000_000)(499_999).degree,
+      2,
+    )
     val cube = Graph.hypercube(20)
     assertEquals(cube.size, 10_485_760)
     assertEquals(cube.degree(12_345), 20)
@@ -469,7 +467,3 @@ class ShapeSuite extends FunSuite, LazyAssertions:
     assert(path.hasEdge(1L ~ 2))
     assert(Graph.grid(2, 2).hasVertex((1L, 0)))
     assert(DirectedGraph.path(3).hasEdge(1L ~> 2))
-
-  test("shapes reject negative counts"):
-    intercept[IllegalArgumentException](Graph.star(-1))
-    intercept[IllegalArgumentException](Graph.fan(-1))

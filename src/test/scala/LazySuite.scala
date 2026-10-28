@@ -64,22 +64,22 @@ class LazySuite extends FunSuite, LazyAssertions:
       Left(0) ~> Right(0),
     )
 
-  test("large products answer queries without building their edges"):
+  test(
+    "large products and disjoint unions answer queries without building their edges",
+  ):
     val product = Graph.complete(200).lexicographicProduct(Graph.complete(200))
     assertEquals(product.order, 40_000)
     assertEquals(product.size, 200 * 19_900 + 19_900 * 40_000)
     assert(product.hasEdge((0, 5) ~ (1, 7)))
     assert(product.hasEdge((3, 1) ~ (3, 2)))
     assertEquals(product((0, 0)).degree, 199 + 199 * 200)
-
-  test("large disjoint unions answer queries without building their edges"):
     val union = Graph.complete(50_000) ⊔ Graph.complete(10)
     assertEquals(union.size, 1_249_975_000 + 45)
     assert(union.hasEdge(Left(1) ~ Left(2)))
     assert(!union.hasEdge(Left(1) ~ Right(2)))
     assertEquals(union(Right(3)).degree, 9)
 
-  test("every operation is lazy, even on stored graphs"):
+  test("every operation and shape is lazy, even on stored graphs"):
     val graph                           = Graph(1 ~ 2 ~ 3)
     val other                           = Graph(2 ~ 3 ~ 4)
     val results: Seq[AnyGraph[?, ?, ?]] = Seq(
@@ -97,15 +97,9 @@ class LazySuite extends FunSuite, LazyAssertions:
       graph.symmetric.transpose,
       graph.symmetric.underlying,
       graph.addVertex(7).removeVertex(1).removeEdge(2 ~ 3),
-    )
-    results.foreach(result => assert(!result.structure.stored, result))
-
-  test("joins, substitutions and shapes are lazy"):
-    val graph                           = Graph(1 ~ 2)
-    val results: Seq[AnyGraph[?, ?, ?]] = Seq(
-      graph :~: Graph(3 ~ 4),
-      graph :~ 3,
-      graph.join(Graph.vertex(3)),
+      graph :~: Graph(5 ~ 6),
+      graph :~ 5,
+      graph.join(Graph.vertex(5)),
       graph.lexicographicProduct(graph),
       graph.flatMapVertices(v => Graph.vertex(v)),
       Graph.complete(3),
@@ -282,7 +276,9 @@ class LazySuite extends FunSuite, LazyAssertions:
     assert(patched.hasEdge(2 ~ 3))
     assertEquals(patched(1).degree, 49_998)
 
-  test("large lazy graphs are combined and filtered without building them"):
+  test(
+    "large lazy graphs are combined, filtered and queried without building them",
+  ):
     val clique = Graph.complete(50_000)
     val sum    = clique + (0 ~ 50_000)
     assertEquals(sum.size, 1_249_975_001)
@@ -299,6 +295,24 @@ class LazySuite extends FunSuite, LazyAssertions:
     assertEquals(transposed.size, 50_000)
     assert(transposed.hasEdge(7 ~> 0))
     assertEquals(transposed(0).degree, 50_000)
+    assertEquals((clique & (1 ~ 2)).size, 1)
+    assertEquals(
+      (Graph.path(3) + clique).size,
+      1_249_975_000,
+    )
+    assertEquals(
+      clique.edge(0 ~ 1).map(_.value),
+      Some(0 ~ 1),
+    )
+    assertEquals(clique(0).edges.size, 49_999)
+    assertEquals(
+      clique.filterEdges(_ => true).degree(0),
+      49_999,
+    )
+    assertEquals(
+      Multigraph.complete(50_000).mapVertices(_ / 2).size,
+      1_249_975_000,
+    )
 
   test("zero updates add no vertices, lazily or eagerly"):
     val lazily  = Graph.cycle(3).withEdge(7 ~ 8, false)
@@ -346,27 +360,6 @@ class LazySuite extends FunSuite, LazyAssertions:
     assertEquals(folded.size, 6)
     assertEquals(folded.degree(0), 6)
     assertLazy(folded, 0 ~ 0, 0 ~ 1, 1 ~ 1)
-
-  test("cheap queries on large lazy graphs don't build them"):
-    val clique = Graph.complete(50_000)
-    assertEquals((clique & (1 ~ 2)).size, 1)
-    assertEquals(
-      (Graph.path(3) + clique).size,
-      1_249_975_000,
-    )
-    assertEquals(
-      clique.edge(0 ~ 1).map(_.value),
-      Some(0 ~ 1),
-    )
-    assertEquals(clique(0).edges.size, 49_999)
-    assertEquals(
-      clique.filterEdges(_ => true).degree(0),
-      49_999,
-    )
-    assertEquals(
-      Multigraph.complete(50_000).mapVertices(_ / 2).size,
-      1_249_975_000,
-    )
 
   test("substituting one-vertex hyperedges counts merged copies once"):
     val substituted =
@@ -468,10 +461,10 @@ class LazySuite extends FunSuite, LazyAssertions:
     (Graph.vertex(0) + stored).structure match
       case _: Union[?, ?, ?] => ()
       case structure         => fail(s"$structure copied the stored operand.")
-    val vertices = Graph.vertices((0 until 1_000_000)*)
-    (start + vertices).structure match
-      case _: Union[?, ?, ?] => ()
-      case structure         => fail(s"$structure copied the vertices.")
+    Seq(GraphKind.patchable + 1, 1_000_000).foreach: count =>
+      (start + Graph.vertices((0 until count)*)).structure match
+        case _: Union[?, ?, ?] => ()
+        case structure         => fail(s"$structure copied $count vertices.")
     val subtrahend = Graph.complete(200).materialise
     val thinned    = Graph.complete(5) - subtrahend
     assertEquals(thinned.size, 0)
@@ -692,8 +685,20 @@ class LazySuite extends FunSuite, LazyAssertions:
         graph.materialise.vertex(1).map(_.value.getClass),
         Some(classOf[java.lang.Long]),
       )
+    val big     = Graph.complete(100)
+    val gather  = (Graph.path(1, 2) | big) + Graph.vertices(1L)
+    val later   = lazyPath(1, 3)
+    val overlay = gather | later
+    assertEquals(
+      overlay.vertex(1).map(_.value.getClass),
+      overlay.materialise.vertex(1).map(_.value.getClass),
+    )
+    assertEquals[Any, Any](
+      overlay.vertex(1).map(_.value.getClass),
+      Some(classOf[java.lang.Integer]),
+    )
 
-  test("joins, substitutions and unions count vertices and degrees cheaply"):
+  test("counting vertices, edges and degrees lists only what it needs"):
     val wheel = Graph.wheel(5_000_000)
     assertEquals(wheel.order, 5_000_001)
     assertEquals(wheel.degree(1), 3)
@@ -710,6 +715,12 @@ class LazySuite extends FunSuite, LazyAssertions:
       (Graph.complete(5_000) | Graph.path((5_000 until 15_000)*)).order,
       15_000,
     )
+    assertEquals(
+      (Graph((0, 0) ~ (0, 1)) - Graph.grid(3_000, 3_000).edgeInduced(_ => true))
+        .size,
+      0,
+    )
+    assertEquals(Graph.fan(5_000_000).order, 5_000_001)
 
   test("equality compares orders first"):
     val clique = Graph.complete(50_000)
@@ -725,29 +736,3 @@ class LazySuite extends FunSuite, LazyAssertions:
     assert(mixed.hasVertex(49_999))
     assert(!mixed.hasEdge(0 ~ 1))
     assert(mixed.hasEdge(1 ~ 2))
-
-  test("choosing how to count lists only what it needs"):
-    val grid = Graph.grid(3_000, 3_000)
-    assertEquals(
-      (Graph((0, 0) ~ (0, 1)) - grid.edgeInduced(_ => true)).size,
-      0,
-    )
-    assertEquals(Graph.fan(5_000_000).order, 5_000_001)
-    assertEquals(
-      Graph.wheel(5_000_000).order,
-      5_000_001,
-    )
-
-  test("gathered edges keep their place among the operands"):
-    val big     = Graph.complete(100)
-    val gather  = (Graph.path(1, 2) | big) + Graph.vertices(1L)
-    val later   = lazyPath(1, 3)
-    val overlay = gather | later
-    assertEquals(
-      overlay.vertex(1).map(_.value.getClass),
-      overlay.materialise.vertex(1).map(_.value.getClass),
-    )
-    assertEquals[Any, Any](
-      overlay.vertex(1).map(_.value.getClass),
-      Some(classOf[java.lang.Integer]),
-    )
