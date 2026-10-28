@@ -48,6 +48,9 @@ private[kneiphof] final class Join[
     * The order, known when both operands' are, and they're known to be disjoint
     * by listing a few vertices of the smaller.
     */
+  override def maxOrder: Option[Long] =
+    IncidenceStructure.knownTotal(Seq(left.maxOrder, right.maxOrder))
+
   override def knownOrder: Option[Long] =
     (left.knownOrder, right.knownOrder) match
       case (Some(first), Some(second))

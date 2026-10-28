@@ -35,6 +35,8 @@ private[kneiphof] final class Copy[
 
   override def knownOrder: Option[Long] = base.knownOrder
 
+  override def maxOrder: Option[Long] = base.maxOrder
+
   override def vertexIterator: Iterator[T] = base.vertexIterator.map(tag)
 
   override def multiplicity(edge: Any): M = edge match

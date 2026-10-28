@@ -358,7 +358,7 @@ trait GraphKind[
     *   listable vertices and edges are gathered into an overlay [[first]]
     *   already is, as [[overlayOf]] tells, or else added to a patch of it, so
     *   that adding edges one at a time stays cheap. Otherwise, the result is
-    *   [[overlay]], which a chain of overlays extends.
+    *   [[both]], the overlay of the two, which a chain of overlays extends.
     */
   private def overlay[V, E]
     (
@@ -366,19 +366,19 @@ trait GraphKind[
       second: IncidenceStructure[V, M, X[V, E]],
       combine: (M, M) => M,
     )
-    (overlay: => IncidenceStructure[V, M, X[V, E]])
+    (both: => IncidenceStructure[V, M, X[V, E]])
     (
       overlayOf: IncidenceStructure[V, M, X[V, E]] => Option[
         Overlay[V, M, X[V, E]],
       ],
     )
     : G[V, E] = wrap:
-    if !GraphKind.few(second) then overlay
+    if !GraphKind.few(second) then both
     else
       overlayOf(first.structure).fold(
         add(first.structure.patch, second)(combine),
-      ): overlay =>
-        overlay.withGathered(add(overlay.gathered, second)(combine))
+      ): existing =>
+        existing.withGathered(add(existing.gathered, second)(combine))
 
   /**
     * @return

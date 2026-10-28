@@ -38,12 +38,18 @@ private[kneiphof] trait IncidenceStructure[+V, M, +X <: AnyEdge[?, ?, ?]]:
   def order: Int = vertexValues.size
 
   /**
-    * The number of vertices, if it's known without listing them, as for stored
-    * graphs, shapes and products. It's counted in a [[Long]], so it never
-    * overflows, and it never fails, so it can choose between ways of answering
-    * a query.
+    * The exact number of vertices, if it's known without listing them, as for
+    * stored graphs, shapes and products. It's counted in a [[Long]], so it
+    * never overflows, and it never fails.
     */
   def knownOrder: Option[Long] = None
+
+  /**
+    * At least the number of vertices, if a bound is known without listing them,
+    * as for images and filters of graphs of known order. Choices between ways
+    * of answering a query use this, since it never fails or lists anything.
+    */
+  def maxOrder: Option[Long] = knownOrder
 
   /** The vertices, listed only as they're needed, where the structure can. */
   def vertexIterator: Iterator[V] = vertexValues.iterator
@@ -178,12 +184,12 @@ private[kneiphof] object IncidenceStructure:
 
   /**
     * @return
-    *   The number of vertices of [[structure]] if it's known without listing
-    *   them, and otherwise [[Long.MaxValue]], so that the structures known to
+    *   At least the number of vertices of [[structure]] (see [[maxOrder]]), or
+    *   [[Long.MaxValue]] if no bound is known, so that the structures known to
     *   be smaller come first.
     */
   def orderBound(structure: IncidenceStructure[?, ?, ?]): Long = structure
-    .knownOrder
+    .maxOrder
     .getOrElse(Long.MaxValue)
 
   /**
@@ -196,7 +202,7 @@ private[kneiphof] object IncidenceStructure:
       structure: IncidenceStructure[?, ?, ?],
       bound: Int,
     )
-    : Boolean = structure.knownOrder.exists(_ <= bound)
+    : Boolean = structure.maxOrder.exists(_ <= bound)
 
   /**
     * @return

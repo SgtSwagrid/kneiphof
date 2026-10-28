@@ -48,6 +48,9 @@ private[kneiphof] final class Patch[
     .knownOrder
     .map(_ + added.count(!base.hasVertex(_)) - removed.count(base.hasVertex))
 
+  override def maxOrder: Option[Long] =
+    IncidenceStructure.knownTotal(Seq(base.maxOrder, Some(added.size)))
+
   override def vertexIterator: Iterator[V] = base
     .vertexIterator
     .filter(vertex => !removed.contains(vertex) && !added.contains(vertex)) ++

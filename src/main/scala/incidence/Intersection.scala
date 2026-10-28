@@ -28,6 +28,10 @@ private[kneiphof] final class Intersection[
         .flatMap(base.vertexValue)
         .filter(vertex => others.forall(_.hasVertex(vertex)))
 
+  override def maxOrder: Option[Long] = (base +: others)
+    .flatMap(_.maxOrder)
+    .minOption
+
   override def hasVertex(vertex: Any): Boolean = base.hasVertex(vertex) &&
     others.forall(_.hasVertex(vertex))
 

@@ -52,9 +52,14 @@ private[kneiphof] final class Substitution[
     * The order, known when the replacements are known to be disjoint, few, and
     * of known orders.
     */
+  override def maxOrder: Option[Long] =
+    if !IncidenceStructure.knownAtMost(outer, IncidenceStructure.indexable) then
+      None
+    else IncidenceStructure.knownTotal(parts.values.map(_.maxOrder))
+
   override def knownOrder: Option[Long] =
     if owner.isEmpty ||
-      !IncidenceStructure.knownAtMost(outer, IncidenceStructure.indexable)
+      !outer.knownOrder.exists(_ <= IncidenceStructure.indexable)
     then None
     else IncidenceStructure.knownTotal(parts.values.map(_.knownOrder))
 

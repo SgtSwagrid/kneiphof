@@ -58,6 +58,9 @@ private[kneiphof] trait Overlay[+V, M, +X <: AnyEdge[?, ?, ?]]
     if disjoint then IncidenceStructure.total(operands.map(_.order))
     else vertexValues.size
 
+  override def maxOrder: Option[Long] =
+    IncidenceStructure.knownTotal(operands.map(_.maxOrder))
+
   override def multiplicity(edge: Any): M = IncidenceStructure
     .ends(edge)
     .headOption

@@ -45,6 +45,12 @@ private[kneiphof] final class CartesianProduct[
       if rows == 0 || columns <= Long.MaxValue / rows
     yield rows * columns
 
+  override def maxOrder: Option[Long] =
+    for
+      rows    <- first.maxOrder
+      columns <- second.maxOrder if rows == 0 || columns <= Long.MaxValue / rows
+    yield rows * columns
+
   override def vertexIterator: Iterator[(V, W)] = first
     .vertexIterator
     .flatMap(v => second.vertexIterator.map((v, _)))

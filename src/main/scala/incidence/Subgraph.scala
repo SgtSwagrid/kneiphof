@@ -25,6 +25,8 @@ private[kneiphof] final class Subgraph[
 
   override def hasVertex(vertex: Any): Boolean = vertexValue(vertex).isDefined
 
+  override def maxOrder: Option[Long] = base.maxOrder
+
   override def vertexValue(vertex: Any): Option[V] = base
     .vertexValue(vertex)
     .filter(keep)

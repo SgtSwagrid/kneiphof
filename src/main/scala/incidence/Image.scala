@@ -35,6 +35,8 @@ private[kneiphof] final class Image[
 
   override def hasVertex(vertex: Any): Boolean = preimages.contains(vertex)
 
+  override def maxOrder: Option[Long] = base.maxOrder
+
   override def multiplicity(edge: Any): M = candidates(edge).foldLeft(M.zero):
     (sum, original) =>
       sum + base.multiplicity(original).scale(images(original).count(_ == edge))

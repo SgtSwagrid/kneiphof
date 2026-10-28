@@ -100,3 +100,15 @@ class ArithmeticSuite extends FunSuite:
     intercept[UnsupportedOperationException](grid.mapVertices(identity) == grid)
     intercept[UnsupportedOperationException](grid == grid.mapVertices(identity))
     assert(Graph.grid(1_000, 1_000) != Graph.torus(1_000, 1_000))
+
+  test("huge graphs differ from graphs known or found to be smaller"):
+    val grid  = Graph.grid(100_000, 100_000)
+    val small = Graph((0, 0) ~ (0, 1))
+    assert(grid != small.filterVertices(_ => true))
+    assert(small.mapVertices(identity) != grid)
+    assert(grid != (small.mapVertices(identity) | Graph.path((0, 2), (0, 3))))
+    val unbounded = Graph.path(2_000).flatMapVertices(v => Graph.vertex((v, v)))
+    assert(unbounded.structure.maxOrder.isEmpty)
+    assert(grid != unbounded)
+    assert(Set(grid).contains(Graph.grid(100_000, 100_000)))
+    assertEquals(grid.##, Graph.grid(100_000, 100_000).##)

@@ -32,6 +32,8 @@ private[kneiphof] final class Difference[
 
   override def knownOrder: Option[Long] = base.knownOrder
 
+  override def maxOrder: Option[Long] = base.maxOrder
+
   override def vertexIterator: Iterator[V] = base.vertexIterator
 
   override def multiplicity(edge: Any): M =
