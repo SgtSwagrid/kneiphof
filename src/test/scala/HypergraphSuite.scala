@@ -8,7 +8,7 @@ class HypergraphSuite extends FunSuite:
   val hypergraph: Hypergraph[Int, Unit] =
     Hypergraph(Hyperedge(1, 2, 3), Hyperedge(3, 4))
 
-  test("hyperedges join any number of vertices"):
+  test("hyperedges join any number of vertices, counting repeated ends"):
     assertEquals(hypergraph.order, 4)
     assertEquals(hypergraph.size, 2)
     assertEquals(hypergraph(3).degree, 2)
@@ -16,8 +16,6 @@ class HypergraphSuite extends FunSuite:
       hypergraph(1).neighbours.map(_.value),
       Set(2, 3),
     )
-
-  test("repeated ends count towards degree"):
     assertEquals(
       Hypergraph(Hyperedge(1, 1, 2))(1).degree,
       2,

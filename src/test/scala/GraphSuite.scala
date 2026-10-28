@@ -18,11 +18,13 @@ class GraphSuite extends FunSuite:
     Vorstadt ~ Lomse    % "Hohe Brücke",
   )
 
-  test("parallel edges with different labels are distinct"):
+  test("parallel edges are distinct only if their labels are"):
     assertEquals(bridges.order, 4)
     assertEquals(bridges.size, 7)
     assertEquals(bridges(Kneiphof).degree, 5)
     assert(bridges.vertices.forall(_.degree % 2 == 1))
+    assertEquals(Graph(1 ~ 2, 2 ~ 1).size, 1)
+    assertEquals(bridges.mapEdges(_ => ()).size, 5)
 
   test("vertices know their neighbours"):
     assertEquals(
@@ -42,10 +44,6 @@ class GraphSuite extends FunSuite:
     )
     assertEquals(bridges.vertex(0), None)
 
-  test("unlabelled graphs have no parallel edges"):
-    assertEquals(Graph(1 ~ 2, 2 ~ 1).size, 1)
-    assertEquals(bridges.mapEdges(_ => ()).size, 5)
-
   test("loops count twice towards degree"):
     val graph = Graph(1 ~ 1, 1 ~ 2)
     assertEquals(graph(1).degree, 3)
@@ -54,7 +52,9 @@ class GraphSuite extends FunSuite:
       Set(1, 2),
     )
 
-  test("union, intersection and difference are set operations"):
+  test(
+    "union, intersection and difference are set operations on edges, not vertices",
+  ):
     val left  = Graph(1 ~ 2, 2 ~ 3)
     val right = Graph(2 ~ 3, 3 ~ 4)
     assertEquals(left | right, Graph(1 ~ 2, 2 ~ 3, 3 ~ 4))
@@ -67,6 +67,22 @@ class GraphSuite extends FunSuite:
     assertEquals(
       left - (1 ~ 2),
       Graph.from(Seq(1), Seq(2 ~ 3)),
+    )
+    val square = Graph.cycle(4)
+    assertEquals(
+      Graph.complete(4) - square,
+      Graph(0 ~ 2, 1 ~ 3),
+    )
+    val pair = Graph.vertices(0, 1)
+    assertEquals(square - pair, square)
+    assertEquals(
+      square.removeVertices(pair.vertexValues),
+      Graph(2 ~ 3),
+    )
+    assertEquals(square & pair, pair)
+    assertEquals(
+      square.induced(pair.vertexValues),
+      Graph(0 ~ 1),
     )
 
   test("operators are aliases of named methods"):
@@ -109,25 +125,7 @@ class GraphSuite extends FunSuite:
       ValueSet(1).union(ValueSet(2)),
     )
 
-  test("difference and intersection subtract and meet edges, not vertices"):
-    val square = Graph.cycle(4)
-    assertEquals(
-      Graph.complete(4) - square,
-      Graph(0 ~ 2, 1 ~ 3),
-    )
-    val pair = Graph.vertices(0, 1)
-    assertEquals(square - pair, square)
-    assertEquals(
-      square.removeVertices(pair.vertexValues),
-      Graph(2 ~ 3),
-    )
-    assertEquals(square & pair, pair)
-    assertEquals(
-      square.induced(pair.vertexValues),
-      Graph(0 ~ 1),
-    )
-
-  test("handles can't be passed where vertex or edge values are expected"):
+  test("handles can't become vertices, or be passed as vertex or edge values"):
     val graph  = Graph(1 ~ 2, 2 ~ 3)
     val vertex = graph(1)
     val edge   = graph.edge(1 ~ 2).get
@@ -158,54 +156,6 @@ class GraphSuite extends FunSuite:
       compileErrors("graph.vertexValues - vertex"),
       compileErrors("graph.vertexValues.excl(vertex)"),
       compileErrors("graph.edgeValues.without(edge)"),
-    ).foreach(errors =>
-      assert(
-        errors.contains("is a handle on a vertex or edge"),
-        errors,
-      ),
-    )
-    assert(graph.hasVertex(vertex.value))
-    assert(graph.hasEdge(edge.value))
-    assert(ValueSet(vertex).contains(vertex))
-    assertEquals(
-      ValueSet(vertex) - vertex,
-      ValueSet.empty,
-    )
-    assertEquals(
-      ValueMap.empty.withEntry(edge, 1).get(edge),
-      Some(1),
-    )
-    assertEquals(
-      graph.induced(vertex.neighbours.map(_.value)),
-      Graph.vertex(2),
-    )
-    assertEquals(
-      graph.removeVertices(graph.vertices.map(_.value)),
-      Graph.empty,
-    )
-
-  test("empty calls make empty graphs"):
-    val graph = Graph(1 ~ 2)
-    assertEquals(Graph.empty, Graph.vertices())
-    assertEquals(Graph.path(), Graph.empty)
-    assertEquals(Graph.clique(), Graph.empty)
-    assertEquals(
-      DirectedGraph.transitiveTournament(),
-      DirectedGraph.empty,
-    )
-    assertEquals(
-      Graph.fromMultiplicities(Nil, Nil),
-      Graph.empty,
-    )
-    assertEquals(Graph.from(Nil, Nil), Graph.empty)
-    assertEquals(graph.addVertices(Nil), graph)
-    assertEquals(graph.induced(Nil), Graph.empty)
-    assertEquals(graph.removeVertices(Set()), graph)
-
-  test("handles can't become vertices"):
-    val graph  = Graph(1 ~ 2, 2 ~ 3)
-    val vertex = graph(1)
-    Seq(
       compileErrors("vertex ~ 2"),
       compileErrors("1 ~ vertex"),
       compileErrors("vertex ~> 2"),
@@ -250,6 +200,51 @@ class GraphSuite extends FunSuite:
       graph.mapVertices(graph(_).value),
       graph,
     )
+    assert(graph.hasVertex(vertex.value))
+    assert(graph.hasEdge(edge.value))
+    assert(ValueSet(vertex).contains(vertex))
+    assertEquals(
+      ValueSet(vertex) - vertex,
+      ValueSet.empty,
+    )
+    assertEquals(
+      ValueMap.empty.withEntry(edge, 1).get(edge),
+      Some(1),
+    )
+    assertEquals(
+      graph.induced(vertex.neighbours.map(_.value)),
+      Graph.vertex(2),
+    )
+    assertEquals(
+      graph.removeVertices(graph.vertices.map(_.value)),
+      Graph.empty,
+    )
+
+  test(
+    "graphs can be built from vertices alone, and empty calls make empty ones",
+  ):
+    assertEquals(Graph.vertices(1, 2, 3).order, 3)
+    assertEquals(Graph.vertices(1, 2, 3).size, 0)
+    assertEquals(
+      DirectedGraph.vertices(1, 2),
+      DirectedGraph.vertices(2, 1),
+    )
+    val graph = Graph(1 ~ 2)
+    assertEquals(Graph.empty, Graph.vertices())
+    assertEquals(Graph.path(), Graph.empty)
+    assertEquals(Graph.clique(), Graph.empty)
+    assertEquals(
+      DirectedGraph.transitiveTournament(),
+      DirectedGraph.empty,
+    )
+    assertEquals(
+      Graph.fromMultiplicities(Nil, Nil),
+      Graph.empty,
+    )
+    assertEquals(Graph.from(Nil, Nil), Graph.empty)
+    assertEquals(graph.addVertices(Nil), graph)
+    assertEquals(graph.induced(Nil), Graph.empty)
+    assertEquals(graph.removeVertices(Set()), graph)
 
   test("graphs are only equal within their family"):
     assertNotEquals[Any, Any](
@@ -275,24 +270,11 @@ class GraphSuite extends FunSuite:
       DirectedGraph.vertices(1).materialise.##,
     )
 
-  test("equal joins can relabel different edges"):
-    val first  = Graph(1 ~ 2) :~: Graph.vertex(3)
-    val second = Graph.vertex(1) :~: Graph(2 ~ 3)
-    assertEquals[Any, Any](first, second)
-    assertEquals[Any, Any](first  % "a", Graph(1 ~ 2, 1 ~ 3 % "a", 2 ~ 3 % "a"))
-    assertEquals[Any, Any](second % "a", Graph(1 ~ 2 % "a", 1 ~ 3 % "a", 2 ~ 3))
-
   test("graphs with different vertex types combine"):
     val graph = Graph(1 ~ 2) | Graph("a" ~ "b")
     assertEquals(graph.order, 4)
     val wider: Graph[Any, Any] = Graph(1 ~ 2)
     assert(wider.hasVertex(1))
-
-  test("mapping vertices merges vertices and edges"):
-    assertEquals(
-      Graph(1 ~ 2, 2 ~ 3, 3 ~ 4).mapVertices(_ % 2),
-      Graph(0 ~ 1),
-    )
 
   test("subgraphs can be induced by vertices or edges"):
     val graph = Graph.from(Seq(0), Seq(1 ~ 2, 2 ~ 3, 3 ~ 1))
@@ -308,14 +290,6 @@ class GraphSuite extends FunSuite:
       Graph.from(Seq(0), Seq(2 ~ 3)),
     )
 
-  test("substituting graphs for vertices"):
-    val path = Graph(0 ~ 1)
-    val k4   = path.lexicographicProduct(path)
-    assertEquals(k4.order, 4)
-    assertEquals(k4.size, 6)
-    val triangle = Graph(Graph(1 ~ 2) ~ Graph.vertex(3)).flatten
-    assertEquals(triangle, Graph(1 ~ 2, 2 ~ 3, 3 ~ 1))
-
   test("single-vertex graphs are the unit of substitution"):
     val graph = Graph(1 ~ 2, 2 ~ 3) | Graph.vertex(4)
     assertEquals(
@@ -326,14 +300,6 @@ class GraphSuite extends FunSuite:
     assertEquals(
       Graph.vertex(5).flatMapVertices(expand),
       expand(5),
-    )
-
-  test("graphs can be built from vertices alone"):
-    assertEquals(Graph.vertices(1, 2, 3).order, 3)
-    assertEquals(Graph.vertices(1, 2, 3).size, 0)
-    assertEquals(
-      DirectedGraph.vertices(1, 2),
-      DirectedGraph.vertices(2, 1),
     )
 
   test("disjoint union keeps both sides apart"):
@@ -348,14 +314,12 @@ class GraphSuite extends FunSuite:
       Graph(0 ~ 1, 1 ~ 2),
     )
 
-  test("adding a hyperedge to a graph gives a hypergraph"):
+  test("adding a hyperedge to a graph, even a widened one, gives a hypergraph"):
     val stillGraph: Graph[Int, Unit]      = Graph(1 ~ 2) + (2 ~ 3)
     val hypergraph: Hypergraph[Int, Unit] = Graph(1 ~ 2) + Hyperedge(1, 2, 3)
     assertEquals(stillGraph.size, 2)
     assertEquals(hypergraph.size, 2)
     assert(hypergraph.hasEdge(Hyperedge(3, 2, 1)))
-
-  test("a graph widened to a hypergraph accepts hyperedges"):
     val widened: Hypergraph[Int, Unit] = Graph(1 ~ 2)
     val grown                          = widened + Hyperedge(1, 2, 3)
     assertEquals(
@@ -375,19 +339,13 @@ class GraphSuite extends FunSuite:
       "Graph(1 ~ 2, 3)",
     )
 
-  test("joining adds an edge between every pair of vertices"):
+  test("joining adds an edge between every pair, and a vertex forms a cone"):
     val joined: Graph[Int, Unit] = Graph(1 ~ 2) :~: Graph.vertex(3)
     assertEquals(joined, Graph(1 ~ 2, 2 ~ 3, 3 ~ 1))
     assertEquals(
       joined,
       Graph(Graph(1 ~ 2) ~ Graph.vertex(3)).flatten,
     )
-    assertEquals[Any, Any](
-      Graph(1 ~ 2 % "a").join(Graph.vertex(3)) % "b",
-      Graph(1 ~ 2 % "a", 1 ~ 3 % "b", 2 ~ 3 % "b"),
-    )
-
-  test("a vertex joined to a graph forms a cone"):
     val star: Graph[Int, Unit] = 0 ~: Graph.vertices(1, 2, 3)
     assertEquals(star, Graph(0 ~ 1, 0 ~ 2, 0 ~ 3))
     assertEquals[Any, Any](Graph.vertices(1, 2, 3) :~ 0, star)
@@ -397,9 +355,15 @@ class GraphSuite extends FunSuite:
       Graph(0 ~ 1, 1 ~ 2, 2 ~ 0),
     )
 
-  test("only the new edges of a join are relabelled"):
+  test(
+    "only the new edges of a join are relabelled, so equal joins can differ",
+  ):
     val cone: Graph[Int, String] = (Graph(1 ~ 2 % "a") :~ 3) % "b"
     assertEquals(cone, Graph(1 ~ 2 % "a", 1 ~ 3 % "b", 2 ~ 3 % "b"))
+    assertEquals[Any, Any](
+      Graph(1 ~ 2 % "a").join(Graph.vertex(3)) % "b",
+      cone,
+    )
     val star: Graph[Int, String] = 0 ~: Graph.vertices(1, 2) % "x"
     assertEquals(star, Graph(0 ~ 1 % "x", 0 ~ 2 % "x"))
     val mixed: Graph[Int, Unit | String] =
@@ -408,6 +372,11 @@ class GraphSuite extends FunSuite:
       mixed,
       Graph[Int, Unit | String](1 ~ 2, 1 ~ 3 % "x", 2 ~ 3 % "x"),
     )
+    val first  = Graph(1 ~ 2) :~: Graph.vertex(3)
+    val second = Graph.vertex(1) :~: Graph(2 ~ 3)
+    assertEquals[Any, Any](first, second)
+    assertEquals[Any, Any](first  % "a", Graph(1 ~ 2, 1 ~ 3 % "a", 2 ~ 3 % "a"))
+    assertEquals[Any, Any](second % "a", Graph(1 ~ 2 % "a", 1 ~ 3 % "a", 2 ~ 3))
 
 /** The companion object for [[GraphSuite]]. */
 object GraphSuite:

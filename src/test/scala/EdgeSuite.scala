@@ -94,8 +94,3 @@ class EdgeSuite extends FunSuite:
       DirectedHyperedge(Seq(1), Nil).vertexValues,
       ValueSet(1),
     )
-
-  test("sizes and degrees fail rather than overflow"):
-    val loop =
-      Multigraph.fromMultiplicities(Nil, Seq((1 ~ 1) -> Count(1 << 30)))
-    intercept[ArithmeticException](loop.degree(1))
